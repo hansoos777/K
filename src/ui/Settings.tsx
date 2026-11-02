@@ -1,0 +1,109 @@
+import { useEffect, useState } from 'react'
+import { collect, type Metric } from '../core/perf'
+import { effectiveQuality, exportData, resetAll, update, useStore, type Quality } from '../core/store'
+import { LANGS, useT } from '../i18n'
+
+export default function Settings() {
+  const t = useT()
+  const s = useStore((x) => x)
+  const q = effectiveQuality(s)
+  const [metrics, setMetrics] = useState<Metric[]>([])
+  useEffect(() => setMetrics(collect()), [])
+
+  const download = () => {
+    const url = URL.createObjectURL(new Blob([exportData()], { type: 'application/json' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'oruvia-data.json'
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
+
+  const label = (m: Metric) => {
+    if (m.key.startsWith('world:')) return `${t.s.metric.world} · ${t.worlds[m.key.slice(6) as keyof typeof t.worlds]?.name ?? m.key}`
+    return t.s.metric[m.key as keyof typeof t.s.metric] ?? m.key
+  }
+
+  return (
+    <div className="settings">
+      <h1>{t.s.title}</h1>
+
+      <fieldset>
+        <legend>{t.s.profile}</legend>
+        <label className="field">
+          <span>{t.s.nickname}</span>
+          <input value={s.nickname} maxLength={24} onChange={(e) => update(() => ({ nickname: e.target.value }))} />
+        </label>
+        <p className="hint">{t.s.nicknameHint}</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>{t.s.language}</legend>
+        <div className="seg" role="radiogroup">
+          {LANGS.map((l) => (
+            <button key={l.id} role="radio" aria-checked={s.lang === l.id} onClick={() => update(() => ({ lang: l.id }))}>
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>{t.s.sound}</legend>
+        <label className="toggle">
+          <input type="checkbox" checked={s.sound} onChange={(e) => update(() => ({ sound: e.target.checked }))} />
+          <span>{t.s.soundOn}</span>
+        </label>
+        <label className="field">
+          <span>{t.s.volume} · {Math.round(s.volume * 100)}</span>
+          <input type="range" min={0} max={1} step={0.05} value={s.volume} disabled={!s.sound}
+            onChange={(e) => update(() => ({ volume: Number(e.target.value) }))} />
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>{t.s.a11y}</legend>
+        <label className="toggle">
+          <input type="checkbox" checked={s.reduceMotion} onChange={(e) => update(() => ({ reduceMotion: e.target.checked }))} />
+          <span>{t.s.reduceMotion}</span>
+        </label>
+        <label className="toggle">
+          <input type="checkbox" checked={s.largeText} onChange={(e) => update(() => ({ largeText: e.target.checked }))} />
+          <span>{t.s.largeText}</span>
+        </label>
+        <div className="field">
+          <span>{t.s.quality} · {t.s.qNow}: {q === 'low' ? t.s.qLow : t.s.qHigh}</span>
+          <div className="seg" role="radiogroup">
+            {(['auto', 'low', 'high'] as Quality[]).map((v) => (
+              <button key={v} role="radio" aria-checked={s.quality === v} onClick={() => update(() => ({ quality: v }))}>
+                {v === 'auto' ? t.s.qAuto : v === 'low' ? t.s.qLow : t.s.qHigh}
+              </button>
+            ))}
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>{t.s.data}</legend>
+        <p className="hint">{t.s.dataNote}</p>
+        <div className="row">
+          <button className="btn" onClick={download}>{t.s.export}</button>
+          <button className="btn btn-danger" onClick={() => confirm(t.s.resetConfirm) && resetAll()}>{t.s.reset}</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>{t.s.diag}</legend>
+        <p className="hint">{t.s.diagNote}</p>
+        <dl className="metrics">
+          {metrics.map((m) => (
+            <div key={m.key}>
+              <dt>{label(m)}</dt>
+              <dd>{m.unit === 'KB' ? m.value.toFixed(1) : Math.round(m.value)} {m.unit}</dd>
+            </div>
+          ))}
+        </dl>
+      </fieldset>
+    </div>
+  )
+}

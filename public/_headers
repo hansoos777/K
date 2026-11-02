@@ -1,0 +1,16 @@
+# Cloudflare Pages 캐시 정책
+# 해시가 붙은 빌드 파일은 1년 캐시(내용이 바뀌면 파일 이름이 바뀜)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 진입 HTML은 매번 새로 확인 (배포가 바로 반영되도록)
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'

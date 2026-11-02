@@ -1,0 +1,11 @@
+{
+  "name": "ORUVIA 오루비아",
+  "short_name": "ORUVIA",
+  "description": "One World. Many Sacred Places.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e1118",
+  "theme_color": "#0e1118",
+  "lang": "ko",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
