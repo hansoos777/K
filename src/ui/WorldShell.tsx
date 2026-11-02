@@ -54,7 +54,8 @@ export default function WorldShell({ id, place }: { id: string; place?: string }
         <div className="world-loading">
           <p>{t.loadFailed}</p>
           <div className="row">
-            <button className="btn" onClick={() => setAttempt((n) => n + 1)}>{t.retry}</button>
+            {/* 실패한 동적 import는 브라우저가 기억해서 같은 페이지에선 다시 받지 못함 → 새로고침 */}
+            <button className="btn" onClick={() => (navigator.onLine ? location.reload() : setAttempt((n) => n + 1))}>{t.retry}</button>
             <a className="btn" href={href('')}>{t.home}</a>
           </div>
         </div>
