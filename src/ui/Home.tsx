@@ -8,8 +8,6 @@ import { useT } from '../i18n'
 export const photo = (world: string, place: string) => `/photos/${world}_${place}.webp`
 /** 종교마다 대표로 보여 줄 공간 */
 export const COVER: Record<string, string> = { christian: 'traditional', catholic: 'gothic', mandir: 'mandir', temple: 'daeung' }
-/** 종교 탐색 카드는 가상 공간 카드와 다른 사진으로 */
-const FAITH: Record<string, string> = { christian: 'prayer', catholic: 'parish', mandir: 'shrine', temple: 'courtyard' }
 
 export default function Home() {
   const t = useT()
@@ -37,15 +35,18 @@ export default function Home() {
           <h2>{t.h.exTitle}</h2>
           <p>{t.h.exSub}</p>
         </header>
-        <div className="grid4">
+        {/* 사진 없이 글로만: 아래 "직접 경험하는 공간"의 사진과 겹치지 않게 */}
+        <ul className="faiths">
           {WORLDS.map((w) => (
-            <a key={w.id} className="tile" href={href(`explore/${w.id}`)}>
-              <span className="tile-img"><img src={photo(w.id, FAITH[w.id])} alt="" loading="lazy" width="600" height="400" /></span>
-              <strong>{t.worlds[w.id].name}</strong>
-              <span>{t.h.short[w.id]}</span>
-            </a>
+            <li key={w.id}>
+              <a href={href(`explore/${w.id}`)}>
+                <strong>{t.worlds[w.id].name}</strong>
+                <span>{t.h.short[w.id]}</span>
+                <span className="arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       {/* D. 가상 공간 */}

@@ -691,3 +691,23 @@ input[type='range'], .toggle input { accent-color: var(--text); }
   .shrine-card img { width: 100%; max-width: none; aspect-ratio: 3 / 2; }
   .shrine-card > span { padding: 20px; }
 }
+/* 홈: 종교 목록(글만, 네 칸) */
+.faiths { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--text); }
+.faiths li + li { border-left: 1px solid var(--line); }
+.faiths a { display: flex; flex-direction: column; gap: 10px; min-height: 200px; padding: 28px 24px 24px; text-decoration: none; color: var(--text); }
+.faiths a:hover { background: #fff; }
+.faiths strong { font-family: var(--serif); font-size: 1.5rem; font-weight: 500; }
+.faiths span { color: var(--muted); line-height: 1.7; font-size: .95rem; }
+.faiths .arrow { margin-top: auto; color: var(--text); }
+@media (max-width: 900px) {
+  .faiths { grid-template-columns: 1fr 1fr; }
+  .faiths li:nth-child(3) { border-left: 0; }
+  .faiths li:nth-child(n + 3) { border-top: 1px solid var(--line); }
+}
+@media (max-width: 520px) {
+  .faiths { grid-template-columns: 1fr; }
+  .faiths li + li { border-left: 0; border-top: 1px solid var(--line); }
+  .faiths a { min-height: 0; padding: 22px 0; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+  .faiths a span:not(.arrow) { grid-column: 1; }
+  .faiths .arrow { grid-row: 1 / span 2; grid-column: 2; align-self: center; }
+}
