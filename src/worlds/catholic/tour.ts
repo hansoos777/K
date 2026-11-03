@@ -13,6 +13,8 @@ const ko: Pack = {
     station: { label: '십자가의 길', text: '벽을 따라 걸린 14처에서 예수의 수난을 묵상합니다.', action: 'way' },
     rack: { label: '봉헌초', text: '초를 밝혀 보세요.', action: 'candle' },
     tabernacle: { label: '감실과 감실등', text: '성체를 모신 감실. 붉은 감실등이 늘 켜져 있습니다.' },
+    heart: { label: '예수 성심상', text: '사랑으로 불타는 예수님의 마음(성심)을 표현한 상입니다. 제대 중심의 십자고상과 달리 성당 측면에 모십니다.' },
+    mary: { label: '성모 제대', text: '예수님의 어머니 마리아께 전구를 청하며 기도하는 곳입니다.', action: 'candle' },
   },
   tour: [
     { title: '대성당에 오신 것을 환영합니다', text: '이곳은 교구장 주교의 의자가 있는 주교좌 성당을 본떴습니다. 높은 천장과 스테인드글라스가 하느님께 향하는 마음을 표현합니다.' },
@@ -38,6 +40,8 @@ const en: Pack = {
     station: { label: 'Stations of the Cross', text: 'Reflect on the Passion at 14 stations.', action: 'way' },
     rack: { label: 'Votive candles', text: 'Light a candle.', action: 'candle' },
     tabernacle: { label: 'Tabernacle and lamp', text: 'Holds the Blessed Sacrament; the red lamp is always lit.' },
+    heart: { label: 'Sacred Heart of Jesus', text: 'The heart of Jesus burning with love. Kept at the side, while the crucifix stands at the altar.' },
+    mary: { label: 'Marian altar', text: 'Where people ask Mary\'s intercession in prayer.', action: 'candle' },
   },
   tour: [
     { title: 'Welcome to the cathedral', text: 'Modelled on a bishop\'s cathedral: high vaults and stained glass lift the heart to God.' },

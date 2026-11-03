@@ -198,11 +198,14 @@ export function mandorla(w: number) {
   return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map, transparent: true, alphaTest: 0.4 }))
 }
 
-/** 십자고상: 짙은 나무 십자가, 끝은 금장식, 상아색 성체(정중하게 단순화) */
-export function crucifix(h: number, matcap: THREE.Texture, ivory: THREE.Texture) {
+/**
+ * 십자고상: 성모상과 같은 흰 석고 조각(십자가와 성체 모두). 정중하게 단순화.
+ * 실사 이미지(public/statues/crucifix.png)가 생기면 realStatue가 이 상을 대신한다.
+ */
+export function crucifix(h: number, _matcap: THREE.Texture, ivory: THREE.Texture) {
   const g = new THREE.Group()
-  const wood = new THREE.MeshLambertMaterial({ color: 0x4a2a16 })
-  const gold = brass(matcap)
+  const wood = new THREE.MeshMatcapMaterial({ matcap: ivory, color: 0xf2eee6 })
+  const gold = new THREE.MeshMatcapMaterial({ matcap: ivory, color: 0xe8e2d6 })
   const t = h * 0.07
   const v = new THREE.Mesh(new THREE.BoxGeometry(t, h, t * 0.8), wood)
   v.position.y = h / 2
@@ -218,14 +221,14 @@ export function crucifix(h: number, matcap: THREE.Texture, ivory: THREE.Texture)
   const plate = new THREE.Mesh(new THREE.BoxGeometry(t * 2.2, t * 0.9, t * 0.3), gold)
   plate.position.set(0, h * 0.88, t * 0.5)
   g.add(plate)
-  const body = new THREE.MeshMatcapMaterial({ matcap: ivory, color: 0xfff4e0 })
+  const body = new THREE.MeshMatcapMaterial({ matcap: ivory, color: 0xffffff })
   const z = t * 0.6
   const head = new THREE.Mesh(new THREE.SphereGeometry(h * 0.045, 18, 14), body)
   head.position.set(h * 0.012, h * 0.7, z + h * 0.01)
   head.rotation.z = -0.3
   const torso = lathe([[h * 0.055, 0], [h * 0.06, h * 0.08], [h * 0.07, h * 0.15], [h * 0.04, h * 0.19], [0, h * 0.2]], body, 20)
   torso.position.set(0, h * 0.46, z)
-  const cloth = lathe([[h * 0.07, 0], [h * 0.075, h * 0.04], [h * 0.06, h * 0.07], [0, h * 0.07]], new THREE.MeshMatcapMaterial({ matcap: ivory, color: 0xf0e2c4 }), 20)
+  const cloth = lathe([[h * 0.07, 0], [h * 0.075, h * 0.04], [h * 0.06, h * 0.07], [0, h * 0.07]], new THREE.MeshMatcapMaterial({ matcap: ivory, color: 0xf6f2ea }), 20)
   cloth.position.set(0, h * 0.4, z)
   g.add(head, torso, cloth)
   for (const s of [-1, 1]) {
@@ -430,8 +433,9 @@ export function maruTexture(repeat: [number, number]) {
  * 실사 성상: public/statues/<id>.png(배경을 지운 사진)가 있으면 받침 위에 세우고 코드로 만든 상은 숨긴다.
  * PujaTime의 신상과 같은 방식(정면 사진을 카메라 쪽으로 돌려 세움). 파일이 없으면 코드 상이 그대로 남는다.
  * @param base 받침 윗면 가운데 위치, @param h 상의 높이(m), @param maxYaw 좌우로 돌아가는 최대 각도
+ * 코드로 만든 상이 어색하면 장면에 넣지 않은 빈 Object3D(방향만)를 넘겨 사진이 있을 때만 나타나게 하고, onReady로 받침 등을 함께 보이게 한다.
  */
-export function realStatue(ctx: BuildCtx, id: string, base: THREE.Vector3, h: number, fallback: THREE.Object3D, maxYaw = 0.5) {
+export function realStatue(ctx: BuildCtx, id: string, base: THREE.Vector3, h: number, fallback: THREE.Object3D, maxYaw = 0.5, onReady?: () => void) {
   new THREE.TextureLoader().load(`/statues/${id}.png`, (tex) => {
     const img = tex.image as HTMLImageElement
     if (!img?.width) return
@@ -445,6 +449,7 @@ export function realStatue(ctx: BuildCtx, id: string, base: THREE.Vector3, h: nu
     const face = fallback.rotation.y
     ctx.scene.add(plane)
     fallback.visible = false
+    onReady?.()
     ctx.every(() => {
       const a = Math.atan2(ctx.camera.position.x - plane.position.x, ctx.camera.position.z - plane.position.z)
       let d = a - face
@@ -452,4 +457,78 @@ export function realStatue(ctx: BuildCtx, id: string, base: THREE.Vector3, h: nu
       plane.rotation.y = face + Math.max(-maxYaw, Math.min(maxYaw, d))
     })
   }, undefined, () => { /* 사진이 없으면 코드로 만든 상을 그대로 씀 */ })
+}
+
+/**
+ * 예수 성심상: 서 있는 예수님, 오른손을 들어 축복하고 왼손으로 가슴의 성심(불꽃과 가시관에 둘린 붉은 심장)을 가리킴.
+ * 흰 석고 조각 + 붉은 성심과 금빛 빛살. 성당의 측면이나 별도 경당에 둔다(제대 중심은 십자고상).
+ */
+export function sacredHeart(h: number, marble: THREE.Texture, matcap: THREE.Texture) {
+  const g = new THREE.Group()
+  const plaster = new THREE.MeshMatcapMaterial({ matcap: marble })
+  const mantle = new THREE.MeshMatcapMaterial({ matcap: marble, color: 0xf4eee2 })
+  const k = h / 1.8
+  // 긴 옷(튜닉)과 어깨에서 내려오는 망토
+  g.add(lathe([[0.34 * k, 0], [0.32 * k, 0.1 * k], [0.25 * k, 0.7 * k], [0.24 * k, 1.1 * k], [0.27 * k, 1.36 * k], [0.15 * k, 1.46 * k], [0, 1.48 * k]], plaster))
+  const cloak = new THREE.Mesh(new THREE.CylinderGeometry(0.29 * k, 0.4 * k, 1.38 * k, 32, 1, true, Math.PI * 0.42, Math.PI * 1.16), mantle)
+  cloak.position.y = 0.72 * k
+  ;(cloak.material as THREE.Material).side = THREE.DoubleSide
+  g.add(cloak)
+  // 머리·머리카락·수염
+  const face = new THREE.Mesh(new THREE.SphereGeometry(0.13 * k, 24, 18), plaster)
+  face.position.set(0, 1.6 * k, 0.02 * k)
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.15 * k, 24, 18, 0, Math.PI * 2, 0, Math.PI * 0.62), plaster)
+  hair.position.set(0, 1.62 * k, -0.02 * k)
+  hair.rotation.x = -0.3
+  const locks = new THREE.Mesh(new THREE.CylinderGeometry(0.13 * k, 0.17 * k, 0.26 * k, 20, 1, true, Math.PI * 0.35, Math.PI * 1.3), plaster)
+  locks.position.set(0, 1.5 * k, -0.02 * k)
+  ;(locks.material as THREE.Material).side = THREE.DoubleSide
+  const beard = new THREE.Mesh(new THREE.SphereGeometry(0.08 * k, 16, 12), plaster)
+  beard.scale.set(1, 1.1, 0.7)
+  beard.position.set(0, 1.5 * k, 0.09 * k)
+  g.add(face, hair, locks, beard)
+  // 오른손: 들어 올려 축복 / 왼손: 가슴의 성심을 가리킴
+  g.add(limb(new THREE.Vector3(0.24 * k, 1.34 * k, 0), new THREE.Vector3(0.36 * k, 1.12 * k, 0.12 * k), 0.06 * k, plaster))
+  g.add(limb(new THREE.Vector3(0.36 * k, 1.12 * k, 0.12 * k), new THREE.Vector3(0.34 * k, 1.36 * k, 0.24 * k), 0.05 * k, plaster))
+  const blessing = new THREE.Mesh(new THREE.SphereGeometry(0.05 * k, 12, 10), plaster)
+  blessing.scale.set(0.7, 1.4, 0.5)
+  blessing.position.set(0.34 * k, 1.43 * k, 0.25 * k)
+  g.add(blessing)
+  g.add(limb(new THREE.Vector3(-0.24 * k, 1.34 * k, 0), new THREE.Vector3(-0.3 * k, 1.08 * k, 0.14 * k), 0.06 * k, plaster))
+  g.add(limb(new THREE.Vector3(-0.3 * k, 1.08 * k, 0.14 * k), new THREE.Vector3(-0.08 * k, 1.2 * k, 0.26 * k), 0.05 * k, plaster))
+  // 성심: 붉은 심장 + 위의 작은 불꽃 + 금빛 빛살
+  const heart = new THREE.Mesh(new THREE.SphereGeometry(0.06 * k, 16, 12), new THREE.MeshBasicMaterial({ color: 0xc8202a }))
+  heart.scale.set(1, 1.1, 0.6)
+  heart.position.set(0, 1.24 * k, 0.25 * k)
+  const fire = new THREE.Mesh(new THREE.ConeGeometry(0.025 * k, 0.07 * k, 10), new THREE.MeshBasicMaterial({ color: 0xffb030 }))
+  fire.position.set(0, 1.32 * k, 0.25 * k)
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.06 * k, 0.008 * k, 6, 20), brass(matcap, 0x8a6a30))
+  ring.position.copy(heart.position)
+  g.add(heart, fire, ring)
+  const rays = brass(matcap)
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2
+    const r = new THREE.Mesh(new THREE.BoxGeometry(0.006 * k, 0.05 * k, 0.004 * k), rays)
+    r.position.set(Math.cos(a) * 0.1 * k, 1.24 * k + Math.sin(a) * 0.1 * k, 0.25 * k)
+    r.rotation.z = a - Math.PI / 2
+    g.add(r)
+  }
+  return g
+}
+
+/** 독서대(앰보): 성경 말씀을 읽는 대. 개신교 강대상과 달리 비스듬한 책받침이 있는 대리석 대 */
+export function ambo(marble: THREE.Texture, matcap: THREE.Texture) {
+  const g = new THREE.Group()
+  const m = new THREE.MeshMatcapMaterial({ matcap: marble })
+  g.add(lathe([[0.32, 0], [0.3, 0.1], [0.16, 0.2], [0.14, 0.9], [0.3, 1.1], [0, 1.12]], m))
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.05, 0.56), m)
+  desk.position.y = 1.2
+  desk.rotation.x = -0.35
+  const book = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.05, 0.4), new THREE.MeshLambertMaterial({ color: 0x7a1a22 }))
+  book.position.set(0, 1.25, 0.02)
+  book.rotation.x = -0.35
+  const trim = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.03, 0.04), brass(matcap))
+  trim.position.set(0, 1.13, 0.27)
+  g.add(desk, book, trim)
+  return g
 }

@@ -2,12 +2,14 @@ import * as THREE from 'three'
 import { bell } from '../../core/audio'
 import { LOOKS, visitorLook } from '../../engine/avatar'
 import {
-  archFrame, box, Candle, clusterColumn, cross, crucifix, cyl, glassWindow, gold, halo, instances, lightShaft, mary, organ, pew,
+  archFrame, box, Candle, clusterColumn, cross, crucifix, cyl, glassWindow, gold, halo, instances, lightShaft, organ, pew,
   pointedArch, rib, rock, roundArch, sky, std, vault, pine,
 } from '../../engine/props'
 import type { BuildCtx, Layout } from '../../engine/stage'
 import { checker, marble, planks, roseWindow, stainedGlass, stone, wood } from '../../engine/tex'
 import { update } from '../../core/store'
+import { brassEnv, marbleEnv } from '../../engine/pt/kit'
+import { crucifix as plasterCrucifix, mary as plasterMary, realStatue } from '../../engine/pt/statues'
 
 export type Api = Record<string, () => void>
 type Built = Layout & { api: Api }
@@ -285,9 +287,11 @@ export function buildParish(ctx: BuildCtx): Built {
   // 뒷벽 십자고상, 감실, 감실등
   const back = box(5, 6, 0.2, std('#8a6a4a', { map: wood('#7a5634') }), 0, 0.4, Z0 + 0.12)
   scene.add(back)
-  const cru = crucifix(2.4)
-  cru.position.set(0, 3.2, Z0 + 0.35)
+  const env = brassEnv(), marbleT = marbleEnv()
+  const cru = plasterCrucifix(3, env, marbleT)
+  cru.position.set(0, 2.6, Z0 + 0.4)
   scene.add(cru)
+  realStatue(ctx, 'crucifix', new THREE.Vector3(0, 2.6, Z0 + 0.45), 3.2, cru, 0.2)
   const tab = box(0.8, 0.8, 0.5, gold(), 0, 1.4, Z0 + 0.6)
   scene.add(tab, box(1.4, 1, 0.7, std('#e8e0d0'), 0, 0.4, Z0 + 0.6))
   const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 8), new THREE.MeshBasicMaterial({ color: '#ff2a2a', toneMapped: false }))
@@ -309,10 +313,19 @@ export function buildParish(ctx: BuildCtx): Built {
   ambo.position.set(3.2, 0.4, Z0 + 4)
   scene.add(ambo)
   // 성모상 (왼쪽)
-  const m = mary(1.5)
+  const m = plasterMary(1.7, marbleT, env)
   m.position.set(-4.2, 0.4, Z0 + 2)
   m.rotation.y = 0.4
+  realStatue(ctx, 'mary', new THREE.Vector3(-4.2, 0.4, Z0 + 2), 1.9, m, 0.6)
   scene.add(m, box(0.8, 0.4, 0.8, std('#d8cfbd'), -4.2, 0.4, Z0 + 2).translateY(-0.4))
+  // 예수 성심상 (오른쪽, 성모상과 마주 봄)
+  // 실사 석고상 사진이 있을 때만 받침과 함께 나타남
+  const shBase = box(0.8, 0.4, 0.8, std('#d8cfbd'), 4.4, 0, Z0 + 2)
+  shBase.visible = false
+  scene.add(shBase)
+  const shFacing = new THREE.Object3D()
+  shFacing.rotation.y = -0.4
+  realStatue(ctx, 'sacredheart', new THREE.Vector3(4.4, 0.4, Z0 + 2), 1.9, shFacing, 0.6, () => (shBase.visible = true))
   // 성수대 (입구)
   for (const x of [-1.6, 1.6]) {
     const f = new THREE.Group()
@@ -400,9 +413,10 @@ export function buildGrotto(ctx: BuildCtx): Built {
     if (Math.abs(rk.position.x) > 2.6) scene.add(rk)
   }
   // 성모상 (동굴 안 높은 곳)
-  const m = mary(2.1)
+  const m = plasterMary(2.2, marbleEnv(), brassEnv())
   m.position.set(0.9, 2.1, -6.1)
   m.rotation.y = -0.2
+  realStatue(ctx, 'mary', new THREE.Vector3(0.9, 2.1, -6.1), 2.4, m, 0.5)
   scene.add(m, rock(0.5, '#77736b', 99).translateX(0.9).translateY(2).translateZ(-6.1))
   const mHalo = halo('#cfe0ff', 3, 0.35)
   mHalo.position.set(0.9, 3.2, -5.9)

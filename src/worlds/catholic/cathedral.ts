@@ -5,7 +5,7 @@ import { LOOKS, visitorLook } from '../../engine/avatar'
 import { archFrame, box, clusterColumn, cyl, glassWindow, pew, pointedArch, rib, std, vault } from '../../engine/props'
 import { lightShaft, sunburst } from '../../engine/pt/decor'
 import { brass, brassEnv, canvasTexture, Flame, glowTexture, makeFlameTextures, marbleEnv } from '../../engine/pt/kit'
-import { crucifix, mary, realStatue, reredosTexture } from '../../engine/pt/statues'
+import { ambo, crucifix, mary, realStatue, reredosTexture } from '../../engine/pt/statues'
 import type { BuildCtx, Layout } from '../../engine/stage'
 import { roseWindow, stainedGlass, stone, wood } from '../../engine/tex'
 
@@ -194,6 +194,28 @@ export function buildCathedral(ctx: BuildCtx): Built {
   maryGlow.rotation.y = Math.PI / 2
   scene.add(maryGlow)
   ctx.block({ x0: -W / 2, z0: -5, x1: -W / 2 + 2.6, z1: -3 })
+  // 예수 성심상 (오른쪽 측랑 앞, 성모 제대와 마주 봄) — 제대 중심은 십자고상, 성심상은 측면에
+  // 실사 석고상 사진(public/statues/sacredheart.png)이 있을 때만 받침과 함께 나타남
+  const heartChapel = new THREE.Group()
+  heartChapel.add(box(1.6, 1.2, 1.6, new THREE.MeshMatcapMaterial({ matcap: marble }), W / 2 - 1.6, 0, -4))
+  const heartGlow = sunburst(4, 0.4)
+  heartGlow.position.set(W / 2 - 0.6, 3.3, -4)
+  heartGlow.rotation.y = -Math.PI / 2
+  heartChapel.add(heartGlow)
+  heartChapel.visible = false
+  scene.add(heartChapel)
+  // 방향만 알려 주는 빈 기준점(코드로 만든 상은 두지 않음)
+  const heartFacing = new THREE.Object3D()
+  heartFacing.rotation.y = -Math.PI / 2
+  realStatue(ctx, 'sacredheart', new THREE.Vector3(W / 2 - 1.6, 1.2, -4), 2.8, heartFacing, 0.6, () => {
+    heartChapel.visible = true
+    ctx.block({ x0: W / 2 - 2.6, z0: -5, x1: W / 2, z1: -3 })
+  })
+  // 독서대(앰보): 제단 왼쪽 앞 — 개신교의 강대상과 다른 말씀 전례의 자리
+  const am = ambo(marble, env)
+  am.position.set(-3.4, 0.6, sZ + 2.4)
+  am.rotation.y = 0.35
+  scene.add(am)
   // 봉헌초 받침 (켤 수 있음)
   const rackX = -W / 2 + 2.2, rackZ = -0.6
   const iron = std('#2a2420')
@@ -268,6 +290,8 @@ export function buildCathedral(ctx: BuildCtx): Built {
   ctx.spot('altar', 0, sZ + 5.6, 2.2)
   ctx.spot('votive', rackX + 1.4, rackZ, 1.6)
   ctx.spot('station', W / 2 - 1.6, sZ + 9, 1.6)
+  ctx.spot('heart', W / 2 - 3.4, -4, 1.6)
+  ctx.spot('mary', -W / 2 + 3.4, -4.8, 1.4)
   ctx.npc(-W / 2 + 3.4, -4, -Math.PI / 2, visitorLook('catholic', 2), 'pray')
   ctx.walk({ x0: -W / 2, z0: sZ + 4.2, x1: W / 2, z1: Z1 })
   ctx.walk({ x0: -4, z0: sZ + 4, x1: 4, z1: sZ + 6 })
