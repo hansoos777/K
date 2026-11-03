@@ -25,7 +25,8 @@ export default function Home() {
           </div>
         </div>
         <figure className="h-hero-img">
-          <img src={photo('catholic', 'parish')} alt="" width="1200" height="800" fetchPriority="high" />
+          {/* 특정 종교를 앞세우지 않는 새벽 풍경 (scripts/hero-dawn.py) */}
+          <img src="/photos/hero_dawn.webp" alt="" width="2400" height="1100" fetchPriority="high" />
         </figure>
       </section>
 
