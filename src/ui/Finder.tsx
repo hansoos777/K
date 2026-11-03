@@ -76,7 +76,7 @@ export default function Finder() {
             {finder.result.map(resolvePlace).filter(Boolean).map((x) => (
               <li key={x!.world.id + x!.place.id}>
                 <a className="place-card" href={href(`w/${x!.world.id}/${x!.place.id}`)} style={{ ['--c' as string]: WORLDS.find((w) => w.id === x!.world.id)!.colors[1] }}>
-                  <img src={`/thumbs/${x!.world.id}_${x!.place.id}.webp`} alt="" loading="lazy" width="320" height="200" />
+                  <img src={`/photos/${x!.world.id}_${x!.place.id}.webp`} alt="" loading="lazy" width="320" height="200" />
                   <span className="place-card-text"><small>{t.worlds[x!.world.id].name}</small><strong>{lang === 'en' ? x!.place.en : x!.place.ko}</strong></span>
                 </a>
               </li>

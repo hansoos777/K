@@ -27,7 +27,7 @@ export default function ReligionDetail({ id }: { id: string }) {
 
   if (!def) return null
   const setMode = (m: 'learn' | 'practice') => update((s) => ({ modes: { ...s.modes, [id]: m } }))
-  const thumb = (p: string) => `/thumbs/${id}_${p}.webp`
+  const thumb = (p: string) => `/photos/${id}_${p}.webp`
   const placeName = (pid: string) => {
     const p = def.places.find((x) => x.id === pid)
     return p ? (lang === 'en' ? p.en : p.ko) : pid
@@ -88,9 +88,9 @@ export default function ReligionDetail({ id }: { id: string }) {
   )
 
   return (
-    <div className={`rel w-${id}`} id={`rel-${id}`}>
+    <div className="rel" id={`rel-${id}`}>
       <section className="rel-hero">
-        <img src={thumb(def.places[0].id)} alt="" className="rel-hero-img" />
+        <img src={thumb(({ christian: 'traditional', catholic: 'gothic', mandir: 'mandir', temple: 'daeung' } as Record<string, string>)[id] ?? def.places[0].id)} alt="" className="rel-hero-img" />
         <div className="rel-hero-shade" />
         <div className="rel-hero-in">
           <h1>{L.title}</h1>

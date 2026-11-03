@@ -22,7 +22,9 @@ const MURTI_Z = -7.2
 const HALF_W = (HALL_W / 2) * S
 const Z_BACK = HALL_Z_BACK * S
 const Z_FRONT = HALL_Z_FRONT * S
-const CEILING = 7 * S
+// ORUVIA: 교회·성당·대웅전처럼 웅장하게 천장을 높임(7 → 11, 실제 21m → 33m)
+const ROOF = 11
+const CEILING = ROOF * S
 const WALK_X = 14.4 // 기둥 안쪽까지만 걸어감
 const WALK_Z_MIN = -16
 const WALK_SPEED = 5
@@ -83,7 +85,7 @@ const seat = (r: number, c: number) => new THREE.Vector3((c - (COLS - 1) / 2) * 
 export class HallWorld {
   private renderer: THREE.WebGLRenderer
   private scene = new THREE.Scene()
-  private camera = new THREE.PerspectiveCamera(46, 1, 0.3, 200)
+  private camera = new THREE.PerspectiveCamera(52, 1, 0.3, 200)
   private arch = new THREE.Group()
   private sanctum = new THREE.Group()
   private env: THREE.Texture
@@ -103,7 +105,7 @@ export class HallWorld {
   private target: THREE.Vector3 | null = null
   private yaw = 0
   private pitch = 0.22
-  private dist = 12
+  private dist = 14
   private pinch = 0
   private pointers = new Map<number, { x: number; y: number }>()
   private down: { x: number; y: number; moved: boolean } | null = null
@@ -286,7 +288,7 @@ export class HallWorld {
 
     const stone = damaskTexture([5 * S, 2 * S])
     const wallMat = new THREE.MeshLambertMaterial({ map: stone })
-    const H = 7
+    const H = ROOF
     for (const s of [-1, 1]) {
       const w = new THREE.Mesh(new THREE.PlaneGeometry(HALL_Z_FRONT - HALL_Z_BACK, H), wallMat)
       w.position.set(s * (HALL_W / 2), H / 2, 0)
@@ -321,6 +323,11 @@ export class HallWorld {
         jali.position.set(s * (HALL_W / 2 - 0.02), 3.2, z)
         jali.rotation.y = -s * (Math.PI / 2)
         this.arch.add(jali)
+        // 높은 창(위에서 빛이 들어오게)
+        const hi = jali.clone()
+        hi.scale.set(0.8, 1.2, 1)
+        hi.position.y = 8.2
+        this.arch.add(hi)
       }
     }
     const ceil = new THREE.Mesh(new THREE.PlaneGeometry(HALL_W, HALL_Z_FRONT - HALL_Z_BACK), new THREE.MeshBasicMaterial({ map: ceilingTexture([4, 7]) }))
@@ -349,8 +356,9 @@ export class HallWorld {
     for (const s of [-1, 1]) for (let k = 0; k < 7; k++) spots.push([s * 5.3, -6.6 + k * 3.2])
     const inst = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ color: 0xa8291c }), spots.length)
     const m = new THREE.Matrix4()
-    spots.forEach(([x, z], i) => inst.setMatrixAt(i, m.makeTranslation(x, 0, z)))
-    this.arch.add(inst, ...pillarTrim(this.env, spots, { y0: 0, top: 6.8, r: 0.25, rings: [1.05, 2.4, 3.7, 5] }))
+    const k = ROOF / 6.8 // 기둥도 천장까지
+    spots.forEach(([x, z], i) => inst.setMatrixAt(i, m.makeTranslation(x, 0, z).multiply(new THREE.Matrix4().makeScale(1, k, 1))))
+    this.arch.add(inst, ...pillarTrim(this.env, spots, { y0: 0, top: ROOF, r: 0.25, rings: [1.05, 2.4, 3.7, 5, 6.6, 8.2, 9.6] }))
   }
 
   // 신상 주변의 금장식, 천, 꽃줄, 매달린 등잔
@@ -362,14 +370,14 @@ export class HallWorld {
     shaft.position.set(0, 11, P + 0.5)
     this.scene.add(shaft)
     const gate = torana(32)
-    gate.position.set(0, CEILING - 6.6, P + 0.2)
+    gate.position.set(0, 21 - 6.6, P + 0.2)
     this.scene.add(this.sun, gate)
     for (const s of [-1, 1]) {
       const drape = curtain(7, CEILING)
       drape.position.set(s * 16, CEILING / 2, Z_BACK + 0.15)
       this.scene.add(drape)
       const bell = hangingBell(this.env, 4)
-      bell.position.set(s * 10.5, CEILING - 3, P + 0.6)
+      bell.position.set(s * 10.5, 18, P + 0.6)
       bell.scale.setScalar(2)
       this.bells.push(bell)
       this.scene.add(bell)
@@ -381,18 +389,21 @@ export class HallWorld {
       const z = pillar(k)
       beads.push(...swag(new THREE.Vector3(-15.6, 16, z), new THREE.Vector3(15.6, 16, z), 46, 3.4, 0.36))
     }
-    this.scene.add(marigolds(beads), pennants([-5.4, 4.2, 13.8, 23.4].map((z) => ({ z, y: 18.6 })), 18.5, 26, 1.1, 1.6))
+    // 높은 천장 아래 한 줄 더
+    for (const k of [1, 2, 3, 4]) beads.push(...swag(new THREE.Vector3(-15.6, 25, pillar(k)), new THREE.Vector3(15.6, 25, pillar(k)), 46, 3.6, 0.36))
+    this.scene.add(marigolds(beads), pennants([-5.4, 4.2, 13.8, 23.4].map((z) => ({ z, y: 28 })), 18.5, 26, 1.1, 1.6))
 
     // 천장의 등잔
     const spots = [-14, -2, 10, 22].flatMap((z) => [[-9, z], [9, z]])
-    const chains = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.05, 0.05, 7, 6), brass(this.env), spots.length)
+    const LAMP_Y = 14
+    const chains = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.05, 0.05, CEILING - LAMP_Y, 6), brass(this.env), spots.length)
     const bowls = new THREE.InstancedMesh(new THREE.LatheGeometry([[0, -0.3], [0.3, -0.26], [0.62, -0.05], [0.7, 0.06], [0, 0.04]].map(([x, y]) => new THREE.Vector2(x, y)), 18), brass(this.env), spots.length)
     const m = new THREE.Matrix4()
     spots.forEach(([x, z], i) => {
-      chains.setMatrixAt(i, m.makeTranslation(x, CEILING - 3.5, z))
-      bowls.setMatrixAt(i, m.makeTranslation(x, CEILING - 7, z))
+      chains.setMatrixAt(i, m.makeTranslation(x, (CEILING + LAMP_Y) / 2, z))
+      bowls.setMatrixAt(i, m.makeTranslation(x, LAMP_Y, z))
       const f = new Flame(this.flameTex.flame, this.flameTex.glow, 0.9)
-      f.group.position.set(x, CEILING - 6.9, z)
+      f.group.position.set(x, LAMP_Y + 0.1, z)
       f.group.visible = true
       this.flames.push(f)
       this.scene.add(f.group)
@@ -431,6 +442,9 @@ export class HallWorld {
     const back = new THREE.Mesh(new THREE.PlaneGeometry(HALL_W, 7), new THREE.MeshBasicMaterial({ map: mural }))
     back.position.set(0, 3.5, HALL_Z_BACK)
     this.arch.add(back)
+    const upper = new THREE.Mesh(new THREE.PlaneGeometry(HALL_W, ROOF - 7), new THREE.MeshLambertMaterial({ map: damaskTexture([5 * S, 2 * S]) }))
+    upper.position.set(0, 7 + (ROOF - 7) / 2, HALL_Z_BACK)
+    this.arch.add(upper)
 
     const marble = new THREE.MeshLambertMaterial({ color: 0xfff6e6 })
     ;[[6.6, 0.3, 3.6, 0.15], [5.2, 0.3, 2.9, 0.45], [3.8, 0.3, 2.2, 0.75]].forEach(([w, h, d, y]) => {
@@ -552,7 +566,7 @@ export class HallWorld {
     this.camGoal.z = THREE.MathUtils.clamp(this.camGoal.z, Z_BACK + 1.5, Z_FRONT - 1.2)
     this.camera.position.lerp(this.camGoal, k)
     const look = focus.clone().add(new THREE.Vector3(-Math.sin(this.yaw), 0, -Math.cos(this.yaw)).multiplyScalar(2.2))
-    look.y += 3.4 // 높아진 신상이 화면에 들어오도록 위쪽을 봄
+    look.y += 5.4 // ORUVIA: 높은 천장이 보이도록 더 위쪽을 봄
     this.camLook.lerp(look, k)
     this.camera.lookAt(this.camLook)
   }

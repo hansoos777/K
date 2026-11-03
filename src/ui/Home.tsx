@@ -1,111 +1,102 @@
 import { BRAND } from '../brand'
+import { WORLDS } from '../core/registry'
 import { href } from '../core/router'
-import { NEW_PLACES, RECOMMENDED, WORLDS, resolvePlace } from '../core/registry'
 import { useStore } from '../core/store'
 import { useT } from '../i18n'
-import { Icon } from './icons'
 
-/** 공간 미리보기 이미지: 실제 3D 공간을 미리 찍어 둔 정적 파일(public/thumbs) */
-const thumb = (world: string, place: string) => `/thumbs/${world}_${place}.webp`
-
-function PlaceRow({ keys, title }: { keys: string[]; title: string }) {
-  const t = useT()
-  const lang = useStore((s) => s.lang)
-  const items = keys.map(resolvePlace).filter((x) => x && !x.place.soon)
-  if (!items.length) return null
-  return (
-    <section className="row-sec">
-      <h2 className="sec-title">{title}</h2>
-      <ul className="place-row">
-        {items.map((x) => (
-          <li key={x!.world.id + x!.place.id}>
-            <a className="place-card" href={href(`w/${x!.world.id}/${x!.place.id}`)} style={{ ['--c' as string]: x!.world.colors[1] }}>
-              <img src={thumb(x!.world.id, x!.place.id)} alt="" loading="lazy" decoding="async" width="320" height="200" />
-              <span className="place-card-text">
-                <small>{t.worlds[x!.world.id].name}</small>
-                <strong>{lang === 'en' ? x!.place.en : x!.place.ko}</strong>
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
+/** 사이트 사진: 실제 3D 공간을 사람 없이 찍은 이미지 (public/photos) */
+export const photo = (world: string, place: string) => `/photos/${world}_${place}.webp`
+/** 종교마다 대표로 보여 줄 공간 */
+export const COVER: Record<string, string> = { christian: 'traditional', catholic: 'gothic', mandir: 'mandir', temple: 'daeung' }
+/** 종교 탐색 카드는 가상 공간 카드와 다른 사진으로 */
+const FAITH: Record<string, string> = { christian: 'prayer', catholic: 'parish', mandir: 'shrine', temple: 'courtyard' }
 
 export default function Home() {
   const t = useT()
-  const visits = useStore((s) => s.visits)
   const nickname = useStore((s) => s.nickname)
-
   return (
-    <>
-      <section className="hero">
-        <div className="hero-sky" aria-hidden="true">
-          <span className="orb o1" /><span className="orb o2" /><span className="orb o3" /><span className="orb o4" />
-          <span className="stars" />
+    <div className="home">
+      {/* B. 메인 비주얼: 글은 위, 사진은 아래 (겹치지 않게) */}
+      <section className="h-hero">
+        <div className="h-hero-text">
+          <h1>{t.h.heroTitle[0]}<br />{t.h.heroTitle[1]}</h1>
+          <p className="lead">{nickname && <>{nickname} · </>}{t.h.heroSub[0]}<br />{t.h.heroSub[1]}</p>
+          <div className="actions">
+            <a className="button primary" href={href('explore')}>{t.h.btnLearn}</a>
+            <a className="button" href={href('spaces')}>{t.h.btnSpaces}</a>
+          </div>
         </div>
-        <div className="hero-inner">
-          <p className="eyebrow">{t.brandLocal}</p>
-          <h1 className="wordmark-big">{BRAND.name}</h1>
-          <p className="tagline">{t.tagline}</p>
-          <p className="lede">{nickname ? `${nickname} · ` : ''}{t.heroSub}</p>
-          <a className="cta" href={href('spaces')}>
-            {t.quick.tour} <Icon name="door" size={18} />
-          </a>
-        </div>
+        <figure className="h-hero-img">
+          <img src={photo('catholic', 'parish')} alt="" width="1200" height="800" fetchPriority="high" />
+        </figure>
       </section>
 
-      <section className="quick" aria-labelledby="quick-h">
-        <h2 id="quick-h" className="sec-title">{t.quick.title}</h2>
-        <div className="quick-grid">
-          {([
-            ['me#finder', 'compass', t.quick.finder, t.quick.finderSub],
-            ['explore', 'book', t.quick.learn, t.quick.learnSub],
-            ['spaces', 'door', t.quick.tour, t.quick.tourSub],
-            ['mine/pray', 'pray', t.quick.pray, t.quick.praySub],
-            ['mine/meditate', 'breath', t.quick.meditate, t.quick.meditateSub],
-          ] as const).map(([to, ic, label, sub]) => (
-            <a key={to} className="quick-card" href={href(to)}>
-              <span className="quick-ic"><Icon name={ic} /></span>
-              <strong>{label}</strong>
-              <small>{sub}</small>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section id="worlds" aria-labelledby="worlds-h" className="worlds-sec">
-        <h2 id="worlds-h" className="sec-title center">{t.worldsTitle}</h2>
-        <div className="world-grid">
+      {/* C. 종교 탐색 */}
+      <section className="h-sec">
+        <header className="h-sec-head">
+          <h2>{t.h.exTitle}</h2>
+          <p>{t.h.exSub}</p>
+        </header>
+        <div className="grid4">
           {WORLDS.map((w) => (
-            <a key={w.id} className="world-card" href={href(`explore/${w.id}`)} style={{ ['--a' as string]: w.colors[0], ['--b' as string]: w.colors[1] }}>
-              <img className="world-img" src={thumb(w.id, w.places[0].id)} alt="" loading="lazy" decoding="async" width="480" height="640" />
-              <span className="world-shade" />
-              <span className={`badge badge-${w.status}`}>{t.status[w.status]}</span>
-              <span className="world-card-text">
-                                <strong>{t.worlds[w.id].name}</strong>
-                <span className="world-place">{t.worlds[w.id].place}</span>
-                <span className="world-blurb">{t.worlds[w.id].blurb}</span>
-                <span className="enter">{t.enter} →</span>
-              </span>
+            <a key={w.id} className="tile" href={href(`explore/${w.id}`)}>
+              <span className="tile-img"><img src={photo(w.id, FAITH[w.id])} alt="" loading="lazy" width="600" height="400" /></span>
+              <strong>{t.worlds[w.id].name}</strong>
+              <span>{t.h.short[w.id]}</span>
             </a>
           ))}
         </div>
       </section>
 
-      {visits.length > 0 && <PlaceRow keys={visits.slice(0, 8).map((v) => v.id)} title={t.recent} />}
-      <PlaceRow keys={RECOMMENDED} title={t.recommended} />
-      <PlaceRow keys={NEW_PLACES} title={t.newPlaces} />
-
-      <section className="row-sec">
-        <h2 className="sec-title">{t.notices}</h2>
-        <ul className="notices">{t.noticeList.map((n) => <li key={n}>{n}</li>)}</ul>
+      {/* D. 가상 공간 */}
+      <section className="h-sec">
+        <header className="h-sec-head">
+          <h2>{t.h.spTitle}</h2>
+          <p>{t.h.spSub}</p>
+        </header>
+        <div className="grid4">
+          {WORLDS.map((w) => (
+            <div key={w.id} className="tile">
+              <a className="tile-img" href={href(`spaces/${w.id}`)}><img src={photo(w.id, COVER[w.id])} alt="" loading="lazy" width="600" height="400" /></a>
+              <strong>{t.sp.cat[w.id]}</strong>
+              <a className="text-link" href={href(`w/${w.id}/${w.places[0].id}`)}>{t.sp.enter} →</a>
+            </div>
+          ))}
+        </div>
       </section>
+
+      {/* E. 나의 믿음 찾기 */}
+      <section className="h-sec h-band">
+        <div>
+          <h2>{t.h.fdTitle}</h2>
+          <p>{t.h.fdSub}</p>
+        </div>
+        <a className="button primary" href={href('me#finder')}>{t.h.fdBtn}</a>
+      </section>
+
+      {/* F. 나만의 조용한 시간 */}
+      <section className="h-sec">
+        <header className="h-sec-head">
+          <h2>{t.h.quietTitle}</h2>
+          <p>{t.h.quietSub}</p>
+        </header>
+        <ul className="quiet">
+          {t.h.quiet.map(([name, sub, to]) => (
+            <li key={name}>
+              <a href={href(to)}>
+                <strong>{name}</strong>
+                <span>{sub}</span>
+                <span className="arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <footer className="foot">
-        <p className="foot-brand">{BRAND.name} · {t.tagline}</p>
+        <p className="foot-brand">{BRAND.name} — {t.h.slogan}</p>
         <p className="disclaimer">{t.disclaimer}</p>
       </footer>
-    </>
+    </div>
   )
 }

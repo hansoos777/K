@@ -1,7 +1,7 @@
 import type { Gesture, SpotInfo, TourStep } from '../../ui/Space'
 interface Pack { gestures: Gesture[]; spots: Record<string, SpotInfo>; tour: TourStep[] }
 const ko: Pack = {
-  gestures: [{ id: 'pray', label: '🙏 기도하기', pose: 'pray', note: '눈을 감고 두 손을 모아 기도합니다' }],
+  gestures: [{ id: 'pray', label: '기도하기', pose: 'pray', note: '눈을 감고 두 손을 모아 기도합니다' }],
   spots: {
     entrance: { label: '예배당 입구', text: '예배 중에는 휴대전화를 무음으로 하고 조용히 들어갑니다.' },
     pews: { label: '장의자', text: '예배하는 사람들이 앉는 긴 의자입니다.' },
@@ -21,7 +21,7 @@ const ko: Pack = {
   ],
 }
 const en: Pack = {
-  gestures: [{ id: 'pray', label: '🙏 Pray', pose: 'pray', note: 'Eyes closed, hands joined in prayer' }],
+  gestures: [{ id: 'pray', label: 'Pray', pose: 'pray', note: 'Eyes closed, hands joined in prayer' }],
   spots: {
     entrance: { label: 'Entrance', text: 'Silence your phone and enter quietly during worship.' },
     pews: { label: 'Pews', text: 'Where the congregation sits.' },

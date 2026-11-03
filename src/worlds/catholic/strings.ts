@@ -13,6 +13,7 @@ const ko = {
   rosaryTitle: '묵주기도',
   rosaryNote: '기도문은 가지고 계신 기도서(한국천주교주교회의 승인)를 따라 바쳐 주세요. 여기서는 순서와 신비만 안내합니다.',
   todayMystery: '오늘의 신비',
+  todayTag: '오늘',
   mysteries: {
     joyful: { name: '환희의 신비', list: ['마리아께서 예수님을 잉태하심', '마리아께서 엘리사벳을 방문하심', '예수님께서 탄생하심', '예수님을 성전에 바치심', '성전에서 예수님을 찾으심'] },
     sorrowful: { name: '고통의 신비', list: ['겟세마니 동산에서 피땀 흘리심', '매 맞으심', '가시관을 쓰심', '십자가를 지심', '십자가에 못 박혀 돌아가심'] },
@@ -90,6 +91,7 @@ const en: typeof ko = {
   rosaryTitle: 'The Rosary',
   rosaryNote: 'Please pray from an approved prayer book. Only the order and mysteries are shown here.',
   todayMystery: "Today's mysteries",
+  todayTag: 'today',
   mysteries: {
     joyful: { name: 'Joyful Mysteries', list: ['The Annunciation', 'The Visitation', 'The Nativity', 'The Presentation', 'Finding in the Temple'] },
     sorrowful: { name: 'Sorrowful Mysteries', list: ['Agony in the Garden', 'Scourging at the Pillar', 'Crowning with Thorns', 'Carrying of the Cross', 'The Crucifixion'] },

@@ -4,7 +4,7 @@ interface Pack { gestures: Gesture[]; spots: Record<string, SpotInfo>; tour: Tou
 
 const ko: Pack = {
   gestures: [
-    { id: 'namaste', label: '🙏 나마스테', pose: 'pray', note: '두 손을 가슴 앞에 모아 "나마스테" — 당신 안의 신성에 경의를' },
+    { id: 'namaste', label: '나마스테', pose: 'pray', note: '두 손을 가슴 앞에 모아 "나마스테" — 당신 안의 신성에 경의를' },
     { id: 'pranam', label: '프라남 (절)', pose: 'bow', note: '프라남: 고개와 몸을 숙여 신께 존경을 표합니다' },
   ],
   spots: {
@@ -32,7 +32,7 @@ const ko: Pack = {
 
 const en: Pack = {
   gestures: [
-    { id: 'namaste', label: '🙏 Namaste', pose: 'pray', note: 'Palms joined at the heart: "Namaste" — honouring the divine in you' },
+    { id: 'namaste', label: 'Namaste', pose: 'pray', note: 'Palms joined at the heart: "Namaste" — honouring the divine in you' },
     { id: 'pranam', label: 'Pranam (bow)', pose: 'bow', note: 'Pranam: bowing head and body in reverence' },
   ],
   spots: {

@@ -11,5 +11,5 @@ export const BRAND = {
   ko: '오루비아',
   /** 영어 문장 속 표기 */
   en: 'Oruvia',
-  tagline: 'One World. Many Sacred Places.',
+  tagline: 'Find Your Own Way to Believe.',
 }

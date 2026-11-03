@@ -19,7 +19,7 @@ function PlaceCards({ keys, empty }: { keys: string[]; empty: string }) {
       {items.map((x) => (
         <li key={x!.world.id + x!.place.id}>
           <a className="place-card" href={href(`w/${x!.world.id}/${x!.place.id}`)} style={{ ['--c' as string]: x!.world.colors[1] }}>
-            <img src={`/thumbs/${x!.world.id}_${x!.place.id}.webp`} alt="" loading="lazy" width="320" height="200" />
+            <img src={`/photos/${x!.world.id}_${x!.place.id}.webp`} alt="" loading="lazy" width="320" height="200" />
             <span className="place-card-text"><small>{t.worlds[x!.world.id].name}</small><strong>{lang === 'en' ? x!.place.en : x!.place.ko}</strong></span>
           </a>
         </li>
@@ -106,7 +106,7 @@ export default function Mine({ section }: { section?: string }) {
       </div>
 
       <a className="shrine-card" href={href('w/mandir/shrine')}>
-        <img src="/thumbs/mandir_shrine.webp" alt="" loading="lazy" width="320" height="400" />
+        <img src="/photos/mandir_shrine.webp" alt="" loading="lazy" width="320" height="400" />
         <span>
           <strong>{t.mine.shrine}</strong>
           <span>{t.mine.shrineSub}</span>

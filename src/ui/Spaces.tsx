@@ -35,7 +35,7 @@ export default function Spaces({ id }: { id?: string }) {
             ) : (
               <>
                 <a className="space-thumb" href={href(`w/${cur.id}/${p.id}`)} aria-label={`${name(p)} · ${t.sp.enter}`}>
-                  <img src={`/thumbs/${cur.id}_${p.id}.webp`} alt="" loading="lazy" width="480" height="300" />
+                  <img src={`/photos/${cur.id}_${p.id}.webp`} alt="" loading="lazy" width="480" height="300" />
                 </a>
                 <div className="space-item-body">
                   <strong>{name(p)}</strong>

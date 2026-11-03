@@ -110,6 +110,7 @@ export class Stage {
   private ro: ResizeObserver
 
   constructor(private host: HTMLElement, build: Builder, private opts: StageOptions) {
+    const photo = location.search.includes('photo') // 사이트 이미지 촬영용: 사람 없이 건축만
     const high = opts.high
     this.maxLights = high ? 6 : 2
     this.renderer = new THREE.WebGLRenderer({ antialias: high, powerPreference: high ? 'high-performance' : 'low-power' })
@@ -143,6 +144,7 @@ export class Stage {
       say: (msg) => this.opts.onSay?.(msg),
       spot: (id, x, z, r = 1.6) => this.spots.push({ id, x, z, r }),
       npc: (x, z, yaw, look, pose = 'pray') => {
+        if (photo) return
         const a = new Avatar(look)
         a.root.position.set(x, 0, z)
         a.root.rotation.y = yaw
@@ -153,6 +155,7 @@ export class Stage {
         this.blocks.push({ x0: x - 0.3, z0: z - 0.3, x1: x + 0.3, z1: z + 0.3 })
       },
       crowd: (people, scale = 0.55) => {
+        if (photo) return
         const groups = new Map<string, typeof people>()
         for (const p of people) {
           const k = JSON.stringify([p.look, !!p.joined])
@@ -199,6 +202,7 @@ export class Stage {
     this.lookY = layout.lookY ?? 0.55
     if (layout.camBox) this.camBox = new THREE.Box3(new THREE.Vector3(...layout.camBox.min), new THREE.Vector3(...layout.camBox.max))
     this.scene.add(this.avatar.root)
+    if (photo) this.avatar.root.visible = false
 
     // 누른 곳 표시 고리
     this.marker = new THREE.Mesh(

@@ -10,3 +10,4 @@
 
 빌드: ORUVIA의 `npm run build`가 `scripts/build-hindu.mjs`를 실행해 `dist/hindu/`에 넣는다.
 신상 그림(`/deities`)과 음원(`/audio`)은 PujaTime 코드가 주소 맨 앞(`/`)에서 찾으므로 `dist/`의 맨 위로 옮긴다.
+3. `src/three/hall.ts`: 천장을 7→11(실제 21m→33m)로 높이고 기둥·높은 창·위쪽 벽·꽃줄·매단 등잔 높이를 맞춤 (교회·성당·대웅전처럼 웅장하게). 카메라도 시야 52°·거리 14·더 위를 보게

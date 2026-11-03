@@ -41,7 +41,7 @@ function Rosary({ t }: { t: T }) {
       <div className="seg wrap" role="radiogroup" aria-label={t.todayMystery}>
         {(Object.keys(t.mysteries) as (keyof T['mysteries'])[]).map((k) => (
           <button key={k} role="radio" aria-checked={k === kind} onClick={() => { setKind(k); setI(0) }}>
-            {t.mysteries[k].name}{k === mysteryOf() ? ' ★' : ''}
+            {t.mysteries[k].name}{k === mysteryOf() ? ` · ${t.todayTag}` : ''}
           </button>
         ))}
       </div>
