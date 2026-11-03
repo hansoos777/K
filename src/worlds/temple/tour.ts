@@ -15,7 +15,7 @@ const ko: Pack = {
     altar: { label: '불단', text: '부처님께 향과 초, 공양물을 올리는 곳입니다.', action: 'incense' },
   },
   tour: [
-    { title: '산사에 오신 것을 환영합니다', text: '한국 사찰은 산과 숲 속에 자리해, 걷는 길 자체가 수행이 됩니다.' },
+    { title: '사찰 마당에 오신 것을 환영합니다', text: '한국 사찰은 숲 속에 자리해, 걷는 길 자체가 수행이 됩니다.' },
     { title: '걷는 법', text: '왼쪽 아래 조이스틱이나 바닥을 눌러 걷고, 화면을 끌어 둘러보세요.' },
     { title: '일주문 지나기', text: '빛 기둥이 있는 일주문까지 걸어가 보세요.', spot: 'gate' },
     { title: '합장으로 인사', text: '절에서는 두 손을 모아 합장하고 반배합니다. 오른쪽 "반배"를 눌러 보세요.', action: 'banbae' },
@@ -33,7 +33,7 @@ const ko: Pack = {
     { title: '향 올리기', text: '"향 피우기"를 누르면 향을 올립니다. 향은 자신을 태워 주위를 맑게 한다는 뜻이에요.', action: 'incense' },
     { title: '삼배', text: '"삼배 올리기"로 부처님·가르침·스님(삼보)께 세 번 절합니다.', action: 'bow' },
     { title: '연등', text: '천장의 연등은 어둠을 밝히는 지혜를 뜻합니다. "연등 켜기"로 하나 밝혀 보세요.', action: 'lantern' },
-    { title: '더 해 보기', text: '"한국 산사"에서 일주문·탑·범종을, "명상실"에서 호흡 명상을 할 수 있어요.' },
+    { title: '더 해 보기', text: '"사찰 마당"에서 일주문·탑·범종을, "명상실"에서 호흡 명상을 할 수 있어요.' },
   ],
 }
 const en: Pack = {
@@ -51,7 +51,7 @@ const en: Pack = {
     altar: { label: 'Altar', text: 'Where incense, candles and offerings are made.', action: 'incense' },
   },
   tour: [
-    { title: 'Welcome to the mountain temple', text: 'Korean temples sit among mountains and forest; the walk itself is practice.' },
+    { title: 'Welcome to the temple courtyard', text: 'Korean temples sit among forest; the walk itself is practice.' },
     { title: 'How to walk', text: 'Use the joystick or tap the floor; drag to look around.' },
     { title: 'Through the gate', text: 'Walk to the One-Pillar Gate in the column of light.', spot: 'gate' },
     { title: 'Greeting', text: 'Join palms and half bow. Tap "Half bow" on the right.', action: 'banbae' },

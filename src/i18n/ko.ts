@@ -23,7 +23,7 @@ const ko = {
     christian: { name: '기독교', place: '교회 · 예배당 · 기도실', blurb: '전통 교회와 현대 교회, 조용한 기도실' },
     catholic: { name: '천주교', place: '성당 · 대성당 · 성모 동산', blurb: '스테인드글라스의 빛과 오르간, 촛불 봉헌' },
     mandir: { name: '힌두교', place: '만디르 · 나의 신전', blurb: '종소리와 디야, 아르티와 매일의 푸자' },
-    temple: { name: '불교', place: '산사 · 명상실', blurb: '범종과 목탁, 산사의 바람과 호흡 명상' },
+    temple: { name: '불교', place: '대웅전 · 사찰 마당 · 명상실', blurb: '금빛 부처님과 연등, 범종과 호흡 명상' },
   },
   play: '듣기',
   stop: '멈추기',

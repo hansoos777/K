@@ -21,8 +21,8 @@ const pack: LearnPack = {
       '탑은 시계 방향으로 돕니다(탑돌이).',
     ],
     practice: [
-      { label: '연등 켜기', place: 'sansa', text: '마당의 연등에 불을 밝힙니다.' },
-      { label: '범종 치기', place: 'sansa', text: '범종각에서 범종을 칩니다.' },
+      { label: '연등 켜기', place: 'courtyard', text: '마당의 연등에 불을 밝힙니다.' },
+      { label: '범종 치기', place: 'courtyard', text: '범종각에서 범종을 칩니다.' },
       { label: '향 피우기 · 삼배', place: 'daeung', text: '대웅전 불단에 향을 올리고 삼배를 드립니다.' },
       { label: '호흡 명상', place: 'meditation', text: '명상실 방석에 앉아 숨을 따라갑니다.' },
     ],
@@ -50,8 +50,8 @@ const pack: LearnPack = {
     ],
     etiquette: ['Greet monks and others with joined palms and a half bow.', 'Use the side doors of a hall, not the central door, and do not cross directly in front of the Buddha.', 'Remove hats and keep quiet inside halls.', 'Do not touch statues or ritual objects; photograph only where allowed.', 'Walk around a pagoda clockwise.'],
     practice: [
-      { label: 'Light a lantern', place: 'sansa', text: 'Light lotus lanterns in the courtyard.' },
-      { label: 'Strike the bell', place: 'sansa', text: 'Strike the great bell in its pavilion.' },
+      { label: 'Light a lantern', place: 'courtyard', text: 'Light lotus lanterns in the courtyard.' },
+      { label: 'Strike the bell', place: 'courtyard', text: 'Strike the great bell in its pavilion.' },
       { label: 'Incense · three bows', place: 'daeung', text: 'Offer incense and three bows in the main hall.' },
       { label: 'Breathing meditation', place: 'meditation', text: 'Sit on a cushion and follow your breath.' },
     ],

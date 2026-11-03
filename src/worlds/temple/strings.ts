@@ -1,10 +1,10 @@
 const ko = {
   intro: {
     daeung: '석가모니 부처님을 모신 대웅전 안입니다. 붉은 기둥과 단청, 천장을 가득 메운 연등 아래에서 스님과 불자들이 예불을 드립니다. 부처님은 오른손으로 땅을 짚는 항마촉지인을 하고 계십니다.',
-    sansa: '산 깊은 곳의 한국 전통 사찰입니다. 일주문을 지나 사천왕문을 거쳐 대웅전에 이르는 길, 단청과 범종, 처마 끝 풍경 소리가 산사의 고요를 만듭니다.',
+    courtyard: '숲으로 둘러싸인 한국 전통 사찰의 마당입니다. 일주문을 지나 사천왕문을 거쳐 대웅전에 이르는 길, 단청과 범종, 처마 끝 풍경 소리가 절의 고요를 만듭니다.',
     meditation: '방석 하나와 창으로 드는 달빛만 있는 명상실입니다. 죽비 소리에 맞춰 앉고, 숨을 따라가 보세요.',
   },
-  scene: { sansa: '산을 배경으로 일주문, 연등, 대웅전, 범종각이 있는 한국 산사', meditation: '방석과 달빛 창이 있는 명상실' },
+  scene: { courtyard: '일주문, 연등, 석탑, 대웅전, 범종각이 있는 사찰 마당', meditation: '방석과 달빛 창이 있는 명상실' },
   pathTitle: '절에 들어가는 길',
   path: [
     ['일주문', '기둥이 한 줄로 선 첫 문. 한마음으로 들어선다는 뜻'],
@@ -28,7 +28,7 @@ const ko = {
   incenseNote: '향은 자신을 태워 주위를 맑게 한다는 뜻입니다. 한 개 또는 세 개를 올립니다.',
   light: '향 피우기',
   burning: '향이 타는 중',
-  wind: '산사의 바람과 풍경',
+  wind: '바람과 풍경 소리',
   breathTitle: '호흡 명상',
   breathNote: '시작할 때 죽비 세 번, 끝날 때 한 번 울립니다(사찰마다 다를 수 있음). 원이 커질 때 들이쉬고, 작아질 때 내쉽니다.',
   inhale: '들숨',
@@ -45,10 +45,10 @@ const ko = {
 const en: typeof ko = {
   intro: {
     daeung: 'Inside the main hall of Shakyamuni Buddha. Beneath red pillars, painted dancheong and a ceiling full of lanterns, monks and lay people chant. The Buddha touches the earth with his right hand (bhumisparsha mudra).',
-    sansa: 'A traditional Korean temple deep in the mountains. The path through the One-Pillar Gate and the Gate of the Four Heavenly Kings to the main hall, the painted dancheong, the great bell and the wind chimes make its stillness.',
+    courtyard: 'The courtyard of a traditional Korean temple surrounded by forest. The path through the One-Pillar Gate and the Gate of the Four Heavenly Kings to the main hall, the painted dancheong, the great bell and the wind chimes make its stillness.',
     meditation: 'A meditation hall with only a cushion and moonlight through the window. Sit at the sound of the jukbi and follow your breath.',
   },
-  scene: { sansa: 'Korean mountain temple with gate, lanterns, main hall and bell pavilion', meditation: 'Meditation hall with a cushion and a moonlit window' },
+  scene: { courtyard: 'Temple courtyard with gate, lanterns, pagoda, main hall and bell pavilion', meditation: 'Meditation hall with a cushion and a moonlit window' },
   pathTitle: 'The path into the temple',
   path: [
     ['Iljumun', 'The One-Pillar Gate: entering with a single mind'],

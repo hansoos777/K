@@ -8,7 +8,7 @@ import { Btn, Note } from '../../ui/kit'
 import { Space, type PlaceScene, type SceneApi } from '../../ui/Space'
 import S from './strings'
 import TOUR from './tour'
-import { buildMeditation, buildSansa } from './three'
+import { buildMeditation, buildCourtyard } from './three'
 import { buildDaeung } from './daeung'
 
 type T = (typeof S)['ko']
@@ -86,8 +86,8 @@ export default function TempleWorld({ place, tour }: WorldProps) {
         spots: g.spots,
       }
     return {
-      build: buildSansa,
-      intro: t.intro.sansa,
+      build: buildCourtyard,
+      intro: t.intro.courtyard,
       actions: [
         { id: 'lantern', label: t.lanternTitle, icon: 'lantern', run: (api) => { api.lantern?.(); return t.lanternCount(lanterns + 1) } },
         { id: 'bell', label: t.strike, icon: 'bell', run: (api) => { api.bell?.(); return soundOff() ?? t.bellNote.split('.')[0] } },

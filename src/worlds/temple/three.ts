@@ -45,8 +45,8 @@ function hall(len: number, depth: number, height: number, doors: number) {
   return g
 }
 
-/** 한국 산사 (해 질 녘) */
-export function buildSansa(ctx: BuildCtx): Built {
+/** 사찰 마당 (해 질 녘) */
+export function buildCourtyard(ctx: BuildCtx): Built {
   const { scene, high } = ctx
   sky(scene, [[0, '#6f8fb0'], [0.45, '#c9b8b0'], [0.62, '#f2c69a'], [1, '#f7dfb8']])
   scene.fog = new THREE.Fog('#d8c6b0', 30, 150)

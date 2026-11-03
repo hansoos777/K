@@ -50,5 +50,5 @@ export function resolvePlace(key: string) {
 }
 
 /** 홈 화면 추천(사람이 고른 정적 목록 — 가짜 인기 숫자는 쓰지 않음) */
-export const RECOMMENDED = ['catholic/gothic', 'temple/sansa', 'christian/traditional']
+export const RECOMMENDED = ['catholic/gothic', 'temple/courtyard', 'christian/traditional']
 export const NEW_PLACES = ['temple/meditation', 'catholic/grotto', 'christian/prayer']

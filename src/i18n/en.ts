@@ -24,7 +24,7 @@ const en: Dict = {
     christian: { name: 'Christian', place: 'Church · Chapel · Prayer room', blurb: 'Traditional and modern churches, and a quiet prayer room' },
     catholic: { name: 'Catholic', place: 'Parish · Cathedral · Marian grotto', blurb: 'Light through stained glass, the organ, and votive candles' },
     mandir: { name: 'Hindu', place: 'Mandir · My Shrine', blurb: 'Temple bells and diyas, aarti and daily puja' },
-    temple: { name: 'Buddhist', place: 'Mountain temple · Meditation hall', blurb: 'The great bell and moktak, mountain wind and breath' },
+    temple: { name: 'Buddhist', place: 'Main hall · Courtyard · Meditation hall', blurb: 'The golden Buddha, lanterns, the great bell and breath' },
   },
   play: 'Listen',
   stop: 'Stop',
