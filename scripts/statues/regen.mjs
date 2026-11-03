@@ -1,3 +1,4 @@
+// 예비 방법: 사용자가 구한 이미지가 없을 때만 쓴다(구한 이미지 우선, 출처는 public/statues/SOURCES.md).
 // 실사 성상 이미지 만들기 (PC에서 실행). PujaTime scripts/murti/regen.mjs 와 같은 방식(FLUX.1 schnell, Apache 2.0).
 // 사용: node scripts/statues/regen.mjs buddha mary crucifix      → scripts/statues/source/<id>.webp
 //       node scripts/statues/cutout.mjs                         → public/statues/<id>.png (배경 제거)

@@ -262,4 +262,4 @@ src/
 | 성인상 | 두지 않음 | 대성당 제단 장식의 성인 자리 |
 
 - 석고상은 실제 조각상과 비슷해야 하므로, 코드로 만든 모양이 어색한 상(예수 성심상)은 사진 없이 표시하지 않는다.
-- 실사 사진: `public/statues/{buddha,mary,crucifix,sacredheart}.png` — `scripts/statues/regen.mjs`로 PC에서 생성. 지금 있는 것: 불상, 성모상.
+- 실사 사진: `public/statues/{buddha,mary,crucifix,sacredheart}.png`. **사용자가 직접 구한 이미지를 우선** 쓰고, 출처는 `public/statues/SOURCES.md`에 적는다. AI 생성(`scripts/statues/regen.mjs`)은 예비 방법. 지금 있는 것: 석가모니불, 성모상(사용자가 구함).
