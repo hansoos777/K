@@ -17,7 +17,7 @@ const COMMON = 'full figure from the top of the head to the base, centered, fron
 const LIST = {
   buddha: 'Korean Buddhist temple main hall statue of Shakyamuni Buddha seated in full lotus position on a lotus pedestal, earth-touching bhumisparsha mudra with the right hand resting over the right knee fingers pointing down, left hand resting palm up in the lap, snail-shell hair curls, ushnisha on top of the head, long earlobes, urna dot between the brows, serene half closed eyes, monastic robe over the left shoulder, gilt bronze covered in polished gold leaf, Joseon dynasty style, solid single piece',
   mary: 'Catholic church statue of the Virgin Mary standing on a small round base, hands joined in prayer at the chest, gentle downcast face, white veil and white robe, light blue mantle over the shoulders, simple halo of twelve small gold stars above the head, painted carved marble, dignified and modest',
-  crucifix: 'Catholic altar crucifix, dark carved wooden cross with gilded ends, ivory colored carved corpus of Jesus Christ with arms outstretched, crown of thorns, white loincloth, head gently bowed, small INRI plaque at the top, dignified and reverent, no blood, solid single piece',
+  crucifix: 'Catholic church crucifix, the whole crucifix carved as one white plaster sculpture in the same style as a white plaster statue of the Virgin Mary, Jesus Christ on the cross with arms outstretched, crown of thorns, white loincloth, head gently bowed, peaceful dignified face, small INRI plaque at the top, smooth matte white plaster with soft shading, no paint, no color, no blood, no wounds shown, full cross visible from top to the foot, solid single piece',
 }
 const outDir = new URL('./source/', import.meta.url)
 mkdirSync(outDir, { recursive: true })
