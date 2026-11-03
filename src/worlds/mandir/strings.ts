@@ -25,8 +25,8 @@ const ko = {
   planTitle: '통합 계획',
   plan: [
     'PujaTime 소스를 이 저장소로 가져와 src/worlds/mandir 안에서 그대로 동작하게 옮김 (재작성하지 않음)',
-    '기존 저장 키(pujatime-v1)를 그대로 읽어 기록이 사라지지 않게 함',
-    'PujaTime 단독 사이트·안드로이드 앱은 계속 따로 배포',
+    '기존 PujaTime 기록을 오루비아로 옮기는 기능을 만들어 기록이 사라지지 않게 함',
+    'pujatime.pages.dev와 안드로이드 앱은 같은 서명 키로 오루비아로 전환',
     'ORUVIA 공통 설정(언어·음량·움직임 줄이기)만 연결',
   ],
 }
@@ -56,8 +56,8 @@ const en: typeof ko = {
   planTitle: 'Integration plan',
   plan: [
     'Bring the PujaTime source into this repo and run it inside src/worlds/mandir without rewriting',
-    'Keep reading the existing storage key (pujatime-v1) so no records are lost',
-    'Keep shipping the standalone PujaTime site and Android app',
+    'Add a transfer from PujaTime so no records are lost',
+    'Move pujatime.pages.dev and the Android app (same signing key) over to Oruvia',
     'Connect only shared ORUVIA settings (language, volume, reduced motion)',
   ],
 }
