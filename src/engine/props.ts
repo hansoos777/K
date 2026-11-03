@@ -2,8 +2,21 @@ import * as THREE from 'three'
 import type { BuildCtx } from './stage'
 import { glow, matcap, skyGradient } from './tex'
 
+/**
+ * 기본 재질: PujaTime처럼 Lambert(빛 계산이 가볍고 색이 밝게 나옴).
+ * 예전 코드의 roughness·metalness 값은 무시한다.
+ */
 export const std = (color: string, o: Partial<THREE.MeshStandardMaterialParameters> = {}) =>
-  new THREE.MeshStandardMaterial({ color, roughness: 0.8, ...o })
+  new THREE.MeshLambertMaterial({
+    color,
+    map: o.map ?? null,
+    emissive: o.emissive ?? 0x000000,
+    emissiveIntensity: o.emissiveIntensity ?? 1,
+    side: o.side ?? THREE.FrontSide,
+    flatShading: o.flatShading ?? false,
+    transparent: o.transparent ?? false,
+    opacity: o.opacity ?? 1,
+  })
 
 /** 금·청동처럼 반짝이는 재질 (매트캡) */
 export const gold = () => new THREE.MeshMatcapMaterial({ matcap: matcap('#fff6c8', '#d9a83a', '#5a3a0c') })

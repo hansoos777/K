@@ -9,6 +9,7 @@ import { Space, type PlaceScene, type SceneApi } from '../../ui/Space'
 import S from './strings'
 import TOUR from './tour'
 import { buildMeditation, buildSansa } from './three'
+import { buildDaeung } from './daeung'
 
 type T = (typeof S)['ko']
 
@@ -54,6 +55,21 @@ export default function TempleWorld({ place, tour }: WorldProps) {
   useEffect(() => () => { apiRef.current = null }, [])
   const soundOff = () => (getState().sound ? undefined : c.soundOff)
   const scene = (p: string): PlaceScene => {
+    if (p === 'daeung')
+      return {
+        build: buildDaeung,
+        intro: t.intro.daeung,
+        actions: [
+          { id: 'bow', label: t.bow, icon: 'pray', run: (api) => { api.bow?.(); return t.bowNote } },
+          { id: 'incense', label: t.light, icon: 'incense', run: (api) => { api.incense?.(); return t.incenseNote.split('.')[0] } },
+          { id: 'moktak', label: t.hit, icon: 'pray', run: (api) => { api.moktak?.(); return soundOff() } },
+          { id: 'lantern', label: t.lanternTitle, icon: 'lantern', run: (api) => { api.lantern?.(); return t.lanternCount(lanterns + 1) } },
+          { id: 'path', label: t.pathTitle, icon: 'path', panel: <><DefList items={t.path} /><Note>{t.pathNote}</Note></> },
+        ],
+        gestures: g.gestures,
+        spots: g.spots,
+        tour: g.tourHall,
+      }
     if (p === 'meditation')
       return {
         build: (ctx) => {

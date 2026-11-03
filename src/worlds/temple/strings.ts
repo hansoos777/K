@@ -1,5 +1,6 @@
 const ko = {
   intro: {
+    daeung: '석가모니 부처님을 모신 대웅전 안입니다. 붉은 기둥과 단청, 천장을 가득 메운 연등 아래에서 스님과 불자들이 예불을 드립니다. 부처님은 오른손으로 땅을 짚는 항마촉지인을 하고 계십니다.',
     sansa: '산 깊은 곳의 한국 전통 사찰입니다. 일주문을 지나 사천왕문을 거쳐 대웅전에 이르는 길, 단청과 범종, 처마 끝 풍경 소리가 산사의 고요를 만듭니다.',
     meditation: '방석 하나와 창으로 드는 달빛만 있는 명상실입니다. 죽비 소리에 맞춰 앉고, 숨을 따라가 보세요.',
   },
@@ -34,6 +35,8 @@ const ko = {
   exhale: '날숨',
   min: '분',
   end: '마치기',
+  bow: '삼배 올리기',
+  bowNote: '부처님께 세 번 절합니다(삼배). 합장하고 무릎을 꿇어 이마를 바닥에 댑니다.',
   stayTitle: '템플스테이',
   stayNote: '실제 템플스테이는 각 사찰에서 직접 신청합니다. 이곳에서는 예불·발우공양·울력 같은 하루 흐름을 소개할 예정입니다.',
   others: '일본 선종 정원, 태국의 황금 불탑, 티베트의 만다라와 기도 깃발은 각 전통을 조사·검토한 뒤 차례로 엽니다.',
@@ -41,6 +44,7 @@ const ko = {
 
 const en: typeof ko = {
   intro: {
+    daeung: 'Inside the main hall of Shakyamuni Buddha. Beneath red pillars, painted dancheong and a ceiling full of lanterns, monks and lay people chant. The Buddha touches the earth with his right hand (bhumisparsha mudra).',
     sansa: 'A traditional Korean temple deep in the mountains. The path through the One-Pillar Gate and the Gate of the Four Heavenly Kings to the main hall, the painted dancheong, the great bell and the wind chimes make its stillness.',
     meditation: 'A meditation hall with only a cushion and moonlight through the window. Sit at the sound of the jukbi and follow your breath.',
   },
@@ -75,6 +79,8 @@ const en: typeof ko = {
   exhale: 'Out',
   min: 'min',
   end: 'End',
+  bow: 'Three bows',
+  bowNote: 'Three prostrations to the Buddha: palms joined, kneel and touch the forehead to the floor.',
   stayTitle: 'Templestay',
   stayNote: "Real templestays are booked with each temple. We will introduce the day's rhythm: chanting, the formal meal and communal work.",
   others: 'Japanese Zen gardens, Thai golden stupas and Tibetan mandalas and prayer flags will open one by one after research and review of each tradition.',

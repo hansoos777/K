@@ -5,7 +5,7 @@ const pack: LearnPack = {
     title: '불교',
     sub: '깨달음의 길 · 불법승 삼보',
     intro: '불교는 기원전 5세기 무렵 인도에서 싯다르타 고타마가 깨달음을 얻어 붓다(깨달은 이)가 된 뒤 전한 가르침에서 시작했습니다. 남방의 상좌부, 동아시아의 대승, 티베트의 금강승으로 퍼졌고, 한국에는 4세기 고구려 때(372년) 전해져 1,600년 넘게 이어지고 있습니다.',
-    start: { title: '처음 산사에 가 보기', text: '일주문을 지나 탑과 향로, 대웅전, 범종각까지 걸으며 절의 구조와 예절을 배우는 안내입니다.', place: 'sansa' },
+    start: { title: '처음 법당에 가 보기', text: '대웅전에 들어가 합장하고, 향을 올리고, 삼배를 드리며 법당 예절을 배우는 안내입니다.', place: 'daeung' },
     lessons: [
       { title: '붓다의 생애', body: ['룸비니에서 태어난 싯다르타 왕자는 늙음·병듦·죽음을 보고 출가해, 보드가야의 보리수 아래에서 깨달음을 얻었습니다.', '녹야원에서 처음 가르침을 폈고(초전법륜), 쿠시나가라에서 열반에 들었습니다.'] },
       { title: '핵심 가르침', body: ['사성제: 삶에는 괴로움(고)이 있고, 그 원인(집)이 있으며, 괴로움은 사라질 수 있고(멸), 그 길(도)이 있다.', '팔정도: 바른 견해·생각·말·행동·생활·노력·마음챙김·집중.', '모든 것은 변하고(무상), 고정된 나는 없다(무아)는 가르침, 그리고 양극단을 피하는 중도.'] },
@@ -23,7 +23,7 @@ const pack: LearnPack = {
     practice: [
       { label: '연등 켜기', place: 'sansa', text: '마당의 연등에 불을 밝힙니다.' },
       { label: '범종 치기', place: 'sansa', text: '범종각에서 범종을 칩니다.' },
-      { label: '향 피우기', place: 'sansa', text: '대웅전 앞 향로에 향을 올립니다.' },
+      { label: '향 피우기 · 삼배', place: 'daeung', text: '대웅전 불단에 향을 올리고 삼배를 드립니다.' },
       { label: '호흡 명상', place: 'meditation', text: '명상실 방석에 앉아 숨을 따라갑니다.' },
     ],
     festivals: [
@@ -40,7 +40,7 @@ const pack: LearnPack = {
     title: 'Buddhism',
     sub: 'The path of awakening · the Three Jewels',
     intro: 'Buddhism began with the teaching of Siddhartha Gautama, who became the Buddha (the awakened one) in India around the 5th century BCE. It spread as Theravada in the south, Mahayana in East Asia and Vajrayana in Tibet, and reached Korea in 372 CE, continuing for over 1,600 years.',
-    start: { title: 'Your first mountain temple', text: 'Walk from the gate past the pagoda and incense burner to the main hall and bell pavilion, learning the layout and manners.', place: 'sansa' },
+    start: { title: 'Your first Buddha hall', text: 'Enter the main hall, join palms, offer incense and make three bows.', place: 'daeung' },
     lessons: [
       { title: 'Life of the Buddha', body: ['Born in Lumbini, Prince Siddhartha left home after seeing old age, sickness and death, and awakened under the Bodhi tree at Bodh Gaya.', 'He first taught at Sarnath and passed into parinirvana at Kushinagar.'] },
       { title: 'Core teachings', body: ['The Four Noble Truths: suffering, its cause, its cessation, and the path.', 'The Noble Eightfold Path: right view, intention, speech, action, livelihood, effort, mindfulness and concentration.', 'Impermanence, non-self and the Middle Way between extremes.'] },
@@ -52,7 +52,7 @@ const pack: LearnPack = {
     practice: [
       { label: 'Light a lantern', place: 'sansa', text: 'Light lotus lanterns in the courtyard.' },
       { label: 'Strike the bell', place: 'sansa', text: 'Strike the great bell in its pavilion.' },
-      { label: 'Offer incense', place: 'sansa', text: 'Offer incense before the main hall.' },
+      { label: 'Incense · three bows', place: 'daeung', text: 'Offer incense and three bows in the main hall.' },
       { label: 'Breathing meditation', place: 'meditation', text: 'Sit on a cushion and follow your breath.' },
     ],
     festivals: [

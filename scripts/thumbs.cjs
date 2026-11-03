@@ -6,12 +6,12 @@ const { execFileSync } = require('node:child_process')
 const places = process.argv.slice(2).length ? process.argv.slice(2) : [
   'christian/traditional', 'christian/modern', 'christian/prayer',
   'catholic/parish', 'catholic/gothic', 'catholic/grotto', 'catholic/confessional',
-  'temple/sansa', 'temple/meditation',
+  'temple/daeung', 'temple/sansa', 'temple/meditation',
 ]
 ;(async () => {
   const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] })
   const p = await b.newPage({ viewport: { width: 600, height: 720 }, deviceScaleFactor: 1 })
-  await p.addInitScript(() => localStorage.setItem('oruvia-v1', JSON.stringify({ quality: 'high', sound: false })))
+  await p.addInitScript(() => localStorage.setItem('oruvia-v1', JSON.stringify({ quality: 'high', sound: false, tutorials: ['temple/daeung','catholic/gothic','christian/traditional','temple/sansa'] })))
   for (const r of places) {
     await p.goto('http://localhost:4174/#/w/' + r)
     await p.waitForSelector('.stage-canvas', { timeout: 20000 })

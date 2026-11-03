@@ -8,7 +8,8 @@ import { Btn, Note } from '../../ui/kit'
 import { Space, type PlaceScene, type SceneApi } from '../../ui/Space'
 import S from './strings'
 import TOUR from './tour'
-import { buildModern, buildPrayer, buildTraditional } from './three'
+import { buildModern, buildPrayer } from './three'
+import { buildChurch } from './church'
 
 type T = (typeof S)['ko']
 
@@ -122,7 +123,7 @@ export default function ChristianWorld({ place, tour }: WorldProps) {
         spots: g.spots,
       }
     return {
-      build: buildTraditional,
+      build: buildChurch,
       intro: t.intro.traditional,
       actions: [
         { id: 'hymn', label: t.hymn.split(' · ')[0], icon: 'music', run: music('hymn-organ', t.hymn) },

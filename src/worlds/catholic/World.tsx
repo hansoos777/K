@@ -8,7 +8,8 @@ import { Space, type PlaceScene } from '../../ui/Space'
 import { mysteryOf, seasonOf, upcoming } from './calendar'
 import S from './strings'
 import TOUR from './tour'
-import { buildConfessional, buildGothic, buildGrotto, buildParish } from './three'
+import { buildConfessional, buildGrotto, buildParish } from './three'
+import { buildCathedral } from './cathedral'
 
 type T = (typeof S)['ko']
 
@@ -119,7 +120,7 @@ export default function CatholicWorld({ place, tour }: WorldProps) {
     switch (p) {
       case 'gothic':
         return {
-          build: buildGothic,
+          build: buildCathedral,
           intro: t.intro.gothic,
           actions: [
             { id: 'candle', label: t.candleTitle, icon: 'candle', run: candleRun },

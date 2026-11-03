@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { Avatar, type AvatarLook } from './avatar'
+import { bakeDevotee, makeDevotee } from './pt/devotee'
 import { disposeTextures } from './tex'
 
 /**
@@ -28,7 +29,7 @@ export interface BuildCtx {
   /** 실시간 점광원은 개수를 제한 (고급 모드 6개, 절약 모드 2개) */
   pointLight(color: string, intensity: number, distance: number, pos: [number, number, number]): THREE.PointLight | null
   /** 아바타 자세 (기도할 때 합장) */
-  pose(p: 'idle' | 'pray'): void
+  pose(p: 'idle' | 'pray' | 'bow'): void
   /** 아바타를 걸어가게 함 */
   walkTo(x: number, z: number, then?: () => void): void
   /** 화면에 짧은 안내 문구 */
@@ -37,6 +38,8 @@ export interface BuildCtx {
   spot(id: string, x: number, z: number, r?: number): void
   /** 공간을 함께 채우는 방문객 (실제 사용자가 아님 · 장식용) */
   npc(x: number, z: number, yaw: number, look: AvatarLook, pose?: 'idle' | 'pray' | 'bow'): void
+  /** 앉아 있는 많은 사람 (PujaTime 사원 홀처럼 종류별로 합쳐 인스턴스로 그림). bow가 있으면 가끔 절함 */
+  crowd(people: { x: number; z: number; y?: number; yaw: number; look: AvatarLook; joined?: boolean; bows?: boolean }[], scale?: number): void
 }
 
 export interface Layout {
@@ -48,6 +51,10 @@ export interface Layout {
   camBox?: { min: [number, number, number]; max: [number, number, number] }
   dist?: number
   maxDist?: number
+  /** 카메라 높이 각도(라디안). 넓은 법당·성당은 낮게(PujaTime 0.22) */
+  pitch?: number
+  /** 카메라가 바라보는 높이(캐릭터 머리 위로 얼마나). 큰 상징물이 있으면 높게 */
+  lookY?: number
 }
 
 export type Builder = (ctx: BuildCtx) => Layout
@@ -83,6 +90,7 @@ export class Stage {
   private pending: (() => void) | null = null
   private yaw = 0
   private pitch = 0.4
+  private lookY = 0.55
   private dist = 4.6
   private maxDist = 7
   private camBox?: THREE.Box3
@@ -107,8 +115,8 @@ export class Stage {
     this.pr = Math.min(window.devicePixelRatio || 1, high ? 1.75 : 1)
     this.renderer.setPixelRatio(this.pr)
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping
-    this.renderer.toneMappingExposure = 1.25
+    // PujaTime과 같은 색 처리: 톤매핑 없이 재질 색 그대로(따뜻하고 선명하게)
+    this.renderer.toneMapping = THREE.NoToneMapping
     this.renderer.domElement.className = 'stage-canvas'
     host.appendChild(this.renderer.domElement)
 
@@ -142,6 +150,39 @@ export class Stage {
         this.npcs.push(a)
         this.blocks.push({ x0: x - 0.3, z0: z - 0.3, x1: x + 0.3, z1: z + 0.3 })
       },
+      crowd: (people, scale = 0.55) => {
+        const groups = new Map<string, typeof people>()
+        for (const p of people) {
+          const k = JSON.stringify([p.look, !!p.joined])
+          groups.set(k, [...(groups.get(k) ?? []), p])
+        }
+        const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3(scale, scale, scale)
+        const sets: { who: typeof people; parts: THREE.InstancedMesh[]; seeds: number[] }[] = []
+        for (const who of groups.values()) {
+          const parts = bakeDevotee(makeDevotee({ ...who[0].look, ratio: 2, pose: 'sit', joined: who[0].joined })).map(({ geo, mat }) => {
+            const inst = new THREE.InstancedMesh(geo, mat, who.length)
+            inst.frustumCulled = false
+            this.scene.add(inst)
+            return inst
+          })
+          sets.push({ who, parts, seeds: who.map(() => Math.random() * 20) })
+        }
+        const place = (t: number) => {
+          for (const { who, parts, seeds } of sets) {
+            who.forEach((p, i) => {
+              // 절하는 사람은 몇 초마다 천천히 숙였다 일어남
+              const b = p.bows ? Math.max(0, Math.sin((t + seeds[i]) * 0.35)) ** 6 : 0
+              e.set(b * 0.9, p.yaw, 0, 'YXZ')
+              m.compose(new THREE.Vector3(p.x, p.y ?? 0.02, p.z), q.setFromEuler(e), sc)
+              parts.forEach((x) => x.setMatrixAt(i, m))
+            })
+            parts.forEach((x) => (x.instanceMatrix.needsUpdate = true))
+          }
+        }
+        place(0)
+        if (people.some((p) => p.bows)) this.updaters.push((t) => place(t))
+        for (const p of people) this.blocks.push({ x0: p.x - 0.3, z0: p.z - 0.3, x1: p.x + 0.3, z1: p.z + 0.3 })
+      },
     }
     const layout = build(ctx)
 
@@ -152,6 +193,8 @@ export class Stage {
     this.yaw = layout.yaw
     this.dist = layout.dist ?? 4.6
     this.maxDist = layout.maxDist ?? 7
+    this.pitch = layout.pitch ?? this.pitch
+    this.lookY = layout.lookY ?? 0.55
     if (layout.camBox) this.camBox = new THREE.Box3(new THREE.Vector3(...layout.camBox.min), new THREE.Vector3(...layout.camBox.max))
     this.scene.add(this.avatar.root)
 
@@ -336,7 +379,7 @@ export class Stage {
     this.renderer.setSize(w, h, false)
     this.camera.aspect = w / h
     // 세로 화면에서는 시야를 넓혀 공간이 답답하지 않게
-    this.camera.fov = w < h ? 68 : 55
+    this.camera.fov = w < h ? 62 : 50
     this.camera.updateProjectionMatrix()
   }
 
@@ -468,7 +511,7 @@ export class Stage {
     if (this.camBox) want.clamp(this.camBox.min, this.camBox.max)
     this.camera.position.lerp(want, Math.min(1, dt * 6))
     // 캐릭터가 화면 아래쪽에 오도록 앞쪽을 바라봄
-    this.camera.lookAt(head.x - Math.sin(this.yaw) * 1.6, head.y + 0.55, head.z - Math.cos(this.yaw) * 1.6)
+    this.camera.lookAt(head.x - Math.sin(this.yaw) * 1.6, head.y + this.lookY, head.z - Math.cos(this.yaw) * 1.6)
   }
 
   private pick(ev: PointerEvent) {
