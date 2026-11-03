@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { brass, canvasTexture } from './kit'
+import type { BuildCtx } from '../stage'
 
 /**
  * 종교별 중심 상징물. PujaTime 신상처럼 화면의 중심이 되도록 크고 빛나게 만든다.
@@ -423,4 +424,32 @@ export function maruTexture(repeat: [number, number]) {
       c.fillRect((i * 97) % 256, i * 32, 2, 32)
     }
   }, repeat)
+}
+
+/**
+ * 실사 성상: public/statues/<id>.png(배경을 지운 사진)가 있으면 받침 위에 세우고 코드로 만든 상은 숨긴다.
+ * PujaTime의 신상과 같은 방식(정면 사진을 카메라 쪽으로 돌려 세움). 파일이 없으면 코드 상이 그대로 남는다.
+ * @param base 받침 윗면 가운데 위치, @param h 상의 높이(m), @param maxYaw 좌우로 돌아가는 최대 각도
+ */
+export function realStatue(ctx: BuildCtx, id: string, base: THREE.Vector3, h: number, fallback: THREE.Object3D, maxYaw = 0.5) {
+  new THREE.TextureLoader().load(`/statues/${id}.png`, (tex) => {
+    const img = tex.image as HTMLImageElement
+    if (!img?.width) return
+    tex.colorSpace = THREE.SRGBColorSpace
+    tex.anisotropy = 4
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry((h * img.width) / img.height, h),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.04, side: THREE.DoubleSide }),
+    )
+    plane.position.set(base.x, base.y + h / 2, base.z)
+    const face = fallback.rotation.y
+    ctx.scene.add(plane)
+    fallback.visible = false
+    ctx.every(() => {
+      const a = Math.atan2(ctx.camera.position.x - plane.position.x, ctx.camera.position.z - plane.position.z)
+      let d = a - face
+      d = Math.atan2(Math.sin(d), Math.cos(d))
+      plane.rotation.y = face + Math.max(-maxYaw, Math.min(maxYaw, d))
+    })
+  }, undefined, () => { /* 사진이 없으면 코드로 만든 상을 그대로 씀 */ })
 }

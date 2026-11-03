@@ -5,7 +5,7 @@ import { LOOKS, visitorLook } from '../../engine/avatar'
 import { cyl, box, std } from '../../engine/props'
 import { lightShaft, sunburst } from '../../engine/pt/decor'
 import { brass, brassEnv, canvasTexture, Flame, glowTexture, makeFlameTextures } from '../../engine/pt/kit'
-import { buddha, dancheongBand, dancheongCeiling, lotusThrone, mandorla, maruTexture } from '../../engine/pt/statues'
+import { buddha, dancheongBand, dancheongCeiling, lotusThrone, mandorla, maruTexture, realStatue } from '../../engine/pt/statues'
 import type { BuildCtx, Layout } from '../../engine/stage'
 
 type Built = Layout & { api: Record<string, () => void> }
@@ -143,6 +143,11 @@ export function buildDaeung(ctx: BuildCtx): Built {
   const b = buddha(env, 5.4)
   b.position.set(0, 3.1, altarZ)
   scene.add(b)
+  // 실사 불상 사진이 있으면 연꽃 받침 위에 세움(받침 포함 사진이라 받침은 숨김)
+  const realGroup = new THREE.Group()
+  realGroup.add(b, throne)
+  scene.add(realGroup)
+  realStatue(ctx, 'buddha', new THREE.Vector3(0, 2.1, altarZ), 7.4, realGroup, 0.35)
   const halo = mandorla(7.6)
   halo.position.set(0, 3.1 + 5.4 * 0.62, altarZ - 1.1)
   scene.add(halo)

@@ -5,7 +5,7 @@ import { LOOKS, visitorLook } from '../../engine/avatar'
 import { archFrame, box, clusterColumn, cyl, glassWindow, pew, pointedArch, rib, std, vault } from '../../engine/props'
 import { lightShaft, sunburst } from '../../engine/pt/decor'
 import { brass, brassEnv, canvasTexture, Flame, glowTexture, makeFlameTextures, marbleEnv } from '../../engine/pt/kit'
-import { crucifix, mary, reredosTexture } from '../../engine/pt/statues'
+import { crucifix, mary, realStatue, reredosTexture } from '../../engine/pt/statues'
 import type { BuildCtx, Layout } from '../../engine/stage'
 import { roseWindow, stainedGlass, stone, wood } from '../../engine/tex'
 
@@ -140,6 +140,7 @@ export function buildCathedral(ctx: BuildCtx): Built {
   const cru = crucifix(6, env, marble)
   cru.position.set(0, 4.6, Z0 + 1.2)
   scene.add(cru)
+  realStatue(ctx, 'crucifix', new THREE.Vector3(0, 4.6, Z0 + 1.3), 6.4, cru, 0.2)
   const altar = new THREE.Group()
   altar.add(box(4.6, 1.2, 1.4, new THREE.MeshMatcapMaterial({ matcap: marble })), box(4.8, 0.08, 1.6, std('#fffaf0'), 0, 1.2, 0), box(4.6, 0.6, 0.02, gold, 0, 0.4, 0.71))
   altar.position.set(0, 0.6, sZ + 1)
@@ -187,6 +188,7 @@ export function buildCathedral(ctx: BuildCtx): Built {
   m.position.set(-W / 2 + 1.6, 1.2, -4)
   m.rotation.y = Math.PI / 2
   scene.add(m, box(1.6, 1.2, 1.6, new THREE.MeshMatcapMaterial({ matcap: marble }), -W / 2 + 1.6, 0, -4))
+  realStatue(ctx, 'mary', new THREE.Vector3(-W / 2 + 1.6, 1.2, -4), 2.8, m, 0.6)
   const maryGlow = sunburst(4, 0.5)
   maryGlow.position.set(-W / 2 + 0.6, 3.3, -4)
   maryGlow.rotation.y = Math.PI / 2

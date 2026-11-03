@@ -3,3 +3,4 @@ dist
 *.local
 .wrangler
 modules/pujatime/node_modules
+scripts/statues/source

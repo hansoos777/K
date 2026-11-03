@@ -15,6 +15,7 @@ export interface Rect { x0: number; z0: number; x1: number; z1: number }
 
 export interface BuildCtx {
   scene: THREE.Scene
+  camera: THREE.Camera
   high: boolean
   /** 걸을 수 있는 영역 */
   walk(r: Rect): void
@@ -122,6 +123,7 @@ export class Stage {
 
     const ctx: BuildCtx = {
       scene: this.scene,
+      camera: this.camera,
       high,
       walk: (r) => this.walkRects.push(norm(r)),
       block: (r) => this.blocks.push(norm(r)),
