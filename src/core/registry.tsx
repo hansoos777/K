@@ -15,6 +15,8 @@ export type WorldId = 'christian' | 'catholic' | 'mandir' | 'temple'
 export interface WorldProps {
   /** #/w/<id>/<place> 의 place */
   place?: string
+  /** #/w/<id>/<place>/tour 로 들어오면 안내(튜토리얼)를 바로 시작 */
+  tour?: boolean
 }
 
 export interface WorldDef {
@@ -25,13 +27,15 @@ export interface WorldDef {
   colors: [string, string]
   places: PlaceMeta[]
   load: () => Promise<{ default: ComponentType<WorldProps> }>
+  /** 종교 메인 화면 내용 (배우기·예절·축제) */
+  learn: () => Promise<{ default: import('../learn/types').LearnPack }>
 }
 
 export const WORLDS: WorldDef[] = [
-  { id: 'christian', brand: 'ORUVIA CHRISTIAN', status: 'open', places: christian, colors: ['#2b3a55', '#c9a45c'], load: () => import('../worlds/christian/World') },
-  { id: 'catholic', brand: 'ORUVIA CATHOLIC', status: 'open', places: catholic, colors: ['#3a1f3d', '#d9b35b'], load: () => import('../worlds/catholic/World') },
-  { id: 'mandir', brand: 'ORUVIA MANDIR', status: 'bridge', places: mandir, colors: ['#7a2412', '#f2a33a'], load: () => import('../worlds/mandir/World') },
-  { id: 'temple', brand: 'ORUVIA TEMPLE', status: 'open', places: temple, colors: ['#1f3b33', '#c8553d'], load: () => import('../worlds/temple/World') },
+  { id: 'christian', brand: 'ORUVIA CHRISTIAN', status: 'open', places: christian, colors: ['#2b3a55', '#c9a45c'], load: () => import('../worlds/christian/World'), learn: () => import('../learn/christian') },
+  { id: 'catholic', brand: 'ORUVIA CATHOLIC', status: 'open', places: catholic, colors: ['#3a1f3d', '#d9b35b'], load: () => import('../worlds/catholic/World'), learn: () => import('../learn/catholic') },
+  { id: 'mandir', brand: 'ORUVIA MANDIR', status: 'bridge', places: mandir, colors: ['#7a2412', '#f2a33a'], load: () => import('../worlds/mandir/World'), learn: () => import('../learn/hindu') },
+  { id: 'temple', brand: 'ORUVIA TEMPLE', status: 'open', places: temple, colors: ['#1f3b33', '#c8553d'], load: () => import('../worlds/temple/World'), learn: () => import('../learn/buddhist') },
 ]
 
 export const worldById = (id: string) => WORLDS.find((w) => w.id === id)

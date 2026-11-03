@@ -293,3 +293,19 @@ export function suspendAudio() {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) suspendAudio()
 })
+
+let musicOn: Music | 'wind' | null = null
+let musicTimer: number | undefined
+/** 음악 켜고 끄기(공간 안 버튼용). 켜졌으면 true */
+export function toggleMusic(kind: Music | 'wind'): boolean {
+  window.clearTimeout(musicTimer)
+  if (musicOn === kind && live.size) {
+    stopAll()
+    musicOn = null
+    return false
+  }
+  const sec = kind === 'wind' ? (playWind() ? 1e6 : 0) : playMusic(kind)
+  musicOn = sec > 0 ? kind : null
+  if (sec > 0 && sec < 1e6) musicTimer = window.setTimeout(() => (musicOn = null), sec * 1000)
+  return sec > 0
+}

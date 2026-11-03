@@ -1,12 +1,14 @@
-import { useState } from 'react'
-import { bell } from '../../core/audio'
+import { useRef, useState, type RefObject } from 'react'
+import { bell, toggleMusic } from '../../core/audio'
 import type { WorldProps } from '../../core/registry'
-import { update, useStore } from '../../core/store'
-import { useLocal } from '../../i18n'
+import { getState, update, useStore } from '../../core/store'
+import { useLocal, useT } from '../../i18n'
 import { mmss, useCountdown } from '../../ui/hooks'
-import { Btn, Intro, Note, Panel, Scene, SoundButton, WorldFrame } from '../../ui/kit'
-import { Modern, PrayerRoom, Traditional } from './scenes'
+import { Btn, Note } from '../../ui/kit'
+import { Space, type PlaceScene, type SceneApi } from '../../ui/Space'
 import S from './strings'
+import TOUR from './tour'
+import { buildModern, buildPrayer, buildTraditional } from './three'
 
 type T = (typeof S)['ko']
 
@@ -14,46 +16,42 @@ function Meditate({ t }: { t: T }) {
   const [i, setI] = useState(0)
   const v = t.verses[i]
   return (
-    <Panel title={t.meditateTitle}>
+    <>
       <div className="seg wrap" role="tablist">
-        {t.verses.map((x, n) => (
-          <button key={x.ref} role="tab" aria-selected={n === i} onClick={() => setI(n)}>{x.theme}</button>
-        ))}
+        {t.verses.map((x, n) => <button key={x.ref} role="tab" aria-selected={n === i} onClick={() => setI(n)}>{x.theme}</button>)}
       </div>
       <article className="card-quiet">
         <h3>{v.ref}</h3>
         <ol>{v.q.map((q) => <li key={q}>{q}</li>)}</ol>
       </article>
       <Note>{t.meditateNote}</Note>
-    </Panel>
+    </>
   )
 }
 
-function Silent({ t }: { t: T }) {
-  const cd = useCountdown(() => bell('church'))
+function Silent({ t, api }: { t: T; api: RefObject<SceneApi | null> }) {
+  const cd = useCountdown(() => { bell('church'); api.current?.stand?.() })
   return (
-    <Panel title={t.silentTitle}>
+    <>
       {cd.running ? (
         <div className="timer">
           <span className="timer-big" aria-live="polite">{mmss(cd.left)}</span>
-          <Btn onClick={cd.stop}>{t.stopTimer}</Btn>
+          <Btn onClick={() => { cd.stop(); api.current?.stand?.() }}>{t.stopTimer}</Btn>
         </div>
       ) : (
         <div className="row">
-          {[1, 3, 5].map((m) => (
-            <Btn key={m} onClick={() => { bell('church'); cd.start(m * 60) }}>{m}{t.min}</Btn>
-          ))}
+          {[1, 3, 5].map((m) => <Btn key={m} onClick={() => { bell('church'); api.current?.kneel?.(); cd.start(m * 60) }}>{m}{t.min}</Btn>)}
         </div>
       )}
       <Note>{t.silentNote}</Note>
-    </Panel>
+    </>
   )
 }
 
 function Notes({ t }: { t: T }) {
   const prayers = useStore((s) => s.prayers)
-  const [text, setText] = useState('')
   const lang = useStore((s) => s.lang)
+  const [text, setText] = useState('')
   const save = () => {
     const v = text.trim()
     if (!v) return
@@ -61,7 +59,7 @@ function Notes({ t }: { t: T }) {
     setText('')
   }
   return (
-    <Panel title={t.notesTitle}>
+    <>
       <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.notesPlaceholder} rows={3} maxLength={2000} />
       <div className="row"><Btn onClick={save} disabled={!text.trim()}>{t.save}</Btn></div>
       <Note>{t.notesNote}</Note>
@@ -76,58 +74,66 @@ function Notes({ t }: { t: T }) {
           ))}
         </ul>
       )}
-    </Panel>
+    </>
   )
 }
 
-export default function ChristianWorld({ place }: WorldProps) {
+export default function ChristianWorld({ place, tour }: WorldProps) {
   const t = useLocal(S)
-  return (
-    <WorldFrame id="christian" place={place}>
-      {(p) => (
-        <>
-          {p === 'traditional' && (
-            <>
-              <Scene label={t.scene.traditional}><Traditional /></Scene>
-              <Intro>{t.intro.traditional}</Intro>
-              <div className="row">
-                <SoundButton kind="hymn-organ" label={t.hymn} />
-                <Btn onClick={() => bell('church')}>{t.bell}</Btn>
-              </div>
-              <Panel title={t.orderTitle}>
-                <ol className="steps">{t.order.map((o) => <li key={o}>{o}</li>)}</ol>
-              </Panel>
-              <Meditate t={t} />
-            </>
-          )}
-          {p === 'modern' && (
-            <>
-              <Scene label={t.scene.modern}><Modern /></Scene>
-              <Intro>{t.intro.modern}</Intro>
-              <SoundButton kind="worship-pad" label={t.worshipPad} />
-              <Panel title={t.modernTitle}>
-                <ul>{t.modernList.map((o) => <li key={o}>{o}</li>)}</ul>
-              </Panel>
-              <Panel title={t.diffTitle}>
-                <table className="compare">
-                  <thead><tr>{t.diffHead.map((h) => <th key={h}>{h}</th>)}</tr></thead>
-                  <tbody>{t.diff.map(([a, b, c]) => <tr key={a}><th>{a}</th><td>{b}</td><td>{c}</td></tr>)}</tbody>
-                </table>
-              </Panel>
-              <Panel title={t.together}><Note>{t.togetherNote}</Note></Panel>
-            </>
-          )}
-          {p === 'prayer' && (
-            <>
-              <Scene label={t.scene.prayer}><PrayerRoom /></Scene>
-              <Intro>{t.intro.prayer}</Intro>
-              <Silent t={t} />
-              <Notes t={t} />
-              <Meditate t={t} />
-            </>
-          )}
-        </>
-      )}
-    </WorldFrame>
-  )
+  const g = useLocal(TOUR)
+  const c = useT()
+  const apiRef = useRef<SceneApi | null>(null)
+  const music = (k: 'hymn-organ' | 'worship-pad', label: string) => () => (toggleMusic(k) ? label : getState().sound ? undefined : c.soundOff)
+  const scene = (p: string): PlaceScene => {
+    if (p === 'modern')
+      return {
+        build: buildModern,
+        intro: t.intro.modern,
+        actions: [
+          { id: 'pad', label: t.worshipPad, icon: 'music', run: music('worship-pad', t.worshipPad) },
+          { id: 'modern', label: t.modernTitle, icon: 'info', panel: <ul>{t.modernList.map((o) => <li key={o}>{o}</li>)}</ul> },
+          {
+            id: 'diff', label: t.diffTitle, icon: 'book', panel: (
+              <table className="compare">
+                <thead><tr>{t.diffHead.map((h) => <th key={h}>{h}</th>)}</tr></thead>
+                <tbody>{t.diff.map(([a, b, d]) => <tr key={a}><th>{a}</th><td>{b}</td><td>{d}</td></tr>)}</tbody>
+              </table>
+            ),
+          },
+          { id: 'together', label: t.together, icon: 'calendar', panel: <Note>{t.togetherNote}</Note> },
+        ],
+        gestures: g.gestures,
+        spots: g.spots,
+      }
+    if (p === 'prayer')
+      return {
+        build: (ctx) => {
+          const b = buildPrayer(ctx)
+          apiRef.current = b.api
+          return b
+        },
+        intro: t.intro.prayer,
+        actions: [
+          { id: 'silent', label: t.silentTitle, icon: 'pray', panel: <Silent t={t} api={apiRef} /> },
+          { id: 'notes', label: t.notesTitle, icon: 'note', panel: <Notes t={t} /> },
+          { id: 'word', label: t.meditateTitle, icon: 'book', panel: <Meditate t={t} /> },
+        ],
+        gestures: g.gestures,
+        spots: g.spots,
+      }
+    return {
+      build: buildTraditional,
+      intro: t.intro.traditional,
+      actions: [
+        { id: 'hymn', label: t.hymn.split(' · ')[0], icon: 'music', run: music('hymn-organ', t.hymn) },
+        { id: 'bell', label: t.bell, icon: 'bell', run: () => { bell('church'); return getState().sound ? undefined : c.soundOff } },
+        { id: 'order', label: t.orderTitle.split(' (')[0], icon: 'note', panel: <><ol className="steps">{t.order.map((o) => <li key={o}>{o}</li>)}</ol><Note>{t.orderTitle}</Note></> },
+        { id: 'word', label: t.meditateTitle, icon: 'book', panel: <Meditate t={t} /> },
+      ],
+      gestures: g.gestures,
+      spots: g.spots,
+      tour: g.tour,
+    }
+  }
+  return <Space id="christian" place={place} scene={scene} tourMode={tour} />
 }

@@ -24,7 +24,7 @@ function Ready({ id, children }: { id: string; children: ReactNode }) {
   return <>{children}</>
 }
 
-export default function WorldShell({ id, place }: { id: string; place?: string }) {
+export default function WorldShell({ id, place, tour }: { id: string; place?: string; tour?: boolean }) {
   const t = useT()
   const def = worldById(id)
   const [attempt, setAttempt] = useState(0)
@@ -71,7 +71,7 @@ export default function WorldShell({ id, place }: { id: string; place?: string }
         }
       >
         <Ready id={id}>
-          <World place={place} />
+          <World place={place} tour={tour} />
         </Ready>
       </Suspense>
     </Boundary>

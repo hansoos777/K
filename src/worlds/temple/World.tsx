@@ -1,140 +1,89 @@
-import { useEffect, useState } from 'react'
-import { bell, jukbi, moktak } from '../../core/audio'
+import { useEffect, useRef, type RefObject } from 'react'
+import { jukbi, toggleMusic } from '../../core/audio'
 import type { WorldProps } from '../../core/registry'
-import { update, useStore } from '../../core/store'
-import { useLocal } from '../../i18n'
+import { getState, useStore } from '../../core/store'
+import { useLocal, useT } from '../../i18n'
 import { mmss, useCountdown } from '../../ui/hooks'
-import { Btn, Intro, Note, Panel, Scene, SoundButton, WorldFrame } from '../../ui/kit'
-import { Incense, MeditationHall, Sansa } from './scenes'
+import { Btn, Note } from '../../ui/kit'
+import { Space, type PlaceScene, type SceneApi } from '../../ui/Space'
 import S from './strings'
+import TOUR from './tour'
+import { buildMeditation, buildSansa } from './three'
 
 type T = (typeof S)['ko']
 
 function DefList({ items }: { items: [string, string][] }) {
-  return (
-    <dl className="deflist">
-      {items.map(([a, b]) => <div key={a}><dt>{a}</dt><dd>{b}</dd></div>)}
-    </dl>
-  )
+  return <dl className="deflist">{items.map(([a, b]) => <div key={a}><dt>{a}</dt><dd>{b}</dd></div>)}</dl>
 }
 
-function BellPanel({ t }: { t: T }) {
-  const [n, setN] = useState(0)
-  const [cool, setCool] = useState(false)
-  return (
-    <Panel title={t.bellTitle}>
-      <div className="row">
-        <Btn
-          disabled={cool}
-          onClick={() => {
-            bell('beomjong')
-            setN(n + 1)
-            // 범종은 울림이 길어 연타를 막는다 (소리 노드 과다 생성 방지)
-            setCool(true)
-            setTimeout(() => setCool(false), 2500)
-          }}
-        >
-          {t.strike}
-        </Btn>
-        {n > 0 && <span className="count">{t.strikes(n)}</span>}
-      </div>
-      <Note>{t.bellNote}</Note>
-    </Panel>
-  )
-}
-
-function IncensePanel({ t }: { t: T }) {
-  const [burning, setBurning] = useState(false)
-  useEffect(() => {
-    if (!burning) return
-    const id = setTimeout(() => setBurning(false), 3 * 60 * 1000)
-    return () => clearTimeout(id)
-  }, [burning])
-  return (
-    <Panel title={t.incenseTitle}>
-      <div className="row">
-        <Incense burning={burning} />
-        <Btn onClick={() => setBurning(true)} disabled={burning}>{burning ? t.burning : t.light}</Btn>
-      </div>
-      <Note>{t.incenseNote}</Note>
-    </Panel>
-  )
-}
-
-function Breath({ t, onActive }: { t: T; onActive: (b: boolean) => void }) {
-  const cd = useCountdown(() => jukbi(1))
-  useEffect(() => onActive(cd.running), [cd.running, onActive])
+/** 호흡 명상: 시작하면 아바타가 방석으로 가서 앉고(합장), 숨 원이 커졌다 작아짐 */
+function Breath({ t, api }: { t: T; api: RefObject<SceneApi | null> }) {
+  const cd = useCountdown(() => {
+    jukbi(1)
+    api.current?.stand?.()
+  })
   const elapsed = cd.total - cd.left
-  const inhale = elapsed % 10 < 4 // 4초 들숨 · 6초 날숨
+  const inhale = elapsed % 10 < 4
   return (
-    <Panel title={t.breathTitle}>
+    <>
       {cd.running ? (
-        <div className="timer">
+        <div className="breath">
+          <div className={`breath-orb ${inhale ? 'in' : 'out'}`} aria-hidden="true" />
           <span className="timer-phase" aria-live="polite">{inhale ? t.inhale : t.exhale}</span>
           <span className="timer-big">{mmss(cd.left)}</span>
-          <Btn onClick={() => { cd.stop(); jukbi(1) }}>{t.end}</Btn>
+          <Btn onClick={() => { cd.stop(); jukbi(1); api.current?.stand?.() }}>{t.end}</Btn>
         </div>
       ) : (
         <div className="row">
           {[3, 5, 10].map((m) => (
-            <Btn key={m} onClick={() => { jukbi(3); cd.start(m * 60) }}>{m}{t.min}</Btn>
+            <Btn key={m} onClick={() => { jukbi(3); api.current?.sit?.(); cd.start(m * 60) }}>{m}{t.min}</Btn>
           ))}
         </div>
       )}
       <Note>{t.breathNote}</Note>
-    </Panel>
+    </>
   )
 }
 
-export default function TempleWorld({ place }: WorldProps) {
+export default function TempleWorld({ place, tour }: WorldProps) {
   const t = useLocal(S)
-  const [lit, setLit] = useState(0)
-  const total = useStore((s) => s.lanterns)
-  const [breathing, setBreathing] = useState(false)
-  return (
-    <WorldFrame id="temple" place={place}>
-      {(p) => (
-        <>
-          {p === 'sansa' && (
-            <>
-              <Scene label={t.scene.sansa}><Sansa lit={lit} /></Scene>
-              <Intro>{t.intro.sansa}</Intro>
-              <SoundButton kind="wind" label={t.wind} />
-              <Panel title={t.lanternTitle}>
-                <div className="row">
-                  <Btn
-                    disabled={lit >= 15}
-                    onClick={() => {
-                      setLit(lit + 1)
-                      update((s) => ({ lanterns: s.lanterns + 1 }))
-                    }}
-                  >
-                    {t.lanternTitle} ({lit}/15)
-                  </Btn>
-                </div>
-                <Note>{t.lanternNote}</Note>
-                <p className="hint">{t.lanternCount(total)}</p>
-              </Panel>
-              <BellPanel t={t} />
-              <Panel title={t.moktakTitle}>
-                <div className="row"><Btn onClick={moktak}>{t.hit}</Btn></div>
-                <Note>{t.moktakNote}</Note>
-              </Panel>
-              <IncensePanel t={t} />
-              <Panel title={t.pathTitle}><DefList items={t.path} /><Note>{t.pathNote}</Note></Panel>
-              <Note>{t.others}</Note>
-            </>
-          )}
-          {p === 'meditation' && (
-            <>
-              <Scene label={t.scene.meditation}><MeditationHall active={breathing} /></Scene>
-              <Intro>{t.intro.meditation}</Intro>
-              <Breath t={t} onActive={setBreathing} />
-              <Panel title={t.stayTitle}><Note>{t.stayNote}</Note></Panel>
-            </>
-          )}
-        </>
-      )}
-    </WorldFrame>
-  )
+  const g = useLocal(TOUR)
+  const c = useT()
+  const lanterns = useStore((s) => s.lanterns)
+  const apiRef = useRef<SceneApi | null>(null)
+  useEffect(() => () => { apiRef.current = null }, [])
+  const soundOff = () => (getState().sound ? undefined : c.soundOff)
+  const scene = (p: string): PlaceScene => {
+    if (p === 'meditation')
+      return {
+        build: (ctx) => {
+          const b = buildMeditation(ctx)
+          apiRef.current = b.api
+          return b
+        },
+        intro: t.intro.meditation,
+        actions: [
+          { id: 'breath', label: t.breathTitle, icon: 'breath', panel: <Breath t={t} api={apiRef} /> },
+          { id: 'stay', label: t.stayTitle, icon: 'lotus', panel: <Note>{t.stayNote}</Note> },
+        ],
+        gestures: g.gestures,
+        spots: g.spots,
+      }
+    return {
+      build: buildSansa,
+      intro: t.intro.sansa,
+      actions: [
+        { id: 'lantern', label: t.lanternTitle, icon: 'lantern', run: (api) => { api.lantern?.(); return t.lanternCount(lanterns + 1) } },
+        { id: 'bell', label: t.strike, icon: 'bell', run: (api) => { api.bell?.(); return soundOff() ?? t.bellNote.split('.')[0] } },
+        { id: 'moktak', label: t.hit, icon: 'pray', run: (api) => { api.moktak?.(); return soundOff() } },
+        { id: 'incense', label: t.light, icon: 'incense', run: (api) => { api.incense?.(); return t.incenseNote.split('.')[0] } },
+        { id: 'wind', label: t.wind, icon: 'wind', run: () => (toggleMusic('wind') ? t.wind : soundOff()) },
+        { id: 'path', label: t.pathTitle, icon: 'path', panel: <><DefList items={t.path} /><Note>{t.pathNote}</Note><Note>{t.others}</Note></> },
+      ],
+      gestures: g.gestures,
+      spots: g.spots,
+      tour: g.tour,
+    }
+  }
+  return <Space id="temple" place={place} scene={scene} tourMode={tour} />
 }

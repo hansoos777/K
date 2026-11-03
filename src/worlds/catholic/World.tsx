@@ -1,56 +1,30 @@
 import { useMemo, useState } from 'react'
-import { bell } from '../../core/audio'
+import { toggleMusic } from '../../core/audio'
 import type { WorldProps } from '../../core/registry'
-import { update, useStore } from '../../core/store'
-import { useLocal } from '../../i18n'
-import { Btn, Intro, Note, Panel, Scene, SoundButton, WorldFrame } from '../../ui/kit'
+import { getState, useStore } from '../../core/store'
+import { useT, useLocal } from '../../i18n'
+import { Btn, Note } from '../../ui/kit'
+import { Space, type PlaceScene } from '../../ui/Space'
 import { mysteryOf, seasonOf, upcoming } from './calendar'
-import { Confessional, Gothic, Grotto, Parish } from './scenes'
 import S from './strings'
+import TOUR from './tour'
+import { buildConfessional, buildGothic, buildGrotto, buildParish } from './three'
 
 type T = (typeof S)['ko']
 
-function CandleRack({ t, lit, setLit }: { t: T; lit: number; setLit: (n: number) => void }) {
-  const total = useStore((s) => s.candles)
-  return (
-    <Panel title={t.candleTitle}>
-      <div className="candles" role="group" aria-label={t.candleTitle}>
-        {Array.from({ length: 24 }, (_, i) => (
-          <button
-            key={i}
-            className={`candle ${i < lit ? 'lit' : ''}`}
-            aria-pressed={i < lit}
-            aria-label={`${i + 1}`}
-            disabled={i !== lit}
-            onClick={() => {
-              setLit(lit + 1)
-              update((s) => ({ candles: s.candles + 1 }))
-            }}
-          >
-            <span className="wick" />
-          </button>
-        ))}
-      </div>
-      <Note>{t.candleNote}</Note>
-      <p className="hint">{t.candleCount(total)}</p>
-    </Panel>
-  )
-}
-
-/** 묵주기도 한 바퀴의 순서를 만든다 */
 function rosarySteps(t: T, kind: keyof T['mysteries']) {
   const m = t.mysteries[kind]
-  const steps: { label: string; decade?: number; bead?: number; mystery?: string }[] = [
+  const steps: { label: string; decade?: number; bead?: number }[] = [
     { label: t.beads.cross },
     { label: t.beads.our },
     ...[1, 2, 3].map((n) => ({ label: `${t.beads.intro3} ${n}/3` })),
     { label: t.beads.glory },
   ]
   m.list.forEach((title, d) => {
-    steps.push({ label: `${t.beads.decade(d + 1)} · ${title}`, decade: d, mystery: title })
-    steps.push({ label: t.beads.our, decade: d, mystery: title })
-    for (let b = 0; b < 10; b++) steps.push({ label: `${t.beads.hail} ${b + 1}/10`, decade: d, bead: b, mystery: title })
-    steps.push({ label: t.beads.glory, decade: d, bead: 10, mystery: title })
+    steps.push({ label: `${t.beads.decade(d + 1)} · ${title}`, decade: d })
+    steps.push({ label: t.beads.our, decade: d })
+    for (let b = 0; b < 10; b++) steps.push({ label: `${t.beads.hail} ${b + 1}/10`, decade: d, bead: b })
+    steps.push({ label: t.beads.glory, decade: d, bead: 10 })
   })
   steps.push({ label: t.beads.end })
   return steps
@@ -62,7 +36,7 @@ function Rosary({ t }: { t: T }) {
   const steps = useMemo(() => rosarySteps(t, kind), [t, kind])
   const s = steps[i]
   return (
-    <Panel title={t.rosaryTitle}>
+    <>
       <div className="seg wrap" role="radiogroup" aria-label={t.todayMystery}>
         {(Object.keys(t.mysteries) as (keyof T['mysteries'])[]).map((k) => (
           <button key={k} role="radio" aria-checked={k === kind} onClick={() => { setKind(k); setI(0) }}>
@@ -84,23 +58,22 @@ function Rosary({ t }: { t: T }) {
         </div>
       </div>
       <Note>{t.rosaryNote}</Note>
-    </Panel>
+    </>
   )
 }
 
 function Calendar({ t }: { t: T }) {
   const lang = useStore((s) => s.lang)
   const now = seasonOf()
-  const list = upcoming()
   return (
-    <Panel title={t.calTitle}>
+    <>
       <p className="season">
         <span className={`swatch c-${now.color}`} aria-hidden="true" />
         {t.seasonNow} <strong>{t.seasons[now.season]}</strong> · {t.colorLabel} {t.colors[now.color]}
       </p>
       <h3>{t.upcoming}</h3>
       <ul className="feasts">
-        {list.map((f) => (
+        {upcoming().map((f) => (
           <li key={f.key + f.date.getTime()}>
             <time>{f.date.toLocaleDateString(lang === 'en' ? 'en' : 'ko', { month: 'long', day: 'numeric', weekday: 'short' })}</time>
             {t.feasts[f.key]}
@@ -108,81 +81,89 @@ function Calendar({ t }: { t: T }) {
         ))}
       </ul>
       <Note>{t.calNote}</Note>
-    </Panel>
+    </>
   )
 }
 
 function Way({ t }: { t: T }) {
   const [i, setI] = useState(0)
   return (
-    <Panel title={t.wayTitle}>
-      <div className="way">
-        <p className="rosary-step" aria-live="polite"><small>{t.station(i + 1)}</small><br />{t.stations[i]}</p>
-        <div className="beads" aria-hidden="true">
-          {t.stations.map((_, n) => <span key={n} className={`bead sq ${n <= i ? 'on' : ''}`} />)}
-        </div>
-        <div className="row">
-          <Btn onClick={() => setI(Math.max(0, i - 1))} disabled={i === 0}>{t.prev}</Btn>
-          {i < 13 ? <Btn onClick={() => setI(i + 1)}>{t.next}</Btn> : <Btn onClick={() => setI(0)}>{t.restart}</Btn>}
-        </div>
+    <div className="way">
+      <p className="rosary-step" aria-live="polite"><small>{t.station(i + 1)}</small><br />{t.stations[i]}</p>
+      <div className="beads" aria-hidden="true">
+        {t.stations.map((_, n) => <span key={n} className={`bead sq ${n <= i ? 'on' : ''}`} />)}
+      </div>
+      <div className="row">
+        <Btn onClick={() => setI(Math.max(0, i - 1))} disabled={i === 0}>{t.prev}</Btn>
+        {i < 13 ? <Btn onClick={() => setI(i + 1)}>{t.next}</Btn> : <Btn onClick={() => setI(0)}>{t.restart}</Btn>}
       </div>
       <Note>{t.wayNote}</Note>
-    </Panel>
+    </div>
   )
 }
 
 function DefList({ items }: { items: [string, string][] }) {
-  return (
-    <dl className="deflist">
-      {items.map(([a, b]) => <div key={a}><dt>{a}</dt><dd>{b}</dd></div>)}
-    </dl>
-  )
+  return <dl className="deflist">{items.map(([a, b]) => <div key={a}><dt>{a}</dt><dd>{b}</dd></div>)}</dl>
 }
 
-export default function CatholicWorld({ place }: WorldProps) {
+export default function CatholicWorld({ place, tour }: WorldProps) {
   const t = useLocal(S)
-  const [lit, setLit] = useState(0)
-  return (
-    <WorldFrame id="catholic" place={place}>
-      {(p) => (
-        <>
-          {p === 'parish' && (
-            <>
-              <Scene label={t.scene.parish}><Parish /></Scene>
-              <Intro>{t.intro.parish}</Intro>
-              <div className="row"><Btn onClick={() => bell('church')}>{t.bell}</Btn></div>
-              <Panel title={t.partsTitle}><DefList items={t.parts} /></Panel>
-              <Panel title={t.massTitle}><DefList items={t.mass} /></Panel>
-              <Calendar t={t} />
-            </>
-          )}
-          {p === 'gothic' && (
-            <>
-              <Scene label={t.scene.gothic}><Gothic /></Scene>
-              <Intro>{t.intro.gothic}</Intro>
-              <SoundButton kind="cathedral-organ" label={t.organ} />
-              <Way t={t} />
-              <Panel title={t.gothicTitle}><DefList items={t.gothic} /></Panel>
-            </>
-          )}
-          {p === 'grotto' && (
-            <>
-              <Scene label={t.scene.grotto}><Grotto lit={lit} /></Scene>
-              <Intro>{t.intro.grotto}</Intro>
-              <CandleRack t={t} lit={lit} setLit={setLit} />
-              <Rosary t={t} />
-            </>
-          )}
-          {p === 'confessional' && (
-            <>
-              <Scene label={t.scene.confessional}><Confessional /></Scene>
-              <Intro>{t.intro.confessional}</Intro>
-              <Panel title={t.confTitle}><DefList items={t.confSteps} /></Panel>
-              <Note>{t.confPrivacy}</Note>
-            </>
-          )}
-        </>
-      )}
-    </WorldFrame>
-  )
+  const g = useLocal(TOUR)
+  const c = useT()
+  const candleRun = (api: Record<string, () => void>) => {
+    api.candle?.()
+    return t.candleCount(getState().candles + 1) + ' · ' + t.candleNote.split('.')[0]
+  }
+  const organ = () => (toggleMusic('cathedral-organ') ? t.organ : getState().sound ? undefined : c.soundOff)
+  const scene = (p: string): PlaceScene => {
+    switch (p) {
+      case 'gothic':
+        return {
+          build: buildGothic,
+          intro: t.intro.gothic,
+          actions: [
+            { id: 'candle', label: t.candleTitle, icon: 'candle', run: candleRun },
+            { id: 'organ', label: t.organ, icon: 'music', run: organ },
+            { id: 'way', label: t.wayTitle, icon: 'path', panel: <Way t={t} /> },
+            { id: 'arch', label: t.gothicTitle, icon: 'door', panel: <DefList items={t.gothic} /> },
+          ],
+          gestures: g.gestures,
+          spots: g.spots,
+          tour: g.tour,
+        }
+      case 'grotto':
+        return {
+          build: buildGrotto,
+          intro: t.intro.grotto,
+          actions: [
+            { id: 'candle', label: t.candleTitle, icon: 'candle', run: candleRun },
+            { id: 'rosary', label: t.rosaryTitle, icon: 'beads', panel: <Rosary t={t} /> },
+          ],
+          gestures: g.gestures,
+          spots: g.spots,
+        }
+      case 'confessional':
+        return {
+          build: buildConfessional,
+          intro: t.intro.confessional,
+          actions: [
+            { id: 'steps', label: t.confTitle, icon: 'note', panel: <><DefList items={t.confSteps} /><Note>{t.confPrivacy}</Note></> },
+          ],
+        }
+      default:
+        return {
+          build: buildParish,
+          intro: t.intro.parish,
+          actions: [
+            { id: 'bell', label: t.bell, icon: 'bell', run: (api) => { api.bell?.() } },
+            { id: 'parts', label: t.partsTitle, icon: 'info', panel: <DefList items={t.parts} /> },
+            { id: 'mass', label: t.massTitle, icon: 'book', panel: <DefList items={t.mass} /> },
+            { id: 'cal', label: t.calTitle, icon: 'calendar', panel: <Calendar t={t} /> },
+          ],
+          gestures: g.gestures,
+          spots: g.spots,
+        }
+    }
+  }
+  return <Space id="catholic" place={place} scene={scene} tourMode={tour} />
 }

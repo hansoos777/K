@@ -3,6 +3,10 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+# 공간 미리보기 이미지: 하루 캐시 + 일주일 동안은 옛것을 보여 주며 새로 받기
+/thumbs/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
 # 진입 HTML은 매번 새로 확인 (배포가 바로 반영되도록)
 /
   Cache-Control: no-cache
@@ -15,4 +19,4 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com https://cdn.jsdelivr.net; script-src 'self'; connect-src 'self'; frame-ancestors 'none'

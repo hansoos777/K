@@ -25,6 +25,9 @@ export interface State {
   prayers: PrayerNote[] // 기독교 기도 노트 (이 기기에만)
   candles: number // 봉헌한 촛불 수 (숫자만)
   lanterns: number // 켠 연등 수 (숫자만)
+  tutorials: string[] // 마친 튜토리얼 (장소 키)
+  /** 종교별 보기 방식: 배우러 왔는지, 신앙 활동하러 왔는지 */
+  modes: Record<string, 'learn' | 'practice'>
 }
 
 const KEY = 'oruvia-v1'
@@ -43,6 +46,8 @@ const defaults: State = {
   prayers: [],
   candles: 0,
   lanterns: 0,
+  tutorials: [],
+  modes: {},
 }
 
 function load(): State {

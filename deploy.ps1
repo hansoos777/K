@@ -1,9 +1,16 @@
-# ORUVIA 배포 (Windows PowerShell). PujaTime 배포에 쓰던 Cloudflare 로그인을 그대로 사용.
-# 처음 한 번: npx wrangler login   (이미 로그인돼 있으면 생략)
-# 실행: 이 폴더에서  .\deploy.ps1
+﻿# ORUVIA 새 버전 올리기 (Windows PowerShell)
+# 사용: 바탕화면 oruvia 폴더에서  .\deploy.ps1
+# GitHub에서 최신 코드를 받고, 빌드하고, Cloudflare Pages(oruvia)에 올린다. PujaTime은 건드리지 않음.
 $ErrorActionPreference = 'Stop'
+Set-Location $PSScriptRoot
+git pull
 npm install
 npm run build
-npx wrangler pages project create oruvia --production-branch main 2>$null
-npx wrangler pages deploy dist --project-name oruvia --branch main --commit-dirty=true
-Write-Host "배포 완료: https://oruvia.pages.dev"
+$w = "C:\Users\khans\Desktop\K자녀\kproject\node_modules\.bin\wrangler.cmd"
+if (Test-Path $w) {
+  & $w pages deploy dist --project-name oruvia --branch main --commit-dirty=true
+} else {
+  npx wrangler pages deploy dist --project-name oruvia --branch main --commit-dirty=true
+}
+Write-Host ""
+Write-Host "완료: https://oruvia.pages.dev  (1~2분 뒤 새로고침)"
