@@ -8,7 +8,7 @@ const ko = {
   },
   scene: { parish: '제대와 십자고상, 감실과 감실등, 성모상이 있는 본당 내부', gothic: '뾰족 아치와 장미창이 있는 고딕 대성당 내부', grotto: '바위 동굴 안 성모상과 봉헌 촛불', confessional: '나무로 된 고해소' },
   candleTitle: '촛불 봉헌',
-  candleNote: '초를 눌러 불을 밝히세요. 기도 지향은 마음속으로 간직해 주세요. 오루비아는 지향을 묻거나 저장하지 않습니다.',
+  candleNote: '초를 눌러 불을 밝히세요. 기도 지향은 마음속으로 간직해 주세요. 지향은 묻지도 저장하지도 않습니다.',
   candleCount: (n: number) => `지금까지 이 기기에서 밝힌 초 ${n}개`,
   rosaryTitle: '묵주기도',
   rosaryNote: '기도문은 가지고 계신 기도서(한국천주교주교회의 승인)를 따라 바쳐 주세요. 여기서는 순서와 신비만 안내합니다.',
@@ -73,7 +73,7 @@ const ko = {
     ['고백', '사제에게 직접 죄를 고백함'],
     ['보속', '사제가 정해 준 기도나 선행을 실천함'],
   ] as [string, string][],
-  confPrivacy: '이 공간에는 글을 적는 칸이 없으며, 오루비아는 고백과 관련된 어떤 내용도 묻거나 저장하지 않습니다. 성사를 원하시면 가까운 본당의 고해성사 시간을 확인해 주세요.',
+  confPrivacy: '이 공간에는 글을 적는 칸이 없으며, 고백과 관련된 어떤 내용도 묻거나 저장하지 않습니다. 성사를 원하시면 가까운 본당의 고해성사 시간을 확인해 주세요.',
 }
 
 const en: typeof ko = {
@@ -85,7 +85,7 @@ const en: typeof ko = {
   },
   scene: { parish: 'Parish interior with altar, crucifix, tabernacle, sanctuary lamp and a statue of Mary', gothic: 'Gothic cathedral with pointed arches and a rose window', grotto: 'Statue of Mary in a rock grotto with votive candles', confessional: 'A wooden confessional' },
   candleTitle: 'Light a candle',
-  candleNote: 'Tap a candle to light it. Keep your intention in your heart; Oruvia never asks for or stores it.',
+  candleNote: 'Tap a candle to light it. Keep your intention in your heart; it is never asked for or stored.',
   candleCount: (n: number) => `${n} candles lit on this device`,
   rosaryTitle: 'The Rosary',
   rosaryNote: 'Please pray from an approved prayer book. Only the order and mysteries are shown here.',
@@ -150,7 +150,7 @@ const en: typeof ko = {
     ['Confession', 'Confess to a priest in person'],
     ['Penance', 'Carry out the prayer or deed the priest gives'],
   ],
-  confPrivacy: "There is nowhere to type here, and Oruvia never asks for or stores anything related to confession. To receive the sacrament, check your parish's confession times.",
+  confPrivacy: "There is nowhere to type here, and nothing related to confession is ever asked for or stored. To receive the sacrament, check your parish's confession times.",
 }
 
 export default { ko, en }

@@ -2,7 +2,7 @@
 // - /assets/* : 파일 이름에 해시가 있어 내용이 안 바뀜 → 캐시 우선
 // - 페이지(HTML): 네트워크 우선, 실패하면 캐시 (오프라인에서도 열림)
 // - 다른 사이트 요청은 건드리지 않음
-const CACHE = 'oruvia-v1'
+const CACHE = 'site-v2'
 const SHELL = ['/', '/favicon.svg', '/manifest.webmanifest']
 
 self.addEventListener('install', (e) => {
@@ -23,6 +23,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url)
   if (url.origin !== location.origin) return
 
+  // /hindu/ (PujaTime)은 PujaTime 쪽 캐시 규칙을 따르므로 건드리지 않음
   if (url.pathname.startsWith('/assets/')) {
     e.respondWith(
       caches.match(req).then((hit) =>
@@ -39,7 +40,7 @@ self.addEventListener('fetch', (e) => {
     return
   }
 
-  if (req.mode === 'navigate') {
+  if (req.mode === 'navigate' && (url.pathname === '/' || url.pathname === '/index.html')) {
     e.respondWith(
       fetch(req)
         .then((res) => {

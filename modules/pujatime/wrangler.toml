@@ -1,0 +1,9 @@
+name = "pujatime"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pujatime-db"
+database_id = "fad17602-b914-4671-a37a-4f36437fa73c"
+migrations_dir = "migrations"

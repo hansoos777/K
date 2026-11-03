@@ -1,3 +1,4 @@
+import { BRAND } from '../brand'
 import { href } from '../core/router'
 import { NEW_PLACES, RECOMMENDED, WORLDS, resolvePlace } from '../core/registry'
 import { useStore } from '../core/store'
@@ -47,7 +48,7 @@ export default function Home() {
         </div>
         <div className="hero-inner">
           <p className="eyebrow">{t.brandLocal}</p>
-          <h1 className="wordmark-big">ORUVIA</h1>
+          <h1 className="wordmark-big">{BRAND.name}</h1>
           <p className="tagline">{t.tagline}</p>
           <p className="lede">{nickname ? `${nickname} · ` : ''}{t.heroSub}</p>
           <a className="cta" href="#worlds" onClick={(e) => { e.preventDefault(); document.getElementById('worlds')?.scrollIntoView({ behavior: 'smooth' }) }}>
@@ -86,7 +87,7 @@ export default function Home() {
         <ul className="notices">{t.noticeList.map((n) => <li key={n}>{n}</li>)}</ul>
       </section>
       <footer className="foot">
-        <p className="foot-brand">ORUVIA · {t.tagline}</p>
+        <p className="foot-brand">{BRAND.name} · {t.tagline}</p>
         <p className="disclaimer">{t.disclaimer}</p>
       </footer>
     </>

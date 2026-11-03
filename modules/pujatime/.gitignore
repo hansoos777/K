@@ -1,0 +1,32 @@
+node_modules
+dist
+dev-dist
+.wrangler
+.gstack
+
+# 비밀값: 절대 커밋 금지
+.env
+.env.*
+.dev.vars
+*.pem
+
+# 앱 서명 키: 절대 커밋 금지
+*.jks
+*.keystore
+keystore.properties
+android/app/pujatime-release.jks
+android/keystore.properties
+
+# 빌드 결과물
+build/
+*.aab
+*.apk
+*.ipa
+android/app/build
+android/build
+android/.gradle
+ios/App/build
+ios/App/Pods
+ios/DerivedData
+store/*.aab
+store/*.apk

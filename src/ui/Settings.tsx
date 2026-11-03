@@ -1,3 +1,4 @@
+import { BRAND } from '../brand'
 import { useEffect, useState } from 'react'
 import { collect, type Metric } from '../core/perf'
 import { effectiveQuality, exportData, resetAll, update, useStore, type Quality } from '../core/store'
@@ -14,7 +15,7 @@ export default function Settings() {
     const url = URL.createObjectURL(new Blob([exportData()], { type: 'application/json' }))
     const a = document.createElement('a')
     a.href = url
-    a.download = 'oruvia-data.json'
+    a.download = `${BRAND.en.toLowerCase()}-data.json`
     a.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }

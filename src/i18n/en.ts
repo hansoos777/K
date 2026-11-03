@@ -1,9 +1,10 @@
+import { BRAND } from '../brand'
 import type { Dict } from './ko'
 
 const en: Dict = {
-  brand: 'ORUVIA',
-  brandLocal: 'Oruvia',
-  tagline: 'One World. Many Sacred Places.',
+  brand: BRAND.name,
+  brandLocal: BRAND.en,
+  tagline: BRAND.tagline,
   heroSub: "Quietly visit the world's sacred places, anytime and anywhere.",
   worldsTitle: 'Explore',
   enter: 'Enter',
@@ -70,9 +71,9 @@ const en: Dict = {
   favAdd: 'Add to favorites',
   favRemove: 'Remove from favorites',
   here: 'You are here',
-  disclaimer: 'Experiences in Oruvia do not replace real worship, Mass, sacraments or practice. Each tradition is respected and rites are never mixed.',
+  disclaimer: 'Experiences here do not replace real worship, Mass, sacraments or practice. Each tradition is respected and rites are never mixed.',
   noticeList: [
-    'The Oruvia phase 1 preview is open. Your records stay on this device.',
+    `The ${BRAND.en} phase 1 preview is open. Your records stay on this device.`,
     'The Hindu space is linked to PujaTime while integration is in progress.',
   ],
   s: {
@@ -96,7 +97,7 @@ const en: Dict = {
     dataNote: 'Visits, favorites and prayer notes are stored only in this browser and never sent to a server.',
     export: 'Export (JSON)',
     reset: 'Delete all',
-    resetConfirm: 'Delete all Oruvia records stored on this device?',
+    resetConfirm: `Delete all ${BRAND.en} records stored on this device?`,
     diag: 'Diagnostics',
     diagNote: 'Measured on this device. No third-party analytics.',
     metric: {

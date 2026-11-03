@@ -2,6 +2,10 @@
 # 해시가 붙은 빌드 파일은 1년 캐시(내용이 바뀌면 파일 이름이 바뀜)
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+/hindu/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/deities/*
+  Cache-Control: public, max-age=604800
 
 # 공간 미리보기 이미지: 하루 캐시 + 일주일 동안은 옛것을 보여 주며 새로 받기
 /thumbs/*
@@ -19,4 +23,4 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com https://cdn.jsdelivr.net; script-src 'self'; connect-src 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com https://cdn.jsdelivr.net; script-src 'self'; connect-src 'self'; frame-ancestors 'self'

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <title>PujaTime 관리자</title>
+  <style>
+    :root { --bg: #fff3d6; --card: #fffaf0; --ink: #4a1505; --soft: #7d4a22; --line: #f3d9a8; --point: #c2410c; --gold: #f59e0b; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+    main { max-width: 680px; margin: 0 auto; padding: 22px 16px 48px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+    h1 { margin: 0; font-size: 21px; }
+    h2 { margin: 0 0 10px; font-size: 15px; }
+    button { font: inherit; font-weight: 700; border: 0; border-radius: 12px; padding: 9px 14px; background: var(--point); color: #fff; cursor: pointer; }
+    button.sub { background: #f8dfae; color: var(--ink); padding: 6px 11px; font-size: 13px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 15px; margin-bottom: 12px; }
+    .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+    .tile { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 13px 15px; }
+    .tile b { display: block; font-size: 25px; font-variant-numeric: tabular-nums; line-height: 1.25; }
+    .tile span { color: var(--soft); font-size: 13px; }
+    .tile small { display: block; color: var(--soft); font-size: 12px; }
+    .bars { display: flex; align-items: flex-end; gap: 5px; height: 130px; }
+    .bar { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 3px; font-size: 11px; color: var(--soft); font-variant-numeric: tabular-nums; }
+    .bar i { display: block; width: 100%; max-width: 26px; min-height: 2px; border-radius: 6px 6px 2px 2px; background: var(--point); }
+    .row { display: grid; grid-template-columns: 96px 1fr 46px; align-items: center; gap: 8px; padding: 4px 0; font-size: 14px; }
+    .row .track { height: 10px; border-radius: 6px; background: var(--line); overflow: hidden; }
+    .row .track i { display: block; height: 100%; border-radius: 6px; background: var(--gold); }
+    .row b { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+    th { color: var(--soft); font-weight: 500; text-align: right; padding: 5px 4px; white-space: nowrap; }
+    td { text-align: right; padding: 6px 4px; border-top: 1px solid var(--line); }
+    th:first-child, td:first-child { text-align: left; }
+    form { max-width: 320px; margin: 18vh auto 0; }
+    label { display: block; margin-bottom: 8px; font-weight: 700; }
+    input { width: 100%; font: inherit; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); margin-bottom: 10px; }
+    #err { min-height: 20px; color: #b42318; font-size: 13px; }
+    .fb { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .fb:first-child { border-top: 0; padding-top: 0; }
+    .fb small { display: block; color: var(--soft); font-size: 12px; margin-top: 3px; }
+    .note { color: var(--soft); font-size: 12px; margin: 8px 0 0; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <form id="login">
+      <h1 style="margin-bottom:16px">PujaTime 관리자</h1>
+      <label for="pw">비밀번호</label>
+      <input id="pw" type="password" autocomplete="current-password" required />
+      <button type="submit" style="width:100%">들어가기</button>
+      <p id="err"></p>
+    </form>
+    <div id="app" hidden>
+      <header>
+        <h1>PujaTime 통계</h1>
+        <span><button class="sub" id="reload">새로고침</button> <button class="sub" id="logout">나가기</button></span>
+      </header>
+      <section class="tiles">
+        <div class="tile"><span>지금 접속</span><b id="now">0</b><small>최근 5분 안에 활동한 기기</small></div>
+        <div class="tile"><span>오늘 방문자</span><b id="today">0</b><small id="todaysub"></small></div>
+        <div class="tile"><span>최근 7일 방문자</span><b id="week">0</b><small id="weeksub"></small></div>
+        <div class="tile"><span>오늘 평균 머문 시간</span><b id="stay">-</b><small>방문자 1명 기준</small></div>
+        <div class="tile"><span>누적 기기</span><b id="total">0</b><small>지금까지 한 번이라도 연 기기</small></div>
+        <div class="tile"><span>다음 날 재방문율</span><b id="retention">-</b><small id="retentionsub"></small></div>
+      </section>
+      <section class="card"><h2>받은 의견</h2><div id="feedback"></div></section>
+      <section class="card"><h2>일별 방문자 (14일)</h2><div class="bars" id="bars"></div></section>
+      <section class="card"><h2>오늘 활동</h2><div id="acts"></div></section>
+      <section class="card"><h2>모시는 신</h2><div id="deities"></div></section>
+      <section class="card"><h2>국가</h2><div id="countries"></div></section>
+      <section class="card"><h2>언어</h2><div id="langs"></div></section>
+      <section class="card">
+        <h2>일별 기록</h2>
+        <div class="scroll"><table><thead><tr><th>날짜</th><th>방문자</th><th>신규</th><th>재방문</th><th>푸자 완료</th><th>사원</th><th>평균 머문</th></tr></thead><tbody id="rows"></tbody></table></div>
+        <p class="note">방문자는 기기 기준 하루 1명입니다. 날짜는 한국 시간입니다. 이름과 기도 내용은 수집하지 않습니다.</p>
+      </section>
+    </div>
+  </main>
+<script>
+const API = '/api/admin/stats';
+const DEITY = { ganesha: '가네샤', shiva: '시바', krishna: '크리슈나', lakshmi: '락슈미', vishnu: '비슈누', durga: '두르가', hanuman: '하누만', rama: '라마', saraswati: '사라스바티', kali: '칼리', custom: '직접 모신 신' };
+const LANG = { ko: '한국어', en: '영어', hi: '힌디어' };
+const ACTS = { open: '앱 열기', onboard: '신당 만들기', puja: '푸자 완료', hall: '사원 입장', japa: '염주', darshan: '고요히 머물기' };
+const region = new Intl.DisplayNames(['ko'], { type: 'region' });
+const countryName = (c) => { try { return region.of(c) || c; } catch { return c; } };
+const $ = id => document.getElementById(id);
+const KEY = 'pujatime.admin';
+const store = {
+  get() { try { return localStorage.getItem(KEY) || ''; } catch { return ''; } },
+  set(v) { try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch {} },
+};
+const dayOf = (back = 0) => new Date(Date.now() + 9 * 3600e3 - back * 86400e3).toISOString().slice(0, 10);
+const mins = (sec, n) => {
+  if (!n || !sec) return '-';
+  const v = sec / n;
+  return v < 60 ? `${Math.round(v)}초` : `${Math.round(v / 60)}분`;
+};
+function bars(el, rows) {
+  const top = Math.max(1, ...rows.map(r => r.n));
+  el.replaceChildren(...rows.map(r => {
+    const b = document.createElement('div'); b.className = 'bar';
+    const n = document.createElement('span'); n.textContent = r.n;
+    const i = document.createElement('i'); i.style.height = `${r.n / top * 96}px`;
+    const l = document.createElement('span'); l.textContent = r.label;
+    b.append(n, i, l);
+    return b;
+  }));
+}
+function rowsOf(el, list) {
+  if (!list.length) {
+    el.replaceChildren(Object.assign(document.createElement('p'), { className: 'note', textContent: '아직 기록이 없어요' }));
+    return;
+  }
+  const top = Math.max(1, ...list.map(x => x[1]));
+  el.replaceChildren(...list.map(([name, n]) => {
+    const r = document.createElement('div'); r.className = 'row';
+    const s = document.createElement('span'); s.textContent = name;
+    const t = document.createElement('div'); t.className = 'track';
+    const i = document.createElement('i'); i.style.width = `${n / top * 100}%`; t.append(i);
+    const b = document.createElement('b'); b.textContent = n;
+    r.append(s, t, b);
+    return r;
+  }));
+}
+function renderFeedback(list) {
+  $('feedback').replaceChildren(...(list.length ? list.map(f => {
+    const r = document.createElement('div'); r.className = 'fb'; r.textContent = f.text;
+    const m = document.createElement('small');
+    m.textContent = [new Date(f.at).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }), f.contact, f.lang].filter(Boolean).join(' · ');
+    r.append(m);
+    return r;
+  }) : [Object.assign(document.createElement('p'), { className: 'note', textContent: '아직 받은 의견이 없어요' })]));
+}
+function render(d) {
+  renderFeedback(d.feedback);
+  const count = (day, key) => d.counters.find(c => c.day === day && c.key === key)?.n ?? 0;
+  const list = Array.from({ length: 14 }, (_, i) => {
+    const day = dayOf(i);
+    const v = d.days.find(x => x.day === day) || { visitors: 0, again: 0, fresh: 0 };
+    return { day, ...v };
+  });
+  const t = list[0], week = list.slice(0, 7);
+  const wv = week.reduce((s, x) => s + x.visitors, 0), wr = week.reduce((s, x) => s + x.again, 0);
+  // 오늘 가입자는 내일이 되어야 알 수 있어 어제까지만 계산
+  const cohort = d.joined.filter(j => j.day < dayOf(0) && j.day >= dayOf(7));
+  const joined = cohort.reduce((s, j) => s + j.joined, 0), back = cohort.reduce((s, j) => s + j.back, 0);
+  $('now').textContent = d.now;
+  $('today').textContent = t.visitors;
+  $('todaysub').textContent = `신규 ${t.fresh}명 · 재방문 ${t.again}명`;
+  $('week').textContent = wv;
+  $('weeksub').textContent = `재방문 비율 ${wv ? Math.round(wr / wv * 100) : 0}%`;
+  $('stay').textContent = mins(count(t.day, 'stay'), t.visitors);
+  $('total').textContent = d.total;
+  $('retention').textContent = joined ? `${Math.round(back / joined * 100)}%` : '-';
+  $('retentionsub').textContent = `최근 7일 신규 ${joined}명 기준`;
+  bars($('bars'), [...list].reverse().map(x => ({ n: x.visitors, label: x.day.slice(8) })));
+  rowsOf($('acts'), Object.keys(ACTS).map(k => [ACTS[k], count(t.day, k)]));
+  rowsOf($('deities'), d.deities.map(x => [DEITY[x.k] || x.k, x.n]));
+  rowsOf($('countries'), d.countries.map(x => [countryName(x.k), x.n]));
+  rowsOf($('langs'), d.langs.map(x => [LANG[x.k] || x.k, x.n]));
+  $('rows').replaceChildren(...list.map(x => {
+    const tr = document.createElement('tr');
+    for (const v of [x.day.slice(5), x.visitors, x.fresh, x.again, count(x.day, 'puja'), count(x.day, 'hall'), mins(count(x.day, 'stay'), x.visitors)]) {
+      const td = document.createElement('td'); td.textContent = v; tr.append(td);
+    }
+    return tr;
+  }));
+}
+function fail(msg) {
+  store.set(''); $('app').hidden = true; $('login').hidden = false; $('err').textContent = msg;
+  return false;
+}
+async function load(key) {
+  $('err').textContent = '';
+  let res;
+  try { res = await fetch(API, { method: 'POST', body: key }); }
+  catch { $('err').textContent = '서버에 연결하지 못했어요.'; return false; }
+  if (res.status === 429) return fail('여러 번 틀려서 15분 동안 막혔어요.');
+  if (res.status === 403) return fail('비밀번호가 맞지 않아요.');
+  if (!res.ok) { $('err').textContent = '통계를 불러오지 못했어요.'; return false; }
+  render(await res.json());
+  store.set(key);
+  $('login').hidden = true; $('app').hidden = false;
+  return true;
+}
+$('login').addEventListener('submit', e => { e.preventDefault(); load($('pw').value); $('pw').value = ''; });
+$('reload').onclick = () => load(store.get());
+$('logout').onclick = () => { store.set(''); location.reload(); };
+if (store.get()) load(store.get());
+</script>
+</body>
+</html>

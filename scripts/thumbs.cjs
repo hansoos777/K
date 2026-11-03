@@ -6,7 +6,7 @@ const { execFileSync } = require('node:child_process')
 const places = process.argv.slice(2).length ? process.argv.slice(2) : [
   'christian/traditional', 'christian/modern', 'christian/prayer',
   'catholic/parish', 'catholic/gothic', 'catholic/grotto', 'catholic/confessional',
-  'mandir/mandir', 'mandir/pujatime', 'temple/sansa', 'temple/meditation',
+  'temple/sansa', 'temple/meditation',
 ]
 ;(async () => {
   const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] })

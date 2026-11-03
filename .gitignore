@@ -2,3 +2,4 @@ node_modules
 dist
 *.local
 .wrangler
+modules/pujatime/node_modules

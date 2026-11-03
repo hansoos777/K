@@ -1,3 +1,4 @@
+import { BRAND } from '../brand'
 import { href } from '../core/router'
 import { useT } from '../i18n'
 import { Logo } from './Logo'
@@ -8,7 +9,7 @@ export function Header() {
     <header className="topbar">
       <a className="logo-link" href={href('')} aria-label={t.home}>
         <Logo />
-        <span className="wordmark">ORUVIA</span>
+        <span className="wordmark">{BRAND.name}</span>
       </a>
       <a className="icon-btn" href={href('settings')} aria-label={t.settings} title={t.settings}>
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">

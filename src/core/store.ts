@@ -30,6 +30,7 @@ export interface State {
   modes: Record<string, 'learn' | 'practice'>
 }
 
+// 서비스 이름이 바뀌어도 이 키는 바꾸지 않는다(바꾸면 기존 기록을 못 읽음)
 const KEY = 'oruvia-v1'
 
 const defaults: State = {

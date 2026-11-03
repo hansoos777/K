@@ -35,7 +35,7 @@ const ko = {
   min: '분',
   end: '마치기',
   stayTitle: '템플스테이',
-  stayNote: '실제 템플스테이는 각 사찰에서 직접 신청합니다. 오루비아에서는 예불·발우공양·울력 같은 하루 흐름을 소개할 예정입니다.',
+  stayNote: '실제 템플스테이는 각 사찰에서 직접 신청합니다. 이곳에서는 예불·발우공양·울력 같은 하루 흐름을 소개할 예정입니다.',
   others: '일본 선종 정원, 태국의 황금 불탑, 티베트의 만다라와 기도 깃발은 각 전통을 조사·검토한 뒤 차례로 엽니다.',
 }
 
@@ -76,7 +76,7 @@ const en: typeof ko = {
   min: 'min',
   end: 'End',
   stayTitle: 'Templestay',
-  stayNote: "Real templestays are booked with each temple. Oruvia will introduce the day's rhythm: chanting, the formal meal and communal work.",
+  stayNote: "Real templestays are booked with each temple. We will introduce the day's rhythm: chanting, the formal meal and communal work.",
   others: 'Japanese Zen gardens, Thai golden stupas and Tibetan mandalas and prayer flags will open one by one after research and review of each tradition.',
 }
 

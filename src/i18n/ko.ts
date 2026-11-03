@@ -1,8 +1,9 @@
+import { BRAND } from '../brand'
 /** 공통 화면 문구. 종교별 공간의 문구는 각 월드 폴더의 strings.ts에 있다. */
 const ko = {
-  brand: 'ORUVIA',
-  brandLocal: '오루비아',
-  tagline: 'One World. Many Sacred Places.',
+  brand: BRAND.name,
+  brandLocal: BRAND.ko,
+  tagline: BRAND.tagline,
   heroSub: '세계의 여러 종교 공간을 언제 어디서나 조용히 방문해 보세요.',
   worldsTitle: '공간 둘러보기',
   enter: '들어가기',
@@ -69,9 +70,9 @@ const ko = {
   favAdd: '즐겨찾기에 추가',
   favRemove: '즐겨찾기에서 빼기',
   here: '현재 위치',
-  disclaimer: '오루비아의 가상 체험은 실제 예배·미사·성사·수행을 대체하지 않습니다. 각 전통을 존중하며, 서로 다른 의식을 섞지 않습니다.',
+  disclaimer: '이곳의 가상 체험은 실제 예배·미사·성사·수행을 대체하지 않습니다. 각 전통을 존중하며, 서로 다른 의식을 섞지 않습니다.',
   noticeList: [
-    '오루비아 1단계 미리보기가 열렸어요. 기록은 이 기기에만 저장됩니다.',
+    `${BRAND.ko} 1단계 미리보기가 열렸어요. 기록은 이 기기에만 저장됩니다.`,
     '힌두교 공간은 PujaTime과 연결되어 있어요. 통합 작업이 진행 중입니다.',
   ],
   s: {
@@ -95,7 +96,7 @@ const ko = {
     dataNote: '방문 기록, 즐겨찾기, 기도 노트는 이 기기의 브라우저에만 저장되며 서버로 보내지 않습니다.',
     export: '내보내기(JSON)',
     reset: '모두 지우기',
-    resetConfirm: '이 기기에 저장된 오루비아 기록을 모두 지울까요?',
+    resetConfirm: `이 기기에 저장된 ${BRAND.ko} 기록을 모두 지울까요?`,
     diag: '진단',
     diagNote: '이 기기에서 잰 값입니다. 외부 분석 서비스를 쓰지 않습니다.',
     metric: {

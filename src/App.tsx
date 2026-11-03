@@ -1,3 +1,4 @@
+import { BRAND } from './brand'
 import { useEffect } from 'react'
 import { useRoute } from './core/router'
 import { effectiveQuality, useStore } from './core/store'
@@ -26,7 +27,7 @@ export default function App() {
 
   const [page, id, place, mode] = route
   useEffect(() => {
-    document.title = page === 'w' && id ? `${t.worlds[id as keyof typeof t.worlds]?.name ?? ''} · ORUVIA` : `ORUVIA ${t.brandLocal}`
+    document.title = page === 'w' && id ? `${t.worlds[id as keyof typeof t.worlds]?.name ?? ''} · ${BRAND.name}` : `${BRAND.name} ${t.brandLocal}`
   }, [page, id, t])
 
   if (page === 'w' && id) return <WorldShell id={id} place={place} tour={mode === 'tour'} />
