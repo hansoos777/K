@@ -5,7 +5,8 @@ import { useSyncExternalStore } from 'react'
  * 서버 설정 없이 동작하고 라이브러리가 필요 없다.
  */
 function parse(): string[] {
-  return location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent)
+  // '#/me#finder' 처럼 뒤에 붙은 화면 안 위치(#finder)는 경로에서 뺌
+  return location.hash.replace(/^#\/?/, '').split('#')[0].split('/').filter(Boolean).map(decodeURIComponent)
 }
 
 let route = parse()

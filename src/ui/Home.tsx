@@ -36,7 +36,6 @@ function PlaceRow({ keys, title }: { keys: string[]; title: string }) {
 export default function Home() {
   const t = useT()
   const visits = useStore((s) => s.visits)
-  const favorites = useStore((s) => s.favorites)
   const nickname = useStore((s) => s.nickname)
 
   return (
@@ -51,9 +50,28 @@ export default function Home() {
           <h1 className="wordmark-big">{BRAND.name}</h1>
           <p className="tagline">{t.tagline}</p>
           <p className="lede">{nickname ? `${nickname} · ` : ''}{t.heroSub}</p>
-          <a className="cta" href="#worlds" onClick={(e) => { e.preventDefault(); document.getElementById('worlds')?.scrollIntoView({ behavior: 'smooth' }) }}>
-            {t.worldsTitle} <Icon name="compass" size={18} />
+          <a className="cta" href={href('spaces')}>
+            {t.quick.tour} <Icon name="door" size={18} />
           </a>
+        </div>
+      </section>
+
+      <section className="quick" aria-labelledby="quick-h">
+        <h2 id="quick-h" className="sec-title">{t.quick.title}</h2>
+        <div className="quick-grid">
+          {([
+            ['me#finder', 'compass', t.quick.finder, t.quick.finderSub],
+            ['explore', 'book', t.quick.learn, t.quick.learnSub],
+            ['spaces', 'door', t.quick.tour, t.quick.tourSub],
+            ['mine/pray', 'pray', t.quick.pray, t.quick.praySub],
+            ['mine/meditate', 'breath', t.quick.meditate, t.quick.meditateSub],
+          ] as const).map(([to, ic, label, sub]) => (
+            <a key={to} className="quick-card" href={href(to)}>
+              <span className="quick-ic"><Icon name={ic} /></span>
+              <strong>{label}</strong>
+              <small>{sub}</small>
+            </a>
+          ))}
         </div>
       </section>
 
@@ -61,13 +79,12 @@ export default function Home() {
         <h2 id="worlds-h" className="sec-title center">{t.worldsTitle}</h2>
         <div className="world-grid">
           {WORLDS.map((w) => (
-            <a key={w.id} className="world-card" href={href(`r/${w.id}`)} style={{ ['--a' as string]: w.colors[0], ['--b' as string]: w.colors[1] }}>
+            <a key={w.id} className="world-card" href={href(`explore/${w.id}`)} style={{ ['--a' as string]: w.colors[0], ['--b' as string]: w.colors[1] }}>
               <img className="world-img" src={thumb(w.id, w.places[0].id)} alt="" loading="lazy" decoding="async" width="480" height="640" />
               <span className="world-shade" />
               <span className={`badge badge-${w.status}`}>{t.status[w.status]}</span>
               <span className="world-card-text">
-                <span className="world-brand">{w.brand}</span>
-                <strong>{t.worlds[w.id].name}</strong>
+                                <strong>{t.worlds[w.id].name}</strong>
                 <span className="world-place">{t.worlds[w.id].place}</span>
                 <span className="world-blurb">{t.worlds[w.id].blurb}</span>
                 <span className="enter">{t.enter} →</span>
@@ -77,7 +94,6 @@ export default function Home() {
         </div>
       </section>
 
-      {favorites.length > 0 && <PlaceRow keys={favorites} title={t.favorites} />}
       {visits.length > 0 && <PlaceRow keys={visits.slice(0, 8).map((v) => v.id)} title={t.recent} />}
       <PlaceRow keys={RECOMMENDED} title={t.recommended} />
       <PlaceRow keys={NEW_PLACES} title={t.newPlaces} />

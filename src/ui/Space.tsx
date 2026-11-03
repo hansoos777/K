@@ -173,16 +173,16 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
       {state === 'loading' && (
         <div className="space-loading" role="status">
           <div className="spinner" />
-          <p>{def.brand}</p>
+          <p>{lang === 'en' ? def.brand : t.worlds[id].name}</p>
           <p className="hint">{t.building}</p>
         </div>
       )}
       {state === 'nogl' && <div className="space-loading"><p>{t.noGL}</p></div>}
 
       <header className="hud-top">
-        <a className="glass-btn" href={href(`r/${id}`)} aria-label={t.back}><Icon name="back" /></a>
+        <a className="glass-btn" href={href(`spaces/${id}`)} aria-label={t.back}><Icon name="back" /></a>
         <div className="hud-title glass">
-          <span className="world-brand">{def.brand}</span>
+          <span className="world-brand">{lang === 'en' ? def.brand : t.worlds[id].name}</span>
           <strong aria-current="location">{name(current)}</strong>
         </div>
         <button className="glass-btn" onClick={() => update((s) => ({ sound: !s.sound }))} aria-label={t.s.sound} aria-pressed={sound}>

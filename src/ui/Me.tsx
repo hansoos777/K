@@ -1,10 +1,12 @@
 import { BRAND } from '../brand'
+import { WORLDS } from '../core/registry'
+import Finder from './Finder'
 import { useEffect, useState } from 'react'
 import { collect, type Metric } from '../core/perf'
 import { effectiveQuality, exportData, resetAll, update, useStore, type Quality } from '../core/store'
 import { LANGS, useT } from '../i18n'
 
-export default function Settings() {
+export default function Me() {
   const t = useT()
   const s = useStore((x) => x)
   const q = effectiveQuality(s)
@@ -26,16 +28,33 @@ export default function Settings() {
   }
 
   return (
-    <div className="settings">
-      <h1>{t.s.title}</h1>
+    <div className="settings screen">
+      <div className="screen-head"><h1>{t.me.title}</h1></div>
 
       <fieldset>
-        <legend>{t.s.profile}</legend>
+        <legend>{t.me.profile}</legend>
         <label className="field">
           <span>{t.s.nickname}</span>
           <input value={s.nickname} maxLength={24} onChange={(e) => update(() => ({ nickname: e.target.value }))} />
         </label>
         <p className="hint">{t.s.nicknameHint}</p>
+      </fieldset>
+
+      <fieldset id="finder">
+        <legend>{t.me.finder}</legend>
+        <Finder />
+      </fieldset>
+
+      <fieldset>
+        <legend>{t.me.interests}</legend>
+        <div className="seg wrap">
+          {WORLDS.map((w) => (
+            <button key={w.id} role="checkbox" aria-checked={s.interests.includes(w.id)} onClick={() => update((x) => ({ interests: x.interests.includes(w.id) ? x.interests.filter((i) => i !== w.id) : [...x.interests, w.id] }))}>
+              {t.worlds[w.id].name}
+            </button>
+          ))}
+        </div>
+        <p className="hint">{t.me.interestsHint}</p>
       </fieldset>
 
       <fieldset>
@@ -47,6 +66,19 @@ export default function Settings() {
             </button>
           ))}
         </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>{t.me.notify}</legend>
+        <label className="toggle">
+          <input type="checkbox" checked={s.notify.daily} onChange={(e) => update((x) => ({ notify: { ...x.notify, daily: e.target.checked } }))} />
+          <span>{t.me.notifyDaily}</span>
+        </label>
+        <label className="toggle">
+          <input type="checkbox" checked={s.notify.festival} onChange={(e) => update((x) => ({ notify: { ...x.notify, festival: e.target.checked } }))} />
+          <span>{t.me.notifyFestival}</span>
+        </label>
+        <p className="hint">{t.me.notifyNote}</p>
       </fieldset>
 
       <fieldset>
@@ -85,7 +117,8 @@ export default function Settings() {
       </fieldset>
 
       <fieldset>
-        <legend>{t.s.data}</legend>
+        <legend>{t.me.account}</legend>
+        <p className="hint">{t.me.accountNote}</p>
         <p className="hint">{t.s.dataNote}</p>
         <div className="row">
           <button className="btn" onClick={download}>{t.s.export}</button>

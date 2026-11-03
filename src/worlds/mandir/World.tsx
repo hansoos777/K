@@ -38,8 +38,8 @@ export default function MandirWorld({ place, tour }: WorldProps) {
   return (
     <div className="space embed w-mandir">
       <header className="embed-bar">
-        <a className="glass-btn" href={href('r/mandir')} aria-label={t.back}><Icon name="back" /></a>
-        <span className="world-brand">{def.brand}</span>
+        <a className="glass-btn" href={href('spaces/mandir')} aria-label={t.back}><Icon name="back" /></a>
+        <span className="world-brand">{lang === 'en' ? def.brand : t.worlds.mandir.name}</span>
         {def.places.map((p) => (
           <a key={p.id} className={`pill ${p.id === cur.id ? 'on' : ''}`} href={href(`w/mandir/${p.id}`)} aria-current={p.id === cur.id ? 'page' : undefined}>{lang === 'en' ? p.en : p.ko}</a>
         ))}

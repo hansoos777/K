@@ -65,7 +65,7 @@ export default function WorldShell({ id, place, tour }: { id: string; place?: st
         fallback={
           <div className="world-loading" style={{ ['--a' as string]: def.colors[0], ['--b' as string]: def.colors[1] }} role="status">
             <div className="loader"><Logo size={44} /></div>
-            <p>{def.brand}</p>
+            <p>{t.worlds[def.id].name}</p>
             <p className="hint">{t.loading}</p>
           </div>
         }

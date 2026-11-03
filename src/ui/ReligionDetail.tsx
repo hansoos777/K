@@ -10,7 +10,7 @@ import { Icon } from './icons'
  * 종교별 메인 화면: 소개 → 처음 시작하기(3D 안내) → 배우기 → 3D 공간 → 신앙 활동 → 예절 → 축제 → 커뮤니티.
  * "처음이에요" / "이미 믿고 있어요"에 따라 순서를 바꾼다(신앙인은 설명 없이 바로 활동으로).
  */
-export default function ReligionPage({ id }: { id: string }) {
+export default function ReligionDetail({ id }: { id: string }) {
   const t = useT()
   const lang = useStore((s) => s.lang)
   const mode = useStore((s) => s.modes[id] ?? 'learn')
@@ -25,10 +25,7 @@ export default function ReligionPage({ id }: { id: string }) {
     return () => { alive = false }
   }, [def, lang])
 
-  if (!def) {
-    location.hash = '/'
-    return null
-  }
+  if (!def) return null
   const setMode = (m: 'learn' | 'practice') => update((s) => ({ modes: { ...s.modes, [id]: m } }))
   const thumb = (p: string) => `/thumbs/${id}_${p}.webp`
   const placeName = (pid: string) => {
@@ -40,7 +37,7 @@ export default function ReligionPage({ id }: { id: string }) {
 
   const learn = (
     <section className="rel-sec" id="learn">
-      <h2><span className="k">LEARN</span>{t.r.learn}</h2>
+      <h2>{t.r.learn}</h2>
       <div className="lessons">
         {L.lessons.map((l, i) => (
           <article key={l.title} className={`lesson ${openLesson === i ? 'open' : ''}`}>
@@ -55,7 +52,7 @@ export default function ReligionPage({ id }: { id: string }) {
   )
   const explore = (
     <section className="rel-sec" id="explore">
-      <h2><span className="k">EXPERIENCE</span>{t.r.explore}</h2>
+      <h2>{t.r.explore}</h2>
       <ul className="rel-places">
         {def.places.map((p) => (
           <li key={p.id}>
@@ -77,7 +74,7 @@ export default function ReligionPage({ id }: { id: string }) {
   )
   const practice = (
     <section className="rel-sec" id="practice">
-      <h2><span className="k">PRACTICE</span>{t.r.practice}</h2>
+      <h2>{t.r.practice}</h2>
       <div className="practice-grid">
         {L.practice.map((p) => (
           <a key={p.label} className="practice" href={href(`w/${id}/${p.place}`)}>
@@ -91,12 +88,11 @@ export default function ReligionPage({ id }: { id: string }) {
   )
 
   return (
-    <div className={`rel w-${id}`}>
+    <div className={`rel w-${id}`} id={`rel-${id}`}>
       <section className="rel-hero">
         <img src={thumb(def.places[0].id)} alt="" className="rel-hero-img" />
         <div className="rel-hero-shade" />
         <div className="rel-hero-in">
-          <span className="world-brand">{def.brand}</span>
           <h1>{L.title}</h1>
           <p className="rel-sub">{L.sub}</p>
           <div className="seg mode" role="radiogroup" aria-label={t.r.modeLabel}>

@@ -28,6 +28,14 @@ export interface State {
   tutorials: string[] // 마친 튜토리얼 (장소 키)
   /** 종교별 보기 방식: 배우러 왔는지, 신앙 활동하러 왔는지 */
   modes: Record<string, 'learn' | 'practice'>
+  /** 관심 종교 (마이페이지) */
+  interests: string[]
+  /** 나의 MBTI (선택) */
+  mbti: string
+  /** 나에게 맞는 공간 추천 결과 (장소 키 목록) */
+  finder: { answers: number[]; result: string[]; at: number } | null
+  /** 알림 설정 (실제 알림은 앱·로그인 단계에서 연결) */
+  notify: { daily: boolean; festival: boolean }
 }
 
 // 서비스 이름이 바뀌어도 이 키는 바꾸지 않는다(바꾸면 기존 기록을 못 읽음)
@@ -49,6 +57,10 @@ const defaults: State = {
   lanterns: 0,
   tutorials: [],
   modes: {},
+  interests: [],
+  mbti: '',
+  finder: null,
+  notify: { daily: false, festival: true },
 }
 
 function load(): State {

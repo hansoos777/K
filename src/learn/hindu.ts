@@ -34,8 +34,8 @@ const pack: LearnPack = {
       { name: '마하 시바라트리', when: '2~3월', text: '시바를 기리며 밤새 기도합니다.' },
       { name: '크리슈나 잔마슈타미', when: '8~9월', text: '크리슈나의 탄생을 기념합니다.' },
     ],
-    festivalNote: '힌두 축제는 음력·태양력을 함께 쓰는 달력을 따르므로 날짜가 해마다 바뀝니다. 정확한 날짜는 PujaTime의 축제 화면을 참고하세요.',
-    sources: ['Encyclopaedia Britannica, "Hinduism"', '한국민족문화대백과사전 · 두산백과의 힌두교 항목', 'PujaTime 축제·신 자료'],
+    festivalNote: '힌두 축제는 음력·태양력을 함께 쓰는 달력을 따르므로 날짜가 해마다 바뀝니다. 정확한 날짜는 힌두교 사원의 축제 일정에서 볼 수 있어요.',
+    sources: ['Encyclopaedia Britannica, "Hinduism"', '한국민족문화대백과사전 · 두산백과의 힌두교 항목', '힌두교 사원 축제·신 자료'],
   },
   en: {
     title: 'Hinduism',
@@ -63,8 +63,8 @@ const pack: LearnPack = {
       { name: 'Maha Shivaratri', when: 'Feb–Mar', text: 'A night of prayer to Shiva.' },
       { name: 'Krishna Janmashtami', when: 'Aug–Sep', text: 'Celebrates the birth of Krishna.' },
     ],
-    festivalNote: 'Hindu festivals follow a lunisolar calendar, so dates change every year. See PujaTime\'s festival screen for exact dates.',
-    sources: ['Encyclopaedia Britannica, "Hinduism"', 'Encyclopedia of Korean Culture · Doopedia entries on Hinduism', 'PujaTime festival and deity data'],
+    festivalNote: 'Hindu festivals follow a lunisolar calendar, so dates change every year. See the festival schedule in the Hindu temples for exact dates.',
+    sources: ['Encyclopaedia Britannica, "Hinduism"', 'Encyclopedia of Korean Culture · Doopedia entries on Hinduism', 'Hindu temple festival and deity data'],
   },
 }
 export default pack

@@ -15,7 +15,7 @@ const ko: Pack = {
     { title: '걷는 법', text: '왼쪽 아래 조이스틱이나 바닥을 눌러 걷고, 화면을 끌어 둘러보세요.' },
     { title: '자리로', text: '장의자 사이 통로를 따라 걸어가 보세요.', spot: 'pews' },
     { title: '강단', text: '앞의 강단 가까이 가 보세요. 이곳에서 설교가 전해집니다.', spot: 'pulpit' },
-    { title: '찬송', text: '"찬송가"를 눌러 1551년부터 불러 온 찬송(OLD HUNDREDTH)을 들어 보세요.', action: 'hymn' },
+    { title: '찬송', text: '"찬송가"를 눌러 1551년부터 불러 온 옛 시편 찬송을 들어 보세요.', action: 'hymn' },
     { title: '기도', text: '오른쪽 "기도하기"를 눌러 잠시 기도해 보세요.', action: 'pray' },
     { title: '더 해 보기', text: '기도실에서는 침묵 기도와 기도 노트, 말씀 묵상을 할 수 있어요.' },
   ],
