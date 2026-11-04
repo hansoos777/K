@@ -14,7 +14,10 @@ const envFile = new URL('../../../pujatime/.env.local', import.meta.url)
 const token = process.env.HF_TOKEN ?? (existsSync(envFile) ? /HF_TOKEN=(\S+)/.exec(readFileSync(envFile, 'utf8'))?.[1] : undefined)
 if (!token) { console.log('HF_TOKEN 이 없습니다'); process.exit(1) }
 
-const STYLE = 'professional editorial photograph, natural soft light, warm muted ivory and bronze tones, calm and dignified, high detail, no text, no watermark, no logo'
+// 느낌: docs/design/reference.png (사용자가 준 시안). 따뜻한 해 질 녘 빛, 옅은 안개, 파스텔 하늘, 깨끗한 건축.
+// "약간 더 귀여워도 됨": 사실적이되 모양을 살짝 둥글고 단정하게 다듬은 미니어처 같은 3D 렌더 느낌.
+// 단, 장난감·만화 캐릭터·과장된 색은 쓰지 않는다(종교 공간의 품위 유지).
+const STYLE = 'soft semi-realistic 3D render with a gentle miniature diorama charm, slightly rounded and simplified clean shapes, warm golden hour sunlight, soft haze, pastel peach and ivory sky, warm muted ivory beige and bronze palette, cozy calm and dignified, tidy composition, soft shadows, high detail, no cartoon characters, no faces, no text, no watermark, no logo'
 const W = [1216, 832] // 카드(3:2 가까이)
 const H = [1536, 768] // 큰 배너
 // [id, 크기, 장면]  — 종교 상징은 전통에 맞게. 개신교 사진에는 십자고상·성상을 넣지 않는다.

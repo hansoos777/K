@@ -7,6 +7,7 @@
 | 파일 이름 | `home_hero`, `spaces_hero`, `mine_hero`, `ext_<종교>`, `act_<종교>_<번호>` (`.webp`) |
 | 종교 폴더 이름 | christian(개신교) · catholic(천주교) · temple(불교) · mandir(힌두교) |
 | 크기 | 배너 1536×768, 카드 1216×832 |
+| 느낌 | docs/design/reference.png 시안처럼: 따뜻한 해 질 녘 빛, 옅은 안개, 파스텔 하늘. 살짝 둥근 미니어처 같은 3D 렌더(조금 귀엽게), 단 장난감·캐릭터 느낌은 금지 |
 | 대신 쓰는 사진 | 파일이 없으면 화면은 3D 공간 사진(public/photos)을 보여 줌 |
 
 ## 검수 (넣기 전에 반드시)
