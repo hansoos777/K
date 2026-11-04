@@ -22,7 +22,7 @@ const MURTI_Z = -7.2
 const HALF_W = (HALL_W / 2) * S
 const Z_BACK = HALL_Z_BACK * S
 const Z_FRONT = HALL_Z_FRONT * S
-// 랜선신앙: 교회·성당·대웅전처럼 웅장하게 천장을 높임(7 → 11, 실제 21m → 33m)
+// 믿어보까: 교회·성당·대웅전처럼 웅장하게 천장을 높임(7 → 11, 실제 21m → 33m)
 const ROOF = 11
 const CEILING = ROOF * S
 const WALK_X = 14.4 // 기둥 안쪽까지만 걸어감
@@ -566,7 +566,7 @@ export class HallWorld {
     this.camGoal.z = THREE.MathUtils.clamp(this.camGoal.z, Z_BACK + 1.5, Z_FRONT - 1.2)
     this.camera.position.lerp(this.camGoal, k)
     const look = focus.clone().add(new THREE.Vector3(-Math.sin(this.yaw), 0, -Math.cos(this.yaw)).multiplyScalar(2.2))
-    look.y += 5.4 // 랜선신앙: 높은 천장이 보이도록 더 위쪽을 봄
+    look.y += 5.4 // 믿어보까: 높은 천장이 보이도록 더 위쪽을 봄
     this.camLook.lerp(look, k)
     this.camera.lookAt(this.camLook)
   }

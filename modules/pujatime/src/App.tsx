@@ -30,7 +30,7 @@ const TABS: { id: Tab; key: 'shrine' | 'mandir' | 'soon'; icon: string }[] = [
 export function App() {
   const shrine = useShrine()
   const t = useT()
-  // 랜선신앙에서 ?tab=mandir 로 열면 사원 탭부터 보여 줌
+  // 믿어보까에서 ?tab=mandir 로 열면 사원 탭부터 보여 줌
   const [tab, setTab] = useState<Tab>(() => (new URLSearchParams(location.search).get('tab') === 'mandir' ? 'mandir' : 'home'))
   const [puja, setPuja] = useState<DeityId | null>(null)
   const [darshan, setDarshan] = useState(false)
