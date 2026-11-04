@@ -74,6 +74,8 @@ export interface StageOptions {
   onSay?: (msg: string) => void
   /** 안내 지점에 들어가거나 나올 때 */
   onSpot?: (id: string | null) => void
+  /** 빈자리 가까이 왔을 때('near') · 앉았을 때('seated') · 아무것도 아닐 때(null) */
+  onSeat?: (s: 'near' | 'seated' | null) => void
 }
 
 export class Stage {
@@ -87,7 +89,11 @@ export class Stage {
   private taps: { o: THREE.Object3D; fn: () => void; approach?: [number, number] }[] = []
   private updaters: ((t: number, dt: number) => void)[] = []
   private spots: { id: string; x: number; z: number; r: number }[] = []
-  private seats: { x: number; z: number; y: number; yaw: number; taken?: boolean }[] = []
+  private seats: { x: number; z: number; y: number; yaw: number; taken?: boolean; fx: number; fz: number; ax: number; az: number }[] = []
+  /** 자리 앞 발 놓는 띠(다리 뻗는 공간): 장의자 줄 사이로 들어갈 수 있게 */
+  private lanes: { x0: number; z0: number; x1: number; z1: number }[] = []
+  private nearSeat: Stage['seats'][number] | null = null
+  private seatState: 'near' | 'seated' | null = null
   private seatedAt: { x: number; z: number; y: number; yaw: number; from: THREE.Vector3 } | null = null
   private curSpot: string | null = null
   private npcs: Avatar[] = []
@@ -164,11 +170,19 @@ export class Stage {
         this.npcs.push(a)
         this.blocks.push({ x0: x - 0.3, z0: z - 0.3, x1: x + 0.3, z1: z + 0.3 })
       },
-      seat: (x, z, y, yaw) => this.seats.push({ x, z, y, yaw }),
+      seat: (x, z, y, yaw) => {
+        // 앉은 사람이 바라보는 쪽(앞)으로 0.5m = 다리 뻗는 자리. 줄 방향(옆)으로 길게 띠를 깐다
+        const fx = Math.sin(yaw), fz = Math.cos(yaw)
+        const ax = x + fx * 0.5, az = z + fz * 0.5
+        this.seats.push({ x, z, y, yaw, fx, fz, ax, az })
+        this.addLane(x, z, yaw)
+      },
       face: (x, z) => this.face(x, z),
       me: () => this.avatar.root.position,
       isSweeping: () => this.avatar.sweeping,
       crowd: (people, scale = 0.55) => {
+        // 앉은 사람 앞도 지나갈 수 있게(실제로 줄 안쪽 빈자리로 들어갈 때처럼)
+        for (const w of people) if ((w.y ?? 0) > 0.2) this.addLane(w.x, w.z, w.yaw)
         if (photo) return
         const groups = new Map<string, typeof people>()
         for (const p of people) {
@@ -272,39 +286,63 @@ export class Stage {
 
   setPose(p: 'idle' | 'pray' | 'bow' | 'sit') {
     if (p === 'sit') {
-      this.sitNearest()
+      this.sitHere()
       return
     }
     this.target = null
     this.path = []
-    if (this.seatedAt && p === 'idle') this.standUp()
-    this.avatar.pose = this.seatedAt ? 'sit' : p
+    if (this.seatedAt) {
+      // 앉은 채로 기도(두 손 모음). 다시 누르면 손을 내림. 절은 일어나서
+      if (p === 'pray') { this.avatar.pose = this.avatar.pose === 'sitpray' ? 'sit' : 'sitpray'; return }
+      this.standUp()
+    }
+    this.avatar.pose = p
   }
 
-  /** 가장 가까운 빈 자리로 걸어가 앉음. 자리가 없으면 false */
-  sitNearest() {
-    const a = this.avatar.root.position
-    const free = this.seats.filter((s) => !s.taken)
-    if (!free.length) return false
-    const s = free.reduce((b, c) => (Math.hypot(c.x - a.x, c.z - a.z) < Math.hypot(b.x - a.x, b.z - a.z) ? c : b))
-    this.walkTo(s.x, s.z, () => {
-      const from = this.avatar.root.position.clone()
-      this.seatedAt = { ...s, from }
-      this.avatar.root.position.set(s.x, s.y, s.z)
-      this.avatar.root.rotation.y = s.yaw
-      this.yaw = s.yaw + Math.PI
-      this.avatar.pose = 'sit'
-    })
+  /** 지금 가까이 있는 빈자리에 앉음 (빈자리까지 직접 걸어가야 함). 없으면 false */
+  sitHere() {
+    const s = this.nearSeat
+    if (!s || this.seatedAt) return false
+    this.target = null
+    this.path = []
+    const from = new THREE.Vector3(s.ax, 0, s.az)
+    this.seatedAt = { ...s, from }
+    s.taken = true
+    this.avatar.root.position.set(s.x, s.y, s.z)
+    this.avatar.root.rotation.y = s.yaw
+    this.yaw = s.yaw + Math.PI
+    this.avatar.pose = 'sit'
     return true
   }
 
-  /** 앉아 있으면 일어나 원래 서 있던 곳으로 */
+  /** 예전 이름(가까운 빈자리에 앉기)도 유지: 이제는 가까이 있을 때만 앉는다 */
+  sitNearest() {
+    return this.sitHere()
+  }
+
+  /** 앉아 있으면 일어나 자리 앞에 섬 */
   standUp() {
     if (!this.seatedAt) return
+    const seat = this.seats.find((x) => x.x === this.seatedAt!.x && x.z === this.seatedAt!.z)
+    if (seat) seat.taken = false
     this.avatar.root.position.copy(this.seatedAt.from)
     this.avatar.root.position.y = 0
     this.seatedAt = null
     this.avatar.pose = 'idle'
+  }
+
+  /** 자리 앞 0.5m에 줄 방향으로 긴 띠(다리 뻗는 공간)를 깐다 */
+  private addLane(x: number, z: number, yaw: number) {
+    const fx = Math.sin(yaw), fz = Math.cos(yaw)
+    const ax = x + fx * 0.5, az = z + fz * 0.5
+    // 줄 끝 옆판·통로까지 이어지도록 옆으로 넉넉히(1.3m), 앞뒤는 다리 뻗는 폭만큼
+    const along = 1.3, across = 0.16
+    const ux = Math.abs(fz), uz = Math.abs(fx)
+    this.lanes.push({ x0: ax - along * ux - across * (1 - ux), z0: az - along * uz - across * (1 - uz), x1: ax + along * ux + across * (1 - ux), z1: az + along * uz + across * (1 - uz) })
+  }
+
+  get seated() {
+    return !!this.seatedAt
   }
 
   /** 캐릭터가 (x, z)를 바라보게 하고 카메라는 그 뒤에서 */
@@ -346,7 +384,8 @@ export class Stage {
 
   // ── 길찾기: 걸을 수 있는 칸으로 격자를 만들고 A*로 장애물을 돌아간다 ──
   private buildGrid() {
-    const cell = 0.4
+    // 장의자 줄 사이 좁은 길도 찾을 수 있게 자리가 있는 공간은 더 촘촘하게
+    const cell = this.lanes.length ? 0.2 : 0.4
     const x0 = Math.min(...this.walkRects.map((r) => r.x0)), x1 = Math.max(...this.walkRects.map((r) => r.x1))
     const z0 = Math.min(...this.walkRects.map((r) => r.z0)), z1 = Math.max(...this.walkRects.map((r) => r.z1))
     const nx = Math.ceil((x1 - x0) / cell), nz = Math.ceil((z1 - z0) / cell)
@@ -382,18 +421,31 @@ export class Stage {
     const gs = new Float32Array(N).fill(Infinity)
     const from = new Int32Array(N).fill(-1)
     const closed = new Uint8Array(N)
-    const open: number[] = [start]
-    gs[start] = 0
-    const h = (k: number) => {
-      const a = center(k), b = center(goal)
-      return Math.hypot(a.x - b.x, a.y - b.y)
+    const gx = g.x0 + ((goal % g.nx) + 0.5) * g.cell, gz = g.z0 + (Math.floor(goal / g.nx) + 0.5) * g.cell
+    const h = (k: number) => Math.hypot(g.x0 + ((k % g.nx) + 0.5) * g.cell - gx, g.z0 + (Math.floor(k / g.nx) + 0.5) * g.cell - gz) / g.cell
+    // 이진 힙(우선순위 큐): 칸이 많아도(0.2m 격자) 빠르게
+    const heap: number[] = [], pri: number[] = []
+    const push = (k: number, f: number) => {
+      heap.push(k); pri.push(f)
+      let i = heap.length - 1
+      while (i > 0) { const pIdx = (i - 1) >> 1; if (pri[pIdx] <= pri[i]) break; [heap[i], heap[pIdx]] = [heap[pIdx], heap[i]]; [pri[i], pri[pIdx]] = [pri[pIdx], pri[i]]; i = pIdx }
     }
+    const pop = () => {
+      const top = heap[0]
+      const lk = heap.pop()!, lf = pri.pop()!
+      if (heap.length) {
+        heap[0] = lk; pri[0] = lf
+        let i = 0
+        for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && pri[l] < pri[m]) m = l; if (r < heap.length && pri[r] < pri[m]) m = r; if (m === i) break; [heap[i], heap[m]] = [heap[m], heap[i]]; [pri[i], pri[m]] = [pri[m], pri[i]]; i = m }
+      }
+      return top
+    }
+    gs[start] = 0
+    push(start, h(start))
     let found = false
-    let guard = 0
-    while (open.length && guard++ < 20000) {
-      let bi = 0
-      for (let i = 1; i < open.length; i++) if (gs[open[i]] + h(open[i]) < gs[open[bi]] + h(open[bi])) bi = i
-      const cur = open.splice(bi, 1)[0]
+    while (heap.length) {
+      const cur = pop()
+      if (closed[cur]) continue
       if (cur === goal) { found = true; break }
       closed[cur] = 1
       const ci = cur % g.nx, cj = Math.floor(cur / g.nx)
@@ -408,7 +460,7 @@ export class Stage {
         if (ng < gs[nk]) {
           gs[nk] = ng
           from[nk] = cur
-          if (!open.includes(nk)) open.push(nk)
+          push(nk, ng + h(nk))
         }
       }
     }
@@ -431,7 +483,8 @@ export class Stage {
 
   private lineClear(ax: number, az: number, bx: number, bz: number) {
     const d = Math.hypot(bx - ax, bz - az)
-    const n = Math.ceil(d / 0.2)
+    // 좁은 줄 사이 길에서 모서리를 깎지 않도록 촘촘히 확인
+    const n = Math.ceil(d / (this.lanes.length ? 0.08 : 0.2))
     for (let i = 1; i <= n; i++) if (!this.canStand(ax + ((bx - ax) * i) / n, az + ((bz - az) * i) / n)) return false
     return true
   }
@@ -456,6 +509,7 @@ export class Stage {
     const r = 0.25
     const inside = this.walkRects.some((w) => x > w.x0 + r && x < w.x1 - r && z > w.z0 + r && z < w.z1 - r)
     if (!inside) return false
+    if (this.lanes.length && this.lanes.some((l) => x > l.x0 && x < l.x1 && z > l.z0 && z < l.z1)) return true
     return !this.blocks.some((b) => x > b.x0 - r && x < b.x1 + r && z > b.z0 - r && z < b.z1 + r)
   }
 
@@ -524,7 +578,9 @@ export class Stage {
       const speed = 2.6 * speedK
       const nx = a.position.x + dir.x * speed * dt
       const nz = a.position.z + dir.y * speed * dt
-      if (this.canStand(nx, nz)) {
+      // 눌러서 찾아가는 길(격자·직선 검사를 이미 통과한 길)은 그대로 따라감. 조이스틱·키보드만 매 걸음 부딪힘 확인
+      const following = !kx && !kz && !!this.target
+      if (following || this.canStand(nx, nz)) {
         a.position.x = nx
         a.position.z = nz
         moving = true
@@ -550,6 +606,21 @@ export class Stage {
       }
     }
     if (this.avatar.pose === 'walk' && this.seatedAt) this.avatar.pose = 'sit'
+    // 빈자리 가까이(자리 앞 0.55m 안) 오면 '앉기' 버튼
+    if (!this.seatedAt) {
+      let best: Stage['seats'][number] | null = null, bd = 0.55
+      for (const s of this.seats) {
+        if (s.taken) continue
+        const d = Math.hypot(s.ax - a.position.x, s.az - a.position.z)
+        if (d < bd) { bd = d; best = s }
+      }
+      this.nearSeat = best
+    } else this.nearSeat = null
+    const ss = this.seatedAt ? 'seated' : this.nearSeat ? 'near' : null
+    if (ss !== this.seatState) {
+      this.seatState = ss
+      this.opts.onSeat?.(ss)
+    }
     this.avatar.update(dt, moving && !this.seatedAt)
     for (const n of this.npcs) n.update(dt, false)
 

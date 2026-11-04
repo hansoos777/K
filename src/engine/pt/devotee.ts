@@ -30,6 +30,8 @@ export interface DevoteeOpts {
   joined?: boolean
   /** 머리카락 색 (기본 검정) */
   hair?: number
+  /** 미사포: 성당에서 여성 신자가 머리에 쓰는 흰 레이스 천 */
+  veil?: boolean
 }
 
 const GOLD = 0xe9b84e
@@ -250,6 +252,7 @@ function head(g: THREE.Group, y: number, o: DevoteeOpts) {
     bang.position.set(0, y + 0.3, 0.24)
     bang.rotation.x = 0.45
     g.add(bang)
+    if (o.veil) veil(g, y)
   } else {
     const fringe = new THREE.Mesh(new THREE.SphereGeometry(0.34, 20, 14), hairMat)
     fringe.scale.set(1.08, 0.32, 0.5)
@@ -257,6 +260,36 @@ function head(g: THREE.Group, y: number, o: DevoteeOpts) {
     fringe.rotation.set(0.5, 0, -0.2)
     g.add(fringe)
   }
+}
+
+/** 미사포: 정수리부터 뒤통수·어깨까지 덮는 흰 레이스 (앞머리는 보이게 뒤로 젖혀 씀) */
+let laceTex: THREE.CanvasTexture | null = null
+function veil(g: THREE.Group, y: number) {
+  if (!laceTex) {
+    const el = document.createElement('canvas')
+    el.width = el.height = 64
+    const c = el.getContext('2d')!
+    // 성긴 레이스: 반투명 흰 바탕에 더 하얀 꽃무늬 고리 (머리카락이 살짝 비침)
+    c.fillStyle = 'rgba(255, 255, 255, .55)'
+    c.fillRect(0, 0, 64, 64)
+    c.strokeStyle = 'rgba(255, 255, 255, 1)'
+    c.lineWidth = 2.2
+    for (const [x, yy] of [[16, 16], [48, 16], [16, 48], [48, 48], [32, 32]]) { c.beginPath(); c.arc(x, yy, 6, 0, Math.PI * 2); c.stroke() }
+    laceTex = new THREE.CanvasTexture(el)
+    laceTex.wrapS = laceTex.wrapT = THREE.RepeatWrapping
+    laceTex.repeat.set(12, 5)
+    laceTex.colorSpace = THREE.SRGBColorSpace
+  }
+  const mat = lam(0xffffff, { map: laceTex, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false })
+  // 정수리에서 뒤로 얹은 모양: 앞머리와 이마는 드러나게 많이 젖힘
+  const top = new THREE.Mesh(new THREE.SphereGeometry(0.565, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.5), mat)
+  top.position.set(0, y + 0.01, -0.08)
+  top.rotation.x = -0.75
+  g.add(top)
+  // 뒤로 늘어진 부분
+  const drape = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 0.5, 24, 1, true, Math.PI / 2, Math.PI), mat)
+  drape.position.set(0, y - 0.3, -0.16)
+  g.add(drape)
 }
 
 function arms(g: THREE.Group, shoulderY: number, chestZ: number, spread: number, armR: number, skin: THREE.Material, joined: boolean, sleeve?: THREE.Material) {

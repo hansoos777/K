@@ -71,6 +71,8 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
   const [spot, setSpot] = useState<string | null>(null)
   const [step, setStep] = useState<number | null>(null)
   const [sweeping, setSweeping] = useState(false)
+  const [seat, setSeat] = useState<'near' | 'seated' | null>(null)
+  const [seatPray, setSeatPray] = useState(false)
   const say = useRef((m: string) => setToast(m))
   const coarse = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches
   const name = (p: { ko: string; en: string }) => (lang === 'en' ? p.en : p.ko)
@@ -103,7 +105,7 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
           const layout = sc.build(ctx)
           api.current = (layout as { api?: SceneApi }).api ?? {}
           return layout
-        }, { high, onTap: () => setHint(false), onSay: (m) => say.current(m), onSpot: (sid) => setSpot(sid) })
+        }, { high, onTap: () => setHint(false), onSay: (m) => say.current(m), onSpot: (sid) => setSpot(sid), onSeat: (s) => { setSeat(s); if (s !== 'seated') setSeatPray(false) } })
         stageRef.current = s
         if (location.search.includes('debug')) (window as unknown as { __stage: unknown }).__stage = s
         setState('ready')
@@ -244,10 +246,17 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
 
       {coarse && state === 'ready' && <Joystick onMove={(x, y) => { stageRef.current?.setStick(x, y); if (x || y) setHint(false) }} />}
 
+      {state === 'ready' && seat && (
+        <button className={`seat-btn glass ${seat === 'seated' ? 'on' : ''}`} onClick={() => {
+          const st = stageRef.current
+          if (!st) return
+          if (seat === 'seated') { st.standUp(); setSeat('near') } else if (st.sitHere()) setToast(t.sitNote)
+        }}>{seat === 'seated' ? t.standUp : t.sitHere}</button>
+      )}
       {sc.gestures && state === 'ready' && (
         <div className="gestures" role="toolbar" aria-label={t.gestures}>
           {sc.gestures.map((g) => (
-            <button key={g.id} className={`gesture glass ${g.pose === 'sweep' && sweeping ? 'on' : ''}`} onClick={() => {
+            <button key={g.id} className={`gesture glass ${(g.pose === 'sweep' && sweeping) || (g.pose === 'pray' && seatPray) ? 'on' : ''}`} onClick={() => {
               const st = stageRef.current
               if (!st) return
               if (g.pose === 'sweep') {
@@ -262,7 +271,8 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
                 return
               }
               st.setPose(g.pose)
-              if (g.note) setToast(g.note)
+              if (g.pose === 'pray' && st.seated) setSeatPray((v) => !v)
+              if (g.note) setToast(st.seated && g.pose === 'pray' ? t.sitPrayNote : g.note)
               if (cur?.action === g.id) next()
             }}>{g.label}</button>
           ))}

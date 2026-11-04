@@ -314,7 +314,7 @@ export function buildCathedral(ctx: BuildCtx): Built {
     api: {
       candle: goLight,
       bell: () => bell('church'),
-      kneel: () => ctx.walkTo(0, sZ + 5.6, () => ctx.pose('bow')),
+      kneel: () => ctx.walkTo(0, sZ + 5.6, () => ctx.pose('pray')),
     },
   }
 }

@@ -1049,3 +1049,13 @@ fieldset { scroll-margin-top: 80px; }
 .lesson-defs dt { font-weight: 600; }
 .lesson-defs dd { margin: 0; color: var(--text); line-height: 1.65; }
 @media (max-width: 520px) { .lesson-defs > div { grid-template-columns: 1fr; gap: 2px; } }
+/* 빈자리 앞: 앉기 / 일어나기 (화면 아래 가운데, 크게) */
+.seat-btn { position: absolute; z-index: 4; left: 50%; transform: translateX(-50%); bottom: calc(max(16px, env(safe-area-inset-bottom)) + 168px); min-height: 48px; padding: 0 28px; border-radius: 99px; color: #fff; font-size: 1rem; font-weight: 600; border: 1px solid rgba(255, 255, 255, .35); cursor: pointer; animation: sheetUp .2s ease; }
+.seat-btn.on { background: rgba(255, 255, 255, .9); color: #17130a; }
+/* 3D 공간 안 어두운 판: 글자가 밝은 디자인 색을 따라가 안 보이던 문제 */
+.space .sheet, .space .spot, .space .tour { --text: #f6f2ea; --muted: rgba(255, 255, 255, .72); --line: rgba(255, 255, 255, .16); color: #f6f2ea; }
+.space .sheet .deflist dt, .space .sheet h3, .space .sheet strong, .space .sheet dt, .space .sheet th, .space .sheet td, .space .sheet li, .space .sheet p { color: inherit; }
+.space .sheet .deflist dd, .space .sheet .hint, .space .sheet .note, .space .sheet small { color: rgba(255, 255, 255, .72); }
+.space .sheet .btn-primary, .space .sheet .button.primary { background: var(--accent); border-color: var(--accent); color: #17130a; }
+.space .sheet .btn:not(.btn-primary):not(.on) { color: #fff; }
+.space .sheet input, .space .sheet textarea, .space .sheet select { background: rgba(255, 255, 255, .08); color: #fff; border-color: rgba(255, 255, 255, .22); }

@@ -3,8 +3,6 @@ interface Pack { gestures: Gesture[]; spots: Record<string, SpotInfo>; tour: Tou
 const ko: Pack = {
   gestures: [
     { id: 'pray', label: '기도하기', pose: 'pray', note: '두 손을 모아 기도합니다' },
-    { id: 'bow', label: '절하기', pose: 'bow', note: '감실(성체)을 향해 깊이 고개 숙여 절합니다' },
-    { id: 'sit', label: '자리에 앉기', pose: 'sit', note: '빈 자리에 앉았어요. 움직이면 일어나요.' },
   ],
   spots: {
     font: { label: '성수대', text: '성당에 들어서며 성수를 찍어 십자성호를 긋습니다.' },
@@ -22,7 +20,7 @@ const ko: Pack = {
     { title: '걷는 법', text: '왼쪽 아래 조이스틱이나 바닥을 눌러 걷고, 화면을 끌어 둘러보세요.' },
     { title: '성수대', text: '입구 쪽 빛 기둥까지 걸어가 보세요. 신자는 여기서 성수로 십자성호를 긋습니다.', spot: 'font' },
     { title: '가운데 통로로', text: '장의자 사이 통로를 따라 앞으로 걸어가 보세요.', spot: 'nave' },
-    { title: '제대와 감실', text: '앞쪽 제대 가까이 가 보세요. 오른쪽 "절하기"로 공경을 표할 수 있어요.', action: 'bow' },
+    { title: '제대와 감실', text: '앞쪽 제대 가까이 가 보세요. 오른쪽 "기도하기"로 잠시 기도할 수 있어요.', action: 'pray' },
     { title: '촛불 봉헌', text: '"촛불 봉헌"을 누르면 측랑의 봉헌초로 가서 초를 밝힙니다.', action: 'candle' },
     { title: '십자가의 길', text: '"십자가의 길"을 눌러 14처를 하나씩 묵상해 보세요.', action: 'way' },
     { title: '더 해 보기', text: '성모 동산에서는 묵주기도를, 본당에서는 미사의 흐름과 전례력을 볼 수 있어요.' },
@@ -31,8 +29,6 @@ const ko: Pack = {
 const en: Pack = {
   gestures: [
     { id: 'pray', label: 'Pray', pose: 'pray', note: 'Hands joined in prayer' },
-    { id: 'bow', label: 'Bow', pose: 'bow', note: 'A deep bow toward the tabernacle' },
-    { id: 'sit', label: 'Sit down', pose: 'sit', note: 'Seated. Move to stand up.' },
   ],
   spots: {
     font: { label: 'Holy water font', text: 'On entering, the faithful make the sign of the cross with holy water.' },
@@ -50,7 +46,7 @@ const en: Pack = {
     { title: 'How to walk', text: 'Use the joystick or tap the floor; drag to look around.' },
     { title: 'Holy water', text: 'Walk to the light by the entrance, where the faithful bless themselves.', spot: 'font' },
     { title: 'Down the aisle', text: 'Walk forward along the centre aisle.', spot: 'nave' },
-    { title: 'Altar and tabernacle', text: 'Approach the altar. Tap "Bow" on the right to show reverence.', action: 'bow' },
+    { title: 'Altar and tabernacle', text: 'Approach the altar. Tap "Pray" on the right for a moment of prayer.', action: 'pray' },
     { title: 'Light a candle', text: 'Tap "Light a candle" to walk to the votive stand.', action: 'candle' },
     { title: 'Stations of the Cross', text: 'Tap "Stations of the Cross" and reflect on each.', action: 'way' },
     { title: 'Go further', text: 'Pray the Rosary at the grotto, or see the Mass and calendar in the parish.' },
