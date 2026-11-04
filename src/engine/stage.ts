@@ -4,7 +4,7 @@ import { bakeDevotee, makeDevotee } from './pt/devotee'
 import { disposeTextures } from './tex'
 
 /**
- * 오루비아 3D 무대. 모든 종교 공간이 같이 쓴다.
+ * 랜선신앙 3D 무대. 모든 종교 공간이 같이 쓴다.
  * - 바닥을 누르면 걸어가고, 드래그하면 둘러보고, 두 손가락/휠로 확대·축소
  * - PC는 WASD·방향키로도 이동
  * - 프레임이 떨어지면 해상도를 자동으로 낮춤(저사양 폰 대응)

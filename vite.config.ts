@@ -5,7 +5,7 @@ import { BRAND } from './src/brand'
 /** 서비스 이름을 index.html과 앱 manifest에 넣는다(이름은 src/brand.ts 한 곳에서만 관리) */
 function brand(): Plugin {
   const manifest = () => JSON.stringify({
-    name: `${BRAND.ko} ${BRAND.en}`,
+    name: BRAND.ko,
     short_name: BRAND.ko,
     description: BRAND.tagline,
     start_url: '/',

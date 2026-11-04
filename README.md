@@ -1,4 +1,4 @@
-# 믿는교 RuBelieve (옛 이름 ORUVIA)
+# 랜선신앙
 
 **One World. Many Sacred Places.** 세계의 여러 종교·문화 공간을 디지털로 방문하는 가상 공간 플랫폼입니다.
 

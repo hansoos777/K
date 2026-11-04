@@ -281,7 +281,7 @@ const en: Dict = {
       ['Personal shrine', 'Your own shrine for a daily offering', 'w/mandir/shrine'],
     ],
     short: { christian: 'The Word, grace and the teaching of Jesus Christ', catholic: 'The universal Church, its liturgy and sacraments', mandir: 'Many deities and rites over thousands of years', temple: 'The Buddha\'s teaching and practice of awakening' },
-    slogan: 'Find Your Own Way to Believe.',
+    slogan: 'Walk through the world’s faiths, online.',
     profile: 'Profile',
   },
   noSeat: 'There is no seat here.',

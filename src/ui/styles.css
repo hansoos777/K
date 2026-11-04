@@ -1,4 +1,4 @@
-/* ORUVIA 공통 디자인. 웹폰트를 받지 않고 시스템 글꼴을 쓴다(용량 0). */
+/* 랜선신앙 공통 디자인. 웹폰트를 받지 않고 시스템 글꼴을 쓴다(용량 0). */
 :root {
   --ink: #0e1118;
   --ink-2: #161a24;
@@ -416,7 +416,7 @@ progress { width: 100%; height: 4px; accent-color: var(--accent); }
 .sources { color: var(--muted); font-size: .78rem; margin-top: 40px; }
 .w-christian.rel, .w-catholic.rel, .w-mandir.rel, .w-temple.rel { --w-bg: var(--ink); }
 @media (max-width: 520px) { .fest li { grid-template-columns: 1fr; } .fest time { grid-row: auto; } .lesson-b { padding-left: 16px; } }
-/* 힌두교 = PujaTime을 같은 사이트 안에서 그대로 연다 (위쪽 얇은 ORUVIA 띠 + 아래 PujaTime) */
+/* 힌두교 = PujaTime을 같은 사이트 안에서 그대로 연다 (위쪽 얇은 서비스 띠 + 아래 PujaTime) */
 .embed { background: #2a0e06; }
 .embed-bar { position: absolute; z-index: 4; top: 0; left: 0; right: 0; height: calc(48px + env(safe-area-inset-top)); padding: env(safe-area-inset-top) 10px 0; display: flex; align-items: center; gap: 8px; background: #1a0904; border-bottom: 1px solid rgba(255, 190, 120, .18); overflow-x: auto; scrollbar-width: none; }
 .embed-bar .glass-btn { width: 36px; height: 36px; }
@@ -1060,7 +1060,7 @@ fieldset { scroll-margin-top: 80px; }
 .space .sheet .btn:not(.btn-primary):not(.on) { color: #fff; }
 .space .sheet input, .space .sheet textarea, .space .sheet select { background: rgba(255, 255, 255, .08); color: #fff; border-color: rgba(255, 255, 255, .22); }
 
-/* ═════════ 4차 개편: 믿는교 디자인 시스템 (시안 확정본) ═════════
+/* ═════════ 4차 개편: 랜선신앙 디자인 시스템 (시안 확정본) ═════════
    남색(학사모) · 금색 · 연보라 · 하늘 · 살구 + 따뜻한 크림. 둥근 카드, 아치형 "빛의 문".
    본문·메뉴 LINE Seed Sans KR / 제목 Gowun Dodum */
 @font-face { font-family: 'LINE Seed Sans KR'; src: url('/fonts/LINESeedKR-Rg.woff2') format('woff2'); font-weight: 400 500; font-style: normal; font-display: swap; }

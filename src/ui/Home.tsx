@@ -169,7 +169,7 @@ export default function Home() {
       </section>
 
       <footer className="foot5">
-        <b>{t.brand}{lang === 'ko' ? ' · RuBelieve' : ''}</b>
+        <b>{t.brand}</b>
         <span>{t.disclaimer}</span>
       </footer>
     </div>

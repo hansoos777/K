@@ -21,7 +21,7 @@ export function Header({ active, title }: { active: string; title?: string }) {
     <header className="topbar">
       <a className="logo-link" href={href('')} aria-label={t.nav.home}>
         <LogoMark size={34} />
-        <span className={`wordmark ${lang === 'ko' ? 'ko' : ''}`}>{t.brand}{lang === 'ko' && <small>RUBELIEVE</small>}</span>
+        <span className={`wordmark ${lang === 'ko' ? 'ko' : ''}`}>{t.brand}</span>
       </a>
       {title && <span className="page-title" aria-current="page">{title}</span>}
       <nav className="topnav" aria-label="menu">
