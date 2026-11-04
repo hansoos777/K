@@ -1,5 +1,6 @@
 import { BRAND } from '../brand'
 import { WORLDS } from '../core/registry'
+import { href } from '../core/router'
 import Finder from './Finder'
 import { useEffect, useState } from 'react'
 import { collect, type Metric } from '../core/perf'
@@ -55,6 +56,14 @@ export default function Me() {
           ))}
         </div>
         <p className="hint">{t.me.interestsHint}</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>{t.me.records}</legend>
+        <ul className="me-links">
+          <li><a href={href('mine#favorites')}><span>{t.mine.favorites}</span><span className="hint">{s.favorites.length}</span><span aria-hidden="true">→</span></a></li>
+          <li><a href={href('mine#log')}><span>{t.mine.logTitle}</span><span className="hint">{t.mine.log.pray} {s.minutes.pray}{t.mine.log.unitMin} · {t.mine.log.meditate} {s.minutes.meditate}{t.mine.log.unitMin}</span><span aria-hidden="true">→</span></a></li>
+        </ul>
       </fieldset>
 
       <fieldset>

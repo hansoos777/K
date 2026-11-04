@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { bell, jukbi } from '../core/audio'
-import { resolvePlace } from '../core/registry'
+import { resolvePlace, WORLDS } from '../core/registry'
 import { href } from '../core/router'
-import { update, useStore } from '../core/store'
+import { addMinutes, update, useStore } from '../core/store'
+import type { Activity } from '../learn/types'
 import { useLocal, useT } from '../i18n'
 import CS from '../worlds/christian/strings'
 import TS from '../worlds/temple/strings'
@@ -34,7 +35,7 @@ function Prayer() {
   const lang = useStore((s) => s.lang)
   const prayers = useStore((s) => s.prayers)
   const [text, setText] = useState('')
-  const cd = useCountdown(() => bell('church'))
+  const cd = useCountdown(() => { bell('church'); addMinutes('pray', cd.total) })
   const save = () => {
     const v = text.trim()
     if (!v) return
@@ -72,7 +73,7 @@ function Prayer() {
 function Meditate() {
   const tm = useLocal(TS)
   const t = useT()
-  const cd = useCountdown(() => jukbi(1))
+  const cd = useCountdown(() => { jukbi(1); addMinutes('meditate', cd.total) })
   const inhale = (cd.total - cd.left) % 10 < 4
   return (
     <>
@@ -89,6 +90,49 @@ function Meditate() {
       <Note>{tm.breathNote}</Note>
       <p><a className="btn" href={href('w/temple/meditation')}>{t.mine.meditateHall}</a></p>
     </>
+  )
+}
+
+/** 나의 활동 기록: 숫자만 (내용은 남기지 않음) */
+function Log() {
+  const t = useT()
+  const s = useStore((x) => x)
+  const items: [string, number, string][] = [
+    [t.mine.log.visits, new Set(s.visits.map((v) => v.id)).size, t.mine.log.unitPlace],
+    [t.mine.log.pray, s.minutes.pray, t.mine.log.unitMin],
+    [t.mine.log.meditate, s.minutes.meditate, t.mine.log.unitMin],
+    [t.mine.log.notes, s.prayers.length, t.mine.log.unitCount],
+    [t.mine.log.candles, s.candles, t.mine.log.unitCount],
+    [t.mine.log.lanterns, s.lanterns, t.mine.log.unitCount],
+  ]
+  return (
+    <dl className="stats">
+      {items.map(([k, v, u]) => <div key={k}><dt>{k}</dt><dd>{v}<small>{u}</small></dd></div>)}
+    </dl>
+  )
+}
+
+/** 종교별 신앙 활동 중 가상 공간에서 해 볼 수 있는 것 */
+function ByFaith() {
+  const t = useT()
+  const lang = useStore((s) => s.lang)
+  const [acts, setActs] = useState<Record<string, Activity[]>>({})
+  useEffect(() => {
+    let alive = true
+    Promise.all(WORLDS.map((w) => w.learn().then((m) => [w.id, (lang === 'en' ? m.default.en : m.default.ko).activities] as const))).then((r) => alive && setActs(Object.fromEntries(r)))
+    return () => { alive = false }
+  }, [lang])
+  return (
+    <ul className="byfaith">
+      {WORLDS.map((w) => (
+        <li key={w.id}>
+          <a className="byfaith-name" href={href(`explore/${w.id}/activities`)}>{t.worlds[w.id].name}</a>
+          <span className="chips">
+            {(acts[w.id] ?? []).filter((a) => a.place).map((a) => <a key={a.name} className="chip" href={href(`w/${w.id}/${a.place}`)}>{a.name}</a>)}
+          </span>
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -122,13 +166,22 @@ export default function Mine({ section }: { section?: string }) {
         {tab === 'pray' ? <Prayer /> : <Meditate />}
       </section>
 
-      <section>
+      <section id="favorites">
         <h2 className="sec-title">{t.mine.favorites}</h2>
         <PlaceCards keys={favorites} empty={t.mine.emptyFav} />
       </section>
       <section>
         <h2 className="sec-title">{t.mine.recent}</h2>
         <PlaceCards keys={visits.slice(0, 10).map((v) => v.id)} empty={t.mine.emptyRecent} />
+      </section>
+      <section id="log">
+        <h2 className="sec-title">{t.mine.logTitle}</h2>
+        <Log />
+        <p className="hint">{t.mine.logNote}</p>
+      </section>
+      <section id="activities">
+        <h2 className="sec-title">{t.mine.byFaith}</h2>
+        <ByFaith />
       </section>
     </div>
   )

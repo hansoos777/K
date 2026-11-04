@@ -49,7 +49,16 @@ export default function Home() {
         </ul>
       </section>
 
-      {/* D. 가상 공간 */}
+      {/* D. 나의 믿음 찾기 */}
+      <section className="h-sec h-band">
+        <div>
+          <h2>{t.h.fdTitle}</h2>
+          <p>{t.h.fdSub}</p>
+        </div>
+        <a className="button primary" href={href('me#finder')}>{t.h.fdBtn}</a>
+      </section>
+
+      {/* E. 추천 가상 공간 */}
       <section className="h-sec">
         <header className="h-sec-head">
           <h2>{t.h.spTitle}</h2>
@@ -64,15 +73,6 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </section>
-
-      {/* E. 나의 믿음 찾기 */}
-      <section className="h-sec h-band">
-        <div>
-          <h2>{t.h.fdTitle}</h2>
-          <p>{t.h.fdSub}</p>
-        </div>
-        <a className="button primary" href={href('me#finder')}>{t.h.fdBtn}</a>
       </section>
 
       {/* F. 나만의 조용한 시간 */}

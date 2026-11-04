@@ -36,6 +36,8 @@ export interface State {
   finder: { answers: number[]; result: string[]; at: number } | null
   /** 알림 설정 (실제 알림은 앱·로그인 단계에서 연결) */
   notify: { daily: boolean; festival: boolean }
+  /** 끝까지 마친 기도·명상 시간(분) — 나의 활동 기록 */
+  minutes: { pray: number; meditate: number }
 }
 
 // 서비스 이름이 바뀌어도 이 키는 바꾸지 않는다(바꾸면 기존 기록을 못 읽음)
@@ -61,6 +63,7 @@ const defaults: State = {
   mbti: '',
   finder: null,
   notify: { daily: false, festival: true },
+  minutes: { pray: 0, meditate: 0 },
 }
 
 function load(): State {
@@ -123,6 +126,10 @@ export function toggleFavorite(id: string) {
   update((s) => ({
     favorites: s.favorites.includes(id) ? s.favorites.filter((f) => f !== id) : [id, ...s.favorites],
   }))
+}
+
+export function addMinutes(kind: 'pray' | 'meditate', sec: number) {
+  update((s) => ({ minutes: { ...s.minutes, [kind]: s.minutes[kind] + Math.round(sec / 60) } }))
 }
 
 export function exportData() {

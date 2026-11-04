@@ -38,6 +38,7 @@ export default function Spaces({ id }: { id?: string }) {
                   <img src={`/photos/${cur.id}_${p.id}.webp`} alt="" loading="lazy" width="480" height="300" />
                 </a>
                 <div className="space-item-body">
+                  <small className="k">{t.worlds[cur.id].name} · {t.sp.cat[cur.id]}</small>
                   <strong>{name(p)}</strong>
                   {p.desc && <span>{lang === 'en' ? p.desc.en : p.desc.ko}</span>}
                   <div className="row">

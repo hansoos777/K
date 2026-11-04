@@ -1,22 +1,28 @@
 import { useEffect, useState } from 'react'
 import { worldById } from '../core/registry'
-import { href } from '../core/router'
+import { go, href } from '../core/router'
 import { update, useStore } from '../core/store'
 import type { Learn } from '../learn/types'
 import { useT } from '../i18n'
+import { COVER, photo } from './Home'
 import { Icon } from './icons'
 
+export type RelTab = 'activities' | 'spaces' | 'learn' | 'etiquette'
+const TABS: RelTab[] = ['activities', 'spaces', 'learn', 'etiquette']
+
 /**
- * 종교별 메인 화면: 소개 → 처음 시작하기(3D 안내) → 배우기 → 3D 공간 → 신앙 활동 → 예절 → 축제 → 커뮤니티.
- * "처음이에요" / "이미 믿고 있어요"에 따라 순서를 바꾼다(신앙인은 설명 없이 바로 활동으로).
+ * 종교 상세: 대표 이미지 · 종교명 · 한 줄 소개 · 소개 글, 그 아래 안쪽 탭 4개
+ * (신앙 활동 · 3D 공간 둘러보기 · 배우기 · 예절과 주의).
+ * "처음이에요 / 이미 믿고 있어요"는 그대로 두고, 고른 값에 따라 들어가기 버튼 순서를 바꾼다.
  */
-export default function ReligionDetail({ id }: { id: string }) {
+export default function ReligionDetail({ id, tab }: { id: string; tab?: RelTab }) {
   const t = useT()
   const lang = useStore((s) => s.lang)
   const mode = useStore((s) => s.modes[id] ?? 'learn')
   const def = worldById(id)
   const [L, setL] = useState<Learn | null>(null)
   const [openLesson, setOpenLesson] = useState(0)
+  const cur: RelTab = tab && TABS.includes(tab) ? tab : 'activities'
 
   useEffect(() => {
     if (!def) return
@@ -27,32 +33,41 @@ export default function ReligionDetail({ id }: { id: string }) {
 
   if (!def) return null
   const setMode = (m: 'learn' | 'practice') => update((s) => ({ modes: { ...s.modes, [id]: m } }))
-  const thumb = (p: string) => `/photos/${id}_${p}.webp`
   const placeName = (pid: string) => {
     const p = def.places.find((x) => x.id === pid)
     return p ? (lang === 'en' ? p.en : p.ko) : pid
   }
+  const tabLabel: Record<RelTab, string> = { activities: t.r.practice, spaces: t.r.explore, learn: t.r.learn, etiquette: t.r.etiquette }
 
   if (!L) return <div className="rel-loading"><div className="spinner" /></div>
 
-  const learn = (
-    <section className="rel-sec" id="learn">
-      <h2>{t.r.learn}</h2>
-      <div className="lessons">
-        {L.lessons.map((l, i) => (
-          <article key={l.title} className={`lesson ${openLesson === i ? 'open' : ''}`}>
-            <button className="lesson-h" onClick={() => setOpenLesson(openLesson === i ? -1 : i)} aria-expanded={openLesson === i}>
-              <span className="num">{String(i + 1).padStart(2, '0')}</span>{l.title}<span className="chev">{openLesson === i ? '−' : '+'}</span>
-            </button>
-            {openLesson === i && <div className="lesson-b">{l.body.map((b) => <p key={b}>{b}</p>)}</div>}
-          </article>
+  const activities = (
+    <section className="rel-sec">
+      <ul className="acts">
+        {L.activities.map((a) => (
+          <li key={a.name} className="act">
+            <div className="act-img"><img src={photo(id, a.img)} alt="" loading="lazy" width="640" height="420" /></div>
+            <div className="act-body">
+              <h3>{a.name}</h3>
+              <p className="act-text">{a.text}</p>
+              <h4>{t.r.meaning}</h4>
+              <p>{a.meaning}</p>
+              <h4>{t.r.how}</h4>
+              <ol className="act-steps">{a.steps.map((s) => <li key={s}>{s}</li>)}</ol>
+              {a.place ? (
+                <a className="button" href={href(`w/${id}/${a.place}`)}>{t.r.tryIt} · {placeName(a.place)} →</a>
+              ) : (
+                <p className="hint">{t.r.learnOnly}</p>
+              )}
+            </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   )
-  const explore = (
-    <section className="rel-sec" id="explore">
-      <h2>{t.r.explore}</h2>
+
+  const spaces = (
+    <section className="rel-sec">
       <ul className="rel-places">
         {def.places.map((p) => (
           <li key={p.id}>
@@ -63,8 +78,12 @@ export default function ReligionDetail({ id }: { id: string }) {
               </div>
             ) : (
               <a className="rel-place" href={href(`w/${id}/${p.id}`)}>
-                <img src={thumb(p.id)} alt="" loading="lazy" width="320" height="200" />
-                <span><strong>{lang === 'en' ? p.en : p.ko}</strong><small>{t.r.enter3d} →</small></span>
+                <img src={photo(id, p.id)} alt="" loading="lazy" width="640" height="400" />
+                <span>
+                  <strong>{lang === 'en' ? p.en : p.ko}</strong>
+                  {p.desc && <em>{lang === 'en' ? p.desc.en : p.desc.ko}</em>}
+                  <small>{t.r.enter3d} →</small>
+                </span>
               </a>
             )}
           </li>
@@ -72,79 +91,80 @@ export default function ReligionDetail({ id }: { id: string }) {
       </ul>
     </section>
   )
-  const practice = (
-    <section className="rel-sec" id="practice">
-      <h2>{t.r.practice}</h2>
-      <div className="practice-grid">
-        {L.practice.map((p) => (
-          <a key={p.label} className="practice" href={href(`w/${id}/${p.place}`)}>
-            <strong>{p.label}</strong>
-            <span>{p.text}</span>
-            <small>{placeName(p.place)} →</small>
-          </a>
-        ))}
-      </div>
+
+  const learn = (
+    <>
+      <section className="rel-sec">
+        <h2>{t.r.history}</h2>
+        <div className="lessons">
+          {L.lessons.map((l, i) => (
+            <article key={l.title} className={`lesson ${openLesson === i ? 'open' : ''}`}>
+              <button className="lesson-h" onClick={() => setOpenLesson(openLesson === i ? -1 : i)} aria-expanded={openLesson === i}>
+                <span className="num">{String(i + 1).padStart(2, '0')}</span>{l.title}<span className="chev">{openLesson === i ? '−' : '+'}</span>
+              </button>
+              {openLesson === i && <div className="lesson-b">{l.body.map((b) => <p key={b}>{b}</p>)}</div>}
+            </article>
+          ))}
+        </div>
+      </section>
+      <section className="rel-sec">
+        <h2>{t.r.figures}</h2>
+        <dl className="figures">
+          {L.figures.map((f) => (
+            <div key={f.name}><dt>{f.name}</dt><dd>{f.text}</dd></div>
+          ))}
+        </dl>
+      </section>
+      <section className="rel-sec" id="festivals">
+        <h2>{t.r.festivals}</h2>
+        <ul className="fest">{L.festivals.map((f) => <li key={f.name}><time>{f.when}</time><strong>{f.name}</strong><span>{f.text}</span></li>)}</ul>
+        <p className="hint">{L.festivalNote}</p>
+      </section>
+      <section className="rel-sec">
+        <h2>{t.r.community}</h2>
+        <p className="hint">{t.r.communityNote}</p>
+      </section>
+    </>
+  )
+
+  const etiquette = (
+    <section className="rel-sec">
+      <ul className="etiquette">{L.etiquette.map((e) => <li key={e}>{e}</li>)}</ul>
     </section>
   )
 
   return (
     <div className="rel" id={`rel-${id}`}>
       <section className="rel-hero">
-        <img src={thumb(({ christian: 'traditional', catholic: 'gothic', mandir: 'mandir', temple: 'daeung' } as Record<string, string>)[id] ?? def.places[0].id)} alt="" className="rel-hero-img" />
+        <img src={photo(id, COVER[id] ?? def.places[0].id)} alt="" className="rel-hero-img" />
         <div className="rel-hero-shade" />
         <div className="rel-hero-in">
           <h1>{L.title}</h1>
           <p className="rel-sub">{L.sub}</p>
-          <div className="seg mode" role="radiogroup" aria-label={t.r.modeLabel}>
-            <button role="radio" aria-checked={mode === 'learn'} onClick={() => setMode('learn')}>{t.r.modeLearn}</button>
-            <button role="radio" aria-checked={mode === 'practice'} onClick={() => setMode('practice')}>{t.r.modePractice}</button>
-          </div>
-          <div className="row">
-            {mode === 'learn' ? (
-              <a className="cta" href={href(`w/${id}/${L.start.place}/tour`)}>{t.r.startTour} <Icon name="compass" size={18} /></a>
-            ) : (
-              <a className="cta" href={href(`w/${id}/${L.start.place}`)}>{t.r.enterNow} <Icon name="door" size={18} /></a>
-            )}
-            <a className="cta ghost" href={href(mode === 'learn' ? `w/${id}/${L.start.place}` : `w/${id}/${L.start.place}/tour`)}>{mode === 'learn' ? t.r.enterNow : t.r.startTour}</a>
-          </div>
         </div>
       </section>
 
       <div className="rel-body">
         <p className="rel-intro">{L.intro}</p>
-        <nav className="rel-nav">
-          {(mode === 'learn' ? ['learn', 'explore', 'practice'] : ['practice', 'explore', 'learn']).map((k) => (
-            <a key={k} href={`#${k}`} onClick={(e) => { e.preventDefault(); document.getElementById(k)?.scrollIntoView({ behavior: 'smooth' }) }}>{t.r[k as 'learn']}</a>
+        <div className="rel-start">
+          <div className="seg mode" role="radiogroup" aria-label={t.r.modeLabel}>
+            <button role="radio" aria-checked={mode === 'learn'} onClick={() => setMode('learn')}>{t.r.modeLearn}</button>
+            <button role="radio" aria-checked={mode === 'practice'} onClick={() => setMode('practice')}>{t.r.modePractice}</button>
+          </div>
+          <div className="row">
+            <a className="button primary" href={href(mode === 'learn' ? `w/${id}/${L.start.place}/tour` : `w/${id}/${L.start.place}`)}>{mode === 'learn' ? t.r.startTour : t.r.enterNow}</a>
+            <a className="button" href={href(mode === 'learn' ? `w/${id}/${L.start.place}` : `w/${id}/${L.start.place}/tour`)}>{mode === 'learn' ? t.r.enterNow : t.r.startTour}</a>
+          </div>
+          {mode === 'learn' && <p className="hint">{t.r.startK} · {L.start.title}. {L.start.text}</p>}
+        </div>
+
+        <nav className="rel-tabs" role="tablist">
+          {TABS.map((k) => (
+            <button key={k} role="tab" aria-selected={cur === k} className={cur === k ? 'on' : ''} onClick={() => go(`explore/${id}/${k}`)}>{tabLabel[k]}</button>
           ))}
-          <a href="#etiquette" onClick={(e) => { e.preventDefault(); document.getElementById('etiquette')?.scrollIntoView({ behavior: 'smooth' }) }}>{t.r.etiquette}</a>
-          <a href="#festivals" onClick={(e) => { e.preventDefault(); document.getElementById('festivals')?.scrollIntoView({ behavior: 'smooth' }) }}>{t.r.festivals}</a>
         </nav>
 
-        {mode === 'learn' && (
-          <a className="start-card" href={href(`w/${id}/${L.start.place}/tour`)}>
-            <span className="k">{t.r.startK}</span>
-            <strong>{L.start.title}</strong>
-            <span>{L.start.text}</span>
-          </a>
-        )}
-
-        {mode === 'learn' ? <>{learn}{explore}{practice}</> : <>{practice}{explore}{learn}</>}
-
-        <section className="rel-sec" id="etiquette">
-          <h2>{t.r.etiquette}</h2>
-          <ul className="etiquette">{L.etiquette.map((e) => <li key={e}>{e}</li>)}</ul>
-        </section>
-
-        <section className="rel-sec" id="festivals">
-          <h2>{t.r.festivals}</h2>
-          <ul className="fest">{L.festivals.map((f) => <li key={f.name}><time>{f.when}</time><strong>{f.name}</strong><span>{f.text}</span></li>)}</ul>
-          <p className="hint">{L.festivalNote}</p>
-        </section>
-
-        <section className="rel-sec">
-          <h2>{t.r.community}</h2>
-          <p className="hint">{t.r.communityNote}</p>
-        </section>
+        {cur === 'activities' ? activities : cur === 'spaces' ? spaces : cur === 'learn' ? learn : etiquette}
 
         <p className="sources">{t.r.sources}: {L.sources.join(' · ')}. {t.r.review}</p>
         <p className="disclaimer">{t.disclaimer}</p>

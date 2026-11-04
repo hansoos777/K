@@ -713,3 +713,84 @@ input[type='range'], .toggle input { accent-color: var(--text); }
 }
 .wordmark.ko { letter-spacing: .12em; font-weight: 600; }
 .gesture.on { background: var(--accent); color: #17130a; }
+
+/* ── 개편: 종교 탐색 첫 화면 (사진 + 이름 + 한 줄) ── */
+.faith-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 48px 28px; }
+.faith-grid a { display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: var(--text); }
+.fg-img { display: block; aspect-ratio: 3 / 2; overflow: hidden; background: #e9e6df; margin-bottom: 8px; }
+.fg-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .8s ease; }
+.faith-grid a:hover .fg-img img { transform: scale(1.03); }
+.faith-grid strong { font-family: var(--serif); font-size: 1.6rem; font-weight: 500; }
+.fg-sub { color: var(--muted); line-height: 1.7; }
+.faith-grid .text-link { margin-top: 4px; font-size: .95rem; }
+@media (max-width: 620px) { .faith-grid { grid-template-columns: 1fr; gap: 36px; } .faith-grid strong { font-size: 1.35rem; } }
+
+/* 종교 상세: 시작 버튼 줄 · 안쪽 탭 */
+.rel-start { margin-top: 28px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.rel-start .row { display: flex; gap: 10px; flex-wrap: wrap; }
+.rel-start .hint { margin: 0; max-width: 44em; }
+.rel-tabs { position: sticky; top: 112px; z-index: 5; background: var(--ink); display: flex; gap: 28px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); margin-top: 48px; }
+.rel-tabs::-webkit-scrollbar { display: none; }
+.rel-tabs button { flex: none; padding: 14px 0; min-height: 48px; border: 0; background: none; color: var(--muted); font-size: 1rem; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: inherit; }
+.rel-tabs button.on { color: var(--text); border-bottom-color: var(--text); font-weight: 600; }
+.rel-tabs + .rel-sec { margin-top: 40px; }
+.rel-place em { font-style: normal; font-size: .88rem; opacity: .9; line-height: 1.5; }
+
+/* 신앙 활동: 사진 · 이름 · 설명 · 의미 · 방법 · 체험 */
+.acts { list-style: none; padding: 0; margin: 0; }
+.act { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 36px; padding: 40px 0; border-bottom: 1px solid var(--line); }
+.act:first-child { padding-top: 0; }
+.act-img { aspect-ratio: 4 / 3; overflow: hidden; background: #e9e6df; }
+.act-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.act-body h3 { font-family: var(--serif); font-size: 1.5rem; font-weight: 500; margin: 0 0 8px; }
+.act-text { color: var(--text); font-size: 1.05rem; line-height: 1.75; margin: 0 0 20px; }
+.act-body h4 { font-size: .8rem; letter-spacing: .14em; color: var(--gold); font-weight: 600; margin: 18px 0 6px; }
+.act-body p { line-height: 1.8; margin: 0; }
+.act-steps { margin: 0 0 22px; padding-left: 1.3em; line-height: 1.8; }
+.act-steps li + li { margin-top: 2px; }
+.act-body .button { margin-top: 4px; }
+@media (max-width: 720px) {
+  .act { grid-template-columns: 1fr; gap: 18px; padding: 32px 0; }
+  .act-img { aspect-ratio: 16 / 9; }
+  .act-body h3 { font-size: 1.3rem; }
+}
+
+/* 주요 인물과 상징 */
+.figures { margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 40px; border-top: 1px solid var(--line); }
+.figures > div { padding: 18px 0; border-bottom: 1px solid var(--line); }
+.figures dt { font-family: var(--serif); font-size: 1.1rem; margin-bottom: 4px; }
+.figures dd { margin: 0; color: var(--muted); line-height: 1.7; }
+@media (max-width: 620px) { .figures { grid-template-columns: 1fr; } }
+
+/* 나의 활동 기록 */
+.stats { margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); background: #fff; }
+.stats > div { padding: 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.stats dt { color: var(--muted); font-size: .88rem; margin-bottom: 6px; }
+.stats dd { margin: 0; font-family: var(--serif); font-size: 1.7rem; }
+.stats dd small { font-family: var(--sans, inherit); font-size: .85rem; color: var(--muted); margin-left: 3px; }
+@media (max-width: 520px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.byfaith { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
+.byfaith li { display: grid; grid-template-columns: 8em 1fr; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+.byfaith-name { font-family: var(--serif); font-size: 1.1rem; color: var(--text); text-decoration: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1px solid var(--line); background: #fff; color: var(--text); text-decoration: none; font-size: .92rem; }
+.chip:hover { border-color: var(--text); }
+@media (max-width: 520px) { .byfaith li { grid-template-columns: 1fr; gap: 10px; } }
+.me-links { list-style: none; padding: 0; margin: 0; }
+.me-links a { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; min-height: 52px; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--text); }
+.me-links .hint { margin: 0; }
+
+/* 가로로 넘기는 줄: 오른쪽에 더 있다는 표시 */
+.place-row { scroll-snap-type: x mandatory; padding-bottom: 6px; }
+.place-row > li { scroll-snap-align: start; }
+@media (max-width: 760px) { .place-row > li:last-child { margin-right: 16px; } .place-card { width: 72vw; max-width: 280px; } }
+/* 하단 탭바와 내용이 겹치지 않게 */
+@media (max-width: 899px) { .page { padding-bottom: calc(96px + env(safe-area-inset-bottom)); } }
+.space-item-body .k { color: var(--gold); letter-spacing: .1em; font-size: .78rem; }
+.screen .rel-body { max-width: none; margin: 0; }
+@media (max-width: 520px) {
+  .tabs { gap: 18px; }
+  .tabs button { font-size: .94rem; }
+  .rel-tabs { gap: 18px; }
+  .rel-tabs button { font-size: .94rem; }
+}
