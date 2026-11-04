@@ -57,6 +57,7 @@ export default function Home() {
 
       {/* 3. 나의 믿음 찾기 */}
       <section className="h-sec h-band">
+        <span className="band-ic" aria-hidden="true"><Icon name="compass" size={28} /></span>
         <div>
           <h2>{t.h.fdTitle}</h2>
           <p>{t.h.fdSub}</p>
@@ -84,13 +85,13 @@ export default function Home() {
           <h2>{t.h.quietTitle}</h2>
           <p>{t.h.quietSub}</p>
         </header>
-        <ul className="quiet">
-          {t.h.quiet.map(([name, sub, to]) => (
+        <ul className="tiles quiet-tiles">
+          {t.h.quiet.map(([name, sub, to], i) => (
             <li key={name}>
               <a href={href(to)}>
+                <Icon name={(['pray', 'lotus', 'book', 'diya'] as const)[i] ?? 'compass'} size={26} />
                 <strong>{name}</strong>
-                <span>{sub}</span>
-                <span className="arrow" aria-hidden="true"><Icon name="chev" size={16} /></span>
+                <small>{sub}</small>
               </a>
             </li>
           ))}

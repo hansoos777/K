@@ -1,5 +1,5 @@
 import { useEffect, useRef, type RefObject } from 'react'
-import { jukbi, toggleMusic } from '../../core/audio'
+import { toggleMusic } from '../../core/audio'
 import type { WorldProps } from '../../core/registry'
 import { getState, useStore } from '../../core/store'
 import { useLocal, useT } from '../../i18n'
@@ -19,10 +19,8 @@ function DefList({ items }: { items: [string, string][] }) {
 
 /** 호흡 명상: 시작하면 아바타가 방석으로 가서 앉고(합장), 숨 원이 커졌다 작아짐 */
 function Breath({ t, api }: { t: T; api: RefObject<SceneApi | null> }) {
-  const cd = useCountdown(() => {
-    jukbi(1)
-    api.current?.stand?.()
-  })
+  // 호흡 명상 타이머에는 소리를 넣지 않는다(사용자 요청: 시작·끝 딱딱 소리 제거)
+  const cd = useCountdown(() => api.current?.stand?.())
   const elapsed = cd.total - cd.left
   const inhale = elapsed % 10 < 4
   return (
@@ -32,12 +30,12 @@ function Breath({ t, api }: { t: T; api: RefObject<SceneApi | null> }) {
           <div className={`breath-orb ${inhale ? 'in' : 'out'}`} aria-hidden="true" />
           <span className="timer-phase" aria-live="polite">{inhale ? t.inhale : t.exhale}</span>
           <span className="timer-big">{mmss(cd.left)}</span>
-          <Btn onClick={() => { cd.stop(); jukbi(1); api.current?.stand?.() }}>{t.end}</Btn>
+          <Btn onClick={() => { cd.stop(); api.current?.stand?.() }}>{t.end}</Btn>
         </div>
       ) : (
         <div className="row">
           {[3, 5, 10].map((m) => (
-            <Btn key={m} onClick={() => { jukbi(3); api.current?.sit?.(); cd.start(m * 60) }}>{m}{t.min}</Btn>
+            <Btn key={m} onClick={() => { api.current?.sit?.(); cd.start(m * 60) }}>{m}{t.min}</Btn>
           ))}
         </div>
       )}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { bell, jukbi } from '../core/audio'
+import { bell } from '../core/audio'
 import { resolvePlace, WORLDS } from '../core/registry'
 import { href } from '../core/router'
 import { addMinutes, update, useStore } from '../core/store'
@@ -75,7 +75,8 @@ function Prayer() {
 function Meditate() {
   const tm = useLocal(TS)
   const t = useT()
-  const cd = useCountdown(() => { jukbi(1); addMinutes('meditate', cd.total) })
+  // 호흡 명상 타이머에는 소리를 넣지 않는다
+  const cd = useCountdown(() => addMinutes('meditate', cd.total))
   const inhale = (cd.total - cd.left) % 10 < 4
   return (
     <>
@@ -84,10 +85,10 @@ function Meditate() {
           <div className={`breath-orb ${inhale ? 'in' : 'out'}`} aria-hidden="true" />
           <span className="timer-phase" aria-live="polite">{inhale ? tm.inhale : tm.exhale}</span>
           <span className="timer-big">{mmss(cd.left)}</span>
-          <Btn onClick={() => { cd.stop(); jukbi(1) }}>{tm.end}</Btn>
+          <Btn onClick={cd.stop}>{tm.end}</Btn>
         </div>
       ) : (
-        <div className="row">{[3, 5, 10].map((m) => <Btn key={m} onClick={() => { jukbi(3); cd.start(m * 60) }}>{m}{tm.min}</Btn>)}</div>
+        <div className="row">{[3, 5, 10].map((m) => <Btn key={m} onClick={() => cd.start(m * 60)}>{m}{tm.min}</Btn>)}</div>
       )}
       <Note>{tm.breathNote}</Note>
       <p><a className="btn" href={href('w/temple/meditation')}>{t.mine.meditateHall}</a></p>

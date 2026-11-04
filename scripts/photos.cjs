@@ -1,5 +1,5 @@
 // 사이트용 공간 사진 찍기 (개발용): 사람 없이 건축만, 가로 1200x800 → public/photos/<world>_<place>.webp
-// 사용: npm run build && npx vite preview --port 4174 & node scripts/photos.cjs
+// 사용: npm run build && npx vite preview --port 4174 & node scripts/photos.cjs [christian/modern ...]  (장소를 적으면 그것만, 힌두교는 빼고)
 const { chromium } = require('playwright')
 const { execFileSync } = require('node:child_process')
 // [장소, 카메라 위치 x, z, 바라보는 방향, 거리, 바라보는 높이]
@@ -19,7 +19,9 @@ const SHOTS = [
   const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] })
   const p = await b.newPage({ viewport: { width: 1200, height: 800 } })
   await p.addInitScript(() => localStorage.setItem('oruvia-v1', JSON.stringify({ quality: 'high', sound: false, tutorials: ['temple/daeung', 'catholic/gothic', 'christian/traditional', 'temple/courtyard'] })))
+  const only = process.argv.slice(2)
   for (const [r, x, z, yaw, dist, lookY] of SHOTS) {
+    if (only.length && !only.includes(r)) continue
     await p.goto('http://localhost:4174/?debug&photo#/w/' + r)
     await p.waitForFunction(() => window.__stage, null, { timeout: 30000 })
     await p.addStyleTag({ content: '.hud-top,.hud-places,.hud-dock,.hud-hint,.sheet,.space-loading,.tour,.spot,.gestures,.joystick{display:none!important}' })
@@ -29,6 +31,7 @@ const SHOTS = [
     execFileSync('python3', ['-c', `from PIL import Image\nImage.open('/tmp/oruvia-photo.png').convert('RGB').save('public/photos/${r.replace('/', '_')}.webp','WEBP',quality=80,method=6)`])
     console.log('ok', r)
   }
+  if (only.length) return b.close()
   // 힌두교: PujaTime 가네샤 사원과 나의 신전 (사람이 보이지 않게 위쪽만)
   const q = await b.newPage({ viewport: { width: 1200, height: 1100 } })
   await q.addInitScript(() => localStorage.setItem('pujatime-v1', JSON.stringify({ name: 'A', mainDeity: 'ganesha', otherDeities: ['lakshmi'], familyDeity: '', chosenDeity: '', lastPuja: null, festivalLamps: [], sound: false, journal: [] })))

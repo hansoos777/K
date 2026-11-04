@@ -225,41 +225,35 @@ export function buildModern(ctx: BuildCtx): Built {
   for (let z = Z0 + 8; z < Z1 - 2; z += 5) for (const x of [-4, 4]) {
     scene.add(cyl(0.008, 0.008, 2.5, std('#444'), x, H - 2.5, z, 4), box(2.2, 0.06, 0.12, new THREE.MeshBasicMaterial({ color: 0xfff2d8 }), x, H - 2.6, z))
   }
-  // 곡선으로 놓인 나무 의자 + 앉은 교인 + 빈 자리
-  const chairGeo = new THREE.BoxGeometry(0.55, 0.06, 0.5)
-  chairGeo.translate(0, 0.45, 0)
-  const backGeo = new THREE.BoxGeometry(0.55, 0.45, 0.05)
-  backGeo.translate(0, 0.7, 0.24)
-  const mats: THREE.Matrix4[] = []
-  const d = new THREE.Object3D()
+  // 나무 장의자(등받이·옆판·다리) 두 줄 + 앉은 교인 + 빈 자리
+  const pewWood = std('#c49d6c', { map: wood('#b8915e') })
   const people: Parameters<BuildCtx['crowd']>[0] = []
   let pi = 0
-  for (let r = 0; r < 9; r++) {
-    const rad = 10 + r * 1.15
-    for (let c = -7; c <= 7; c++) {
-      if (c === 0) continue // 가운데 통로
-      const a = c * (0.9 / rad) * 1.15
-      const x = Math.sin(a) * rad
-      const z = pZ + 4.2 - 10 + Math.cos(a) * rad + 0.2
-      if (Math.abs(x) > W / 2 - 1.2) continue
-      const yaw = Math.PI + a
-      d.position.set(x, 0, z)
-      d.rotation.set(0, a, 0)
-      d.updateMatrix()
-      mats.push(d.matrix.clone())
-      if ((r * 5 + c + 20) % 4 !== 0 && r < 8) people.push({ x, z: z - 0.05, y: 0.45, yaw, look: visitorLook('christian', pi++) })
-      else ctx.seat(x, z - 0.05, 0.45, yaw)
+  const x0 = 1.0, x1 = W / 2 - 1.6, len = x1 - x0
+  for (let r = 0; r < 10; r++) {
+    const z = pZ + 5 + r * 1.2
+    for (const side of [-1, 1]) {
+      const xc = side * (x0 + len / 2)
+      const pew = new THREE.Group()
+      pew.add(
+        box(len, 0.07, 0.46, pewWood, 0, 0.45, 0), // 앉는 판
+        box(len, 0.5, 0.05, pewWood, 0, 0.8, 0.24), // 등받이
+        box(len, 0.06, 0.08, pewWood, 0, 1.06, 0.25), // 등받이 위 손잡이
+        box(len, 0.05, 0.05, pewWood, 0, 0.12, -0.1), // 아래 가로대
+      )
+      for (const ex of [-len / 2, len / 2]) pew.add(box(0.07, 1.0, 0.56, pewWood, ex, 0.5, 0.03)) // 옆판
+      for (const lx of [-len / 4, len / 4]) pew.add(box(0.06, 0.42, 0.06, pewWood, lx, 0.21, -0.12))
+      pew.position.set(xc, 0, z)
+      scene.add(pew)
+      ctx.block({ x0: xc - len / 2 - 0.05, z0: z - 0.3, x1: xc + len / 2 + 0.05, z1: z + 0.3 })
+      for (let k = 0; k < 10; k++) {
+        const x = side * (x0 + 0.4 + k * ((len - 0.8) / 9))
+        if ((r * 7 + k + (side > 0 ? 3 : 0)) % 4 !== 0 && r < 9) people.push({ x, z: z - 0.03, y: 0.45, yaw: Math.PI, look: visitorLook('christian', pi++) })
+        else ctx.seat(x, z - 0.03, 0.45, Math.PI)
+      }
     }
   }
-  const seatM = new THREE.InstancedMesh(chairGeo, std('#6a7a80'), mats.length)
-  const backM = new THREE.InstancedMesh(backGeo, lightOak, mats.length)
-  mats.forEach((m, i) => { seatM.setMatrixAt(i, m); backM.setMatrixAt(i, m) })
-  scene.add(seatM, backM)
   ctx.crowd(people)
-  for (const m of mats) {
-    const p = new THREE.Vector3().setFromMatrixPosition(m)
-    ctx.block({ x0: p.x - 0.32, z0: p.z - 0.3, x1: p.x + 0.32, z1: p.z + 0.3 })
-  }
   ctx.spot('stage', 0, pZ + 4.6, 2)
   ctx.walk({ x0: -W / 2, z0: pZ + 3.4, x1: W / 2, z1: Z1 })
   return {
