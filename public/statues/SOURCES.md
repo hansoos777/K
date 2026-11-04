@@ -7,5 +7,5 @@
 |---|---|---|---|---|---|
 | buddha.png | 석가모니불 좌상(항마촉지인) | 대웅전 | 사용자 요청으로 PC에서 생성(2026-11-03) | Hugging Face의 FLUX.1 schnell로 AI 생성 (scripts/statues/regen.mjs) | 모델 라이선스 Apache 2.0 (생성물 상업적 이용 가능). 공개 전 도상 검토 권장 |
 | mary.png | 성모상(흰 석고) | 대성당 성모 제대, 본당, 성모 동산 | 사용자 요청으로 PC에서 생성(2026-11-03) | Hugging Face의 FLUX.1 schnell로 AI 생성 (scripts/statues/regen.mjs, 어두운 회색 배경에서 생성 후 배경 제거) | 모델 라이선스 Apache 2.0 (생성물 상업적 이용 가능). 공개 전 도상 검토 권장 |
-| crucifix.png | 십자고상 | 대성당·본당 제대 | 아직 없음 | | |
+| crucifix.png | 십자고상(흰 석고, 십자가와 성체 모두) | 대성당·본당 제대 | 사용자 요청으로 PC에서 생성(2026-11-04) | Hugging Face의 FLUX.1 schnell로 AI 생성 (scripts/statues/regen.mjs, 어두운 회색 배경에서 생성 후 배경 제거) | 모델 라이선스 Apache 2.0 (생성물 상업적 이용 가능). 공개 전 도상 검토 권장 |
 | sacredheart.png | 예수 성심상 | 대성당·본당 측면 (사진이 있을 때만 표시) | 아직 없음 | | |
