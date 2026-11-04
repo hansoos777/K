@@ -1031,3 +1031,9 @@ fieldset { scroll-margin-top: 80px; }
 .home .space-row { border-radius: 14px; }
 .home .foot { margin-top: 72px; }
 .home .sr-tour { display: none; }
+.lesson-goal { background: #F1ECE3; padding: 12px 14px; border-radius: 8px; }
+.lesson-goal b, .lesson-points b, .lesson-terms b { display: block; font-size: .78rem; letter-spacing: .1em; color: var(--bronze); margin-bottom: 4px; }
+.lesson-points { border-left: 2px solid var(--bronze); padding: 4px 0 4px 14px; margin: 16px 0; }
+.lesson-points ul { margin: 0; padding-left: 1.1em; line-height: 1.8; }
+.lesson-terms { color: var(--muted); font-size: .92rem; }
+.level-filter { margin: 0 0 14px; }

@@ -95,6 +95,7 @@ export default function ReligionDetail({ id, tab }: { id: string; tab?: RelTab }
   const [openAct, setOpenAct] = useState(-1)
   const [openFaq, setOpenFaq] = useState(0)
   const [termQ, setTermQ] = useState('')
+  const [lv, setLv] = useState<string>('all')
   const cur: RelTab = tab && TABS.includes(tab) ? tab : 'activities'
 
   useEffect(() => {
@@ -161,20 +162,32 @@ export default function ReligionDetail({ id, tab }: { id: string; tab?: RelTab }
           <span className="progress-label">{t.r.progress(doneCount, L.lessons.length)}</span>
         </div>
         <div className="progress" aria-hidden="true"><span style={{ width: `${(doneCount / Math.max(1, L.lessons.length)) * 100}%` }} /></div>
+        <div className="chips level-filter" role="tablist">
+          {['all', ...(['intro', 'basic', 'advanced', 'experience'] as const).filter((k) => L.lessons.some((l) => (l.level ?? 'intro') === k))].map((k) => (
+            <button key={k} role="tab" aria-selected={lv === k} className={`chip ${lv === k ? 'on' : ''}`} onClick={() => setLv(k)}>{k === 'all' ? t.r.levelAll : t.r.level[k]}</button>
+          ))}
+        </div>
+        {t.r.enMore && <p className="hint">{t.r.enMore}</p>}
         <div className="lessons">
           {L.lessons.map((l, i) => {
+            if (lv !== 'all' && (l.level ?? 'intro') !== lv) return null
             const k = lkey(i)
             const isDone = learned.includes(k)
             return (
               <article key={l.title} id={`lesson-${i}`} className={`lesson ${openLesson === i ? 'open' : ''}`}>
                 <button className="lesson-h" onClick={() => setOpenLesson(openLesson === i ? -1 : i)} aria-expanded={openLesson === i}>
                   <span className="num">{isDone ? <Icon name="check" size={16} /> : String(i + 1).padStart(2, '0')}</span>
-                  <span className="lesson-t">{l.title}<small>{t.r.level[l.level ?? 'intro']}</small></span>
+                  <span className="lesson-t">{l.title}<small>{t.r.level[l.level ?? 'intro']}{l.unit ? ` · ${l.unit}` : ''}</small></span>
                   <span className="chev">{openLesson === i ? '−' : '+'}</span>
                 </button>
                 {openLesson === i && (
                   <div className="lesson-b">
+                    {l.goal && <p className="lesson-goal"><b>{t.r.goal}</b>{l.goal}</p>}
                     {l.body.map((b) => <p key={b}>{b}</p>)}
+                    {l.points && l.points.length > 0 && (
+                      <div className="lesson-points"><b>{t.r.points}</b><ul>{l.points.map((x) => <li key={x}>{x}</li>)}</ul></div>
+                    )}
+                    {l.terms && l.terms.length > 0 && <p className="lesson-terms"><b>{t.r.keyTerms}</b>{l.terms.join(' · ')}</p>}
                     <div className="row">
                       <button className={`button ${isDone ? '' : 'primary'}`} onClick={() => toggleIn('learned', k)}>{isDone ? t.r.unlearn : t.r.markLearned}</button>
                       <button className="button" onClick={() => toggleIn('savedLessons', k)}>{saved.includes(k) ? t.r.unsave : t.r.save}</button>

@@ -3,7 +3,18 @@
 export type Level = 'intro' | 'basic' | 'advanced' | 'experience'
 /** 콘텐츠 상태: 작성 중 · 출처 확인 중 · 검토 완료 · 게시 완료 */
 export type Status = 'draft' | 'checking' | 'reviewed' | 'published'
-export interface Lesson { title: string; body: string[]; level?: Level; place?: string }
+/** 강의: 제목 · 학습 목표 · 본문(상세 설명·역사적 배경·사례) · 핵심 정리 · 주요 용어 · 3D 공간 */
+export interface Lesson {
+  title: string
+  body: string[]
+  level?: Level
+  /** 묶음 이름 (예: 역사, 교리, 성경) */
+  unit?: string
+  goal?: string
+  points?: string[]
+  terms?: string[]
+  place?: string
+}
 /** 확인 퀴즈 (객관식·O/X). answer는 options의 번호, lesson은 다시 공부할 강의 번호 */
 export interface Quiz { q: string; options: string[]; answer: number; explain: string; lesson?: number }
 /** 용어 사전 */
