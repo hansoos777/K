@@ -247,8 +247,8 @@ export function buildGothic(ctx: BuildCtx): Built {
 export function buildParish(ctx: BuildCtx): Built {
   const { scene } = ctx
   scene.background = new THREE.Color('#1a1512')
-  scene.fog = new THREE.Fog('#1a1512', 16, 34)
-  const W = 11, Z0 = -18, Z1 = 6
+  scene.fog = new THREE.Fog('#1a1512', 30, 60)
+  const W = 16, Z0 = -18, Z1 = 22
   const L = Z1 - Z0
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, L), std('#aaa', { map: marble('#d8d0c2', '#a89c86', [4, 8]), roughness: 0.4 }))
   floor.rotation.x = -Math.PI / 2
@@ -367,7 +367,7 @@ export function buildParish(ctx: BuildCtx): Built {
   ctx.npc(3, Z0 + 7.6, Math.PI, visitorLook('catholic', 4), 'pray')
   ctx.walk({ x0: -W / 2, z0: Z0 + 5, x1: W / 2, z1: Z1 })
   return {
-    spawn: [0, 0],
+    spawn: [0, Z1 - 6],
     yaw: 0,
     look: LOOKS.catholic,
     dist: 4.2,

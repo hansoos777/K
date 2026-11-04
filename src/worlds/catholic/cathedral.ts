@@ -46,12 +46,12 @@ const floorTexture = () =>
 /** 고딕 대성당 (PujaTime 사원 홀과 같은 방식: 밝은 재질 색 + 빛 번짐 + 금장식 + 앉아 있는 신자들) */
 export function buildCathedral(ctx: BuildCtx): Built {
   const { scene, high } = ctx
-  const W = 18, Z0 = -34, Z1 = 10, NAVE = 11
+  const W = 22, Z0 = -34, Z1 = 34, NAVE = 15
   const env = brassEnv()
   const gold = brass(env)
   const marble = marbleEnv()
   scene.background = new THREE.Color('#1a1018')
-  scene.fog = new THREE.Fog('#2a1a1c', 34, 80)
+  scene.fog = new THREE.Fog('#2a1a1c', 50, 120)
   scene.add(new THREE.HemisphereLight(0xfff3e0, 0x8a6a50, 2.4))
   const sun = new THREE.DirectionalLight(0xfff0d0, 1.2)
   sun.position.set(-6, 20, 10)
@@ -80,14 +80,14 @@ export function buildCathedral(ctx: BuildCtx): Built {
   wall(W, 30, 0, 15, Z1, Math.PI)
   wall(Z1 - Z0, 10, -NAVE / 2, 16, (Z0 + Z1) / 2, Math.PI / 2)
   wall(Z1 - Z0, 10, NAVE / 2, 16, (Z0 + Z1) / 2, -Math.PI / 2)
-  scene.add(vault(NAVE, 21, 27, Z0, Z1, std('#4a3e56')))
+  scene.add(vault(NAVE, 24, 32, Z0, Z1, std('#4a3e56')))
   const sideV = vault(W / 2 - NAVE / 2, 11, 13, Z0, Z1, std('#5a4c5a'))
   sideV.position.x = -(W / 2 + NAVE / 2) / 2
   const sideV2 = sideV.clone()
   sideV2.position.x = -sideV.position.x
   scene.add(sideV, sideV2)
   const ribM = brass(env, 0xd8c8a8)
-  for (let z = Z0 + 3; z <= Z1 - 2; z += 5) scene.add(rib(NAVE, 21, 27, z, ribM, 0.14))
+  for (let z = Z0 + 3; z <= Z1 - 2; z += 5) scene.add(rib(NAVE, 24, 32, z, ribM, 0.14))
 
   // 다발 기둥(금 기둥머리) + 아치
   for (let z = Z0 + 3; z <= Z1 - 2; z += 5)
@@ -303,7 +303,7 @@ export function buildCathedral(ctx: BuildCtx): Built {
   ctx.walk({ x0: -W / 2, z0: sZ + 4.2, x1: W / 2, z1: Z1 })
   ctx.walk({ x0: -4, z0: sZ + 4, x1: 4, z1: sZ + 6 })
   return {
-    spawn: [0, -2],
+    spawn: [0, Z1 - 12],
     yaw: 0,
     look: LOOKS.catholic,
     dist: 8,

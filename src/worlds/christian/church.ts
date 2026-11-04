@@ -72,7 +72,7 @@ const wainscot = () =>
  */
 export function buildChurch(ctx: BuildCtx): Built {
   const { scene, high } = ctx
-  const W = 24, Z0 = -34, Z1 = 12, H = 17
+  const W = 32, Z0 = -34, Z1 = 40, H = 22
   const GAL = 4.2 // 갤러리 깊이
   const GY = 5.4 // 갤러리 바닥 높이
   const env = brassEnv()
@@ -80,7 +80,7 @@ export function buildChurch(ctx: BuildCtx): Built {
   const gold = brass(env)
   const walnut = std('#5a3820', { map: wood('#5a3820') })
   scene.background = new THREE.Color('#2a2018')
-  scene.fog = new THREE.Fog('#3a2c20', 40, 90)
+  scene.fog = new THREE.Fog('#3a2c20', 50, 130)
   scene.add(new THREE.HemisphereLight(0xfff6e8, 0x8a6a48, 2.5))
   const sun = new THREE.DirectionalLight(0xfff0d6, 1.3)
   sun.position.set(10, 18, 8)
@@ -301,7 +301,7 @@ export function buildChurch(ctx: BuildCtx): Built {
   ctx.walk({ x0: -W / 2 + GAL + 0.4, z0: pZ + 5.2, x1: W / 2 - GAL - 0.4, z1: Z1 })
   ctx.walk({ x0: -W / 2, z0: Z1 - 3, x1: W / 2, z1: Z1 })
   return {
-    spawn: [0, 1],
+    spawn: [0, Z1 - 11],
     yaw: 0,
     look: LOOKS.christian,
     dist: 9,

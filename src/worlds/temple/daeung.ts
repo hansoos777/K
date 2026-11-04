@@ -60,7 +60,7 @@ const thangkaTexture = () =>
 
 export function buildDaeung(ctx: BuildCtx): Built {
   const { scene, high } = ctx
-  const W = 28, Z0 = -22, Z1 = 14, H = 13
+  const W = 40, Z0 = -22, Z1 = 34, H = 18
   const env = brassEnv()
   const gold = brass(env)
   scene.background = new THREE.Color('#2a1408')
@@ -264,7 +264,7 @@ export function buildDaeung(ctx: BuildCtx): Built {
   ctx.walk({ x0: -W / 2, z0: altarZ + 3.2, x1: W / 2, z1: Z1 })
   let lanternCount = 0
   return {
-    spawn: [0, 3],
+    spawn: [0, Z1 - 11],
     yaw: 0,
     look: LOOKS.temple,
     dist: 8,

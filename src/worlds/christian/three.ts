@@ -135,7 +135,7 @@ export function buildTraditional(ctx: BuildCtx): Built {
 /** 현대 교회: 밝은 자연광, 참나무, 천창 빛이 떨어지는 나무 십자가, 곡선 의자, 피아노와 낮은 강단 (공연장 느낌 없이) */
 export function buildModern(ctx: BuildCtx): Built {
   const { scene, high } = ctx
-  const W = 20, Z0 = -22, Z1 = 12, H = 11
+  const W = 28, Z0 = -22, Z1 = 28, H = 15
   scene.background = new THREE.Color('#e8e4dc')
   scene.fog = new THREE.Fog('#efe9df', 40, 90)
   scene.add(new THREE.HemisphereLight(0xffffff, 0xb8a890, 2.6))
@@ -257,7 +257,7 @@ export function buildModern(ctx: BuildCtx): Built {
   ctx.spot('stage', 0, pZ + 4.6, 2)
   ctx.walk({ x0: -W / 2, z0: pZ + 3.4, x1: W / 2, z1: Z1 })
   return {
-    spawn: [0, 7],
+    spawn: [0, Z1 - 5],
     yaw: 0,
     look: LOOKS.christian,
     dist: 8,
