@@ -4,11 +4,11 @@ import { useT } from '../i18n'
 import { Icon, type IconName } from './icons'
 import { LogoMark } from './Logo'
 
-/** 메인 메뉴 5개: 모바일은 아래쪽 고정, PC는 위쪽 가운데 */
+/** 메인 메뉴 5개(경험 먼저): 홈 · 탐험(3D 공간) · 알아보기(종교 이야기) · 나의 공간 · 마이페이지. 모바일은 아래쪽, PC는 위쪽 가운데 */
 export const MENU: { id: 'home' | 'explore' | 'spaces' | 'mine' | 'me'; path: string; icon: IconName }[] = [
   { id: 'home', path: '', icon: 'home' },
-  { id: 'explore', path: 'explore', icon: 'book' },
   { id: 'spaces', path: 'spaces', icon: 'door' },
+  { id: 'explore', path: 'explore', icon: 'book' },
   { id: 'mine', path: 'mine', icon: 'lotus' },
   { id: 'me', path: 'me', icon: 'user' },
 ]

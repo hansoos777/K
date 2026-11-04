@@ -8,7 +8,7 @@ export function LogoMark({ size = 34 }: { size?: number }) {
         <circle cx="20" cy="28.5" r="9" fill="#F5CDBF" />
         <circle cx="11.5" cy="20" r="9" fill="#CFE3D8" />
       </g>
-      <circle cx="20" cy="20" r="3" fill="#2E3A6E" />
+      <circle cx="20" cy="20" r="3" fill="#4A3F36" />
     </svg>
   )
 }
