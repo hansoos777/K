@@ -6,8 +6,10 @@ import { useEffect, useState } from 'react'
 import { collect, type Metric } from '../core/perf'
 import { effectiveQuality, exportData, resetAll, update, useStore, type Quality } from '../core/store'
 import { LANGS, useT } from '../i18n'
+import { Icon, type IconName } from './icons'
 
 export default function Me() {
+  const jump = (el: string) => (e: { preventDefault: () => void }) => { e.preventDefault(); document.getElementById(el)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
   const t = useT()
   const s = useStore((x) => x)
   const q = effectiveQuality(s)
@@ -32,7 +34,61 @@ export default function Me() {
     <div className="settings screen">
       <div className="screen-head"><h1>{t.me.title}</h1></div>
 
-      <fieldset>
+      <section className="me-head">
+        <span className="avatar"><Icon name="user" size={30} /></span>
+        <span><strong>{s.nickname || t.me.guest}</strong><small>{t.me.hello}</small></span>
+        <a className="icon-btn" href="#profile" onClick={jump('profile')} aria-label={t.me.profile}><Icon name="gear" size={20} /></a>
+      </section>
+
+      <section className="me-card">
+        <h2>{t.me.faithInfo}</h2>
+        <dl>
+          <div><dt>{t.me.interests}</dt><dd>{s.interests.length ? s.interests.map((i) => t.worlds[i as keyof typeof t.worlds]?.name).join(' · ') : t.me.none}</dd></div>
+          <div><dt>MBTI</dt><dd>{s.mbti || t.me.none}</dd></div>
+          <div><dt>{t.me.learnDone}</dt><dd>{s.learned.length}</dd></div>
+        </dl>
+        <a className="more" href="#finder" onClick={jump('finder')}>{t.me.more}<Icon name="chev" size={14} /></a>
+      </section>
+
+      <ul className="me-rows">
+        {([
+          ['star', t.mine.favorites, href('mine#favorites')],
+          ['note', t.mine.logTitle, href('mine#log')],
+          ['book', t.me.learning, '#learning'],
+          ['globe', t.s.language, '#lang'],
+          ['bell', t.me.notify, '#notify'],
+          ['gear', t.me.account, '#account'],
+        ] as [IconName, string, string][]).map(([ic, label, to]) => (
+          <li key={label}>
+            <a href={to} onClick={to.startsWith('#') && !to.startsWith('#/') ? jump(to.slice(1)) : undefined}>
+              <Icon name={ic} size={20} /><span>{label}</span><Icon name="chev" size={16} />
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <fieldset id="learning">
+        <legend>{t.me.learning}</legend>
+        <ul className="learn-rec">
+          {WORLDS.map((w) => {
+            const done = s.learned.filter((k) => k.startsWith(w.id + '/')).length
+            const savedN = s.savedLessons.filter((k) => k.startsWith(w.id + '/')).length
+            const qz = s.quizzes[w.id]
+            return (
+              <li key={w.id}>
+                <a href={href(`explore/${w.id}/learn`)}>
+                  <strong>{t.worlds[w.id].name}</strong>
+                  <span className="hint">{t.me.learnLine(done, savedN, qz ? `${qz.best}/${qz.total}` : '—')}</span>
+                  <Icon name="chev" size={16} />
+                </a>
+              </li>
+            )
+          })}
+        </ul>
+        <p className="hint">{t.me.learnNote}</p>
+      </fieldset>
+
+      <fieldset id="profile">
         <legend>{t.me.profile}</legend>
         <label className="field">
           <span>{t.s.nickname}</span>
@@ -58,15 +114,7 @@ export default function Me() {
         <p className="hint">{t.me.interestsHint}</p>
       </fieldset>
 
-      <fieldset>
-        <legend>{t.me.records}</legend>
-        <ul className="me-links">
-          <li><a href={href('mine#favorites')}><span>{t.mine.favorites}</span><span className="hint">{s.favorites.length}</span><span aria-hidden="true">→</span></a></li>
-          <li><a href={href('mine#log')}><span>{t.mine.logTitle}</span><span className="hint">{t.mine.log.pray} {s.minutes.pray}{t.mine.log.unitMin} · {t.mine.log.meditate} {s.minutes.meditate}{t.mine.log.unitMin}</span><span aria-hidden="true">→</span></a></li>
-        </ul>
-      </fieldset>
-
-      <fieldset>
+      <fieldset id="lang">
         <legend>{t.s.language}</legend>
         <div className="seg" role="radiogroup">
           {LANGS.map((l) => (
@@ -77,7 +125,7 @@ export default function Me() {
         </div>
       </fieldset>
 
-      <fieldset>
+      <fieldset id="notify">
         <legend>{t.me.notify}</legend>
         <label className="toggle">
           <input type="checkbox" checked={s.notify.daily} onChange={(e) => update((x) => ({ notify: { ...x.notify, daily: e.target.checked } }))} />
@@ -125,7 +173,7 @@ export default function Me() {
         </div>
       </fieldset>
 
-      <fieldset>
+      <fieldset id="account">
         <legend>{t.me.account}</legend>
         <p className="hint">{t.me.accountNote}</p>
         <p className="hint">{t.s.dataNote}</p>

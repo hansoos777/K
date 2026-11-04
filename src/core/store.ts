@@ -38,6 +38,12 @@ export interface State {
   notify: { daily: boolean; festival: boolean }
   /** 끝까지 마친 기도·명상 시간(분) — 나의 활동 기록 */
   minutes: { pray: number; meditate: number }
+  /** 다 읽은 강의 ("world/번호") — 학습 진도 */
+  learned: string[]
+  /** 저장한 강의 ("world/번호") */
+  savedLessons: string[]
+  /** 확인 퀴즈 결과 (종교별 마지막·최고 점수) */
+  quizzes: Record<string, { last: number; best: number; total: number; at: number }>
 }
 
 // 서비스 이름이 바뀌어도 이 키는 바꾸지 않는다(바꾸면 기존 기록을 못 읽음)
@@ -64,6 +70,9 @@ const defaults: State = {
   finder: null,
   notify: { daily: false, festival: true },
   minutes: { pray: 0, meditate: 0 },
+  learned: [],
+  savedLessons: [],
+  quizzes: {},
 }
 
 function load(): State {
@@ -130,6 +139,10 @@ export function toggleFavorite(id: string) {
 
 export function addMinutes(kind: 'pray' | 'meditate', sec: number) {
   update((s) => ({ minutes: { ...s.minutes, [kind]: s.minutes[kind] + Math.round(sec / 60) } }))
+}
+
+export function toggleIn(key: 'learned' | 'savedLessons', id: string) {
+  update((s) => ({ [key]: s[key].includes(id) ? s[key].filter((x) => x !== id) : [...s[key], id] }))
 }
 
 export function exportData() {

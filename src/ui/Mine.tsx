@@ -8,6 +8,8 @@ import { useLocal, useT } from '../i18n'
 import CS from '../worlds/christian/strings'
 import TS from '../worlds/temple/strings'
 import { mmss, useCountdown } from './hooks'
+import { Icon } from './icons'
+import { img, Photo } from './Photo'
 import { Btn, Note } from './kit'
 
 function PlaceCards({ keys, empty }: { keys: string[]; empty: string }) {
@@ -141,13 +143,48 @@ export default function Mine({ section }: { section?: string }) {
   const t = useT()
   const favorites = useStore((s) => s.favorites)
   const visits = useStore((s) => s.visits)
+  const lang = useStore((s) => s.lang)
   const [tab, setTab] = useState<'pray' | 'meditate'>(section === 'meditate' ? 'meditate' : 'pray')
+  const scrollTo = (el: string) => document.getElementById(el)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  const open = (k: 'pray' | 'meditate') => { setTab(k); setTimeout(() => scrollTo('practice'), 30) }
+  useEffect(() => { if (section === 'pray' || section === 'meditate') setTimeout(() => scrollTo('practice'), 150) }, [section])
   return (
-    <div className="screen">
-      <div className="screen-head">
-        <h1>{t.mine.title}</h1>
-        <p className="hint">{t.mine.sub}</p>
-      </div>
+    <div className="screen screen-cover">
+      <section className="cover">
+        <Photo src={img('mine_hero')} fallback="/photos/temple_meditation.webp" className="cover-img" w={1600} h={700} eager />
+        <div className="cover-in">
+          <h1>{t.mine.heroTitle}</h1>
+          <p>{t.mine.heroSub}</p>
+        </div>
+      </section>
+
+      <ul className="tiles">
+        <li><button onClick={() => open('pray')}><Icon name="pray" size={26} /><strong>{t.mine.tPray}</strong><small>{t.mine.tPraySub}</small></button></li>
+        <li><button onClick={() => open('meditate')}><Icon name="lotus" size={26} /><strong>{t.mine.tMed}</strong><small>{t.mine.tMedSub}</small></button></li>
+        <li><a href={href('w/mandir/shrine')}><Icon name="diya" size={26} /><strong>{t.mine.tShrine}</strong><small>{t.mine.tShrineSub}</small></a></li>
+        <li><button onClick={() => scrollTo('log')}><Icon name="note" size={26} /><strong>{t.mine.logTitle}</strong><small>{t.mine.tLogSub}</small></button></li>
+      </ul>
+
+      <section>
+        <div className="sec-head"><h2 className="sec-title">{t.mine.recentAct}</h2></div>
+        {visits.length ? (
+          <ul className="recent">
+            {visits.slice(0, 3).map((v) => {
+              const x = resolvePlace(v.id)
+              if (!x) return null
+              return (
+                <li key={v.id}>
+                  <a href={href(`w/${x.world.id}/${x.place.id}`)}>
+                    <img src={`/photos/${x.world.id}_${x.place.id}.webp`} alt="" loading="lazy" width="160" height="110" />
+                    <span><strong>{lang === 'en' ? x.place.en : x.place.ko}</strong><small>{t.worlds[x.world.id].name} · {new Date(v.at).toLocaleDateString(lang === 'en' ? 'en' : 'ko')}</small></span>
+                    <Icon name="chev" size={16} />
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+        ) : <p className="hint">{t.mine.emptyRecent}</p>}
+      </section>
 
       <a className="shrine-card" href={href('w/mandir/shrine')}>
         <img src="/photos/mandir_shrine.webp" alt="" loading="lazy" width="320" height="400" />
