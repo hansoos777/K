@@ -39,6 +39,16 @@ export default function Home() {
     return x ? (lang === 'en' ? x.en : x.ko) : p
   }
   const recent = visits.map((v) => resolvePlace(v.id)).filter((x) => x && !x.place.soon).slice(0, 3)
+  // 많이 둘러본 종교의 아직 안 가 본 공간 → 없으면 다른 종교의 안 가 본 공간. 신앙을 짐작하지 않고 방문 기록만 씀
+  const seen = new Set(visits.map((v) => v.id))
+  const count: Record<string, number> = {}
+  for (const v of visits) { const w = v.id.split('/')[0]; count[w] = (count[w] ?? 0) + 1 }
+  const order = Object.keys(count).sort((a, b) => count[b] - count[a])
+  const like: [string, string][] = []
+  for (const w of [...order, ...WORLDS.map((x) => x.id).filter((x) => !order.includes(x))]) {
+    for (const p of WORLDS.find((x) => x.id === w)?.places ?? []) if (!p.soon && !seen.has(`${w}/${p.id}`) && like.length < 3) like.push([w, p.id])
+  }
+  const topWorld = order[0]
   const [hw, hp] = HERO[cur]
 
   return (
@@ -94,6 +104,26 @@ export default function Home() {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {/* 3-1. 이런 공간도 좋아할 것 같아요 (방문 기록이 있을 때) */}
+      {recent.length > 0 && like.length > 0 && (
+        <section className="sec5">
+          <h2>{t.sx.likeTitle}</h2>
+          <ul className="where5 like5">
+            {like.map(([w, p]) => (
+              <li key={w + p}>
+                <a href={href(`spaces/${w}/${p}`)}>
+                  <span className="where5-img"><img src={photo(w, p)} alt="" loading="lazy" width="600" height="400" /></span>
+                  <strong>{pname(w, p)}</strong>
+                  <small>{t.worlds[w as keyof typeof t.worlds].name}</small>
+                </a>
+              </li>
+            ))}
+          </ul>
+          {topWorld && <a className="find5-mbti" href={href(`explore/${topWorld}/learn`)}>{t.sx.likeStories(t.worlds[topWorld as keyof typeof t.worlds].name)} →</a>}
+          <p className="hint like5-note">{t.sx.likeNote}</p>
         </section>
       )}
 

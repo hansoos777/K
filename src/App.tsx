@@ -54,7 +54,7 @@ export default function App() {
     <>
       <Header active={menu} title={title} />
       <main className={`page page-${menu}`}>
-        {menu === 'explore' ? <Explore id={id} tab={place} /> : menu === 'spaces' ? <Spaces id={id} /> : menu === 'mine' ? <Mine section={id} /> : menu === 'me' ? <Me /> : <Home />}
+        {menu === 'explore' ? <Explore id={id} tab={place} /> : menu === 'spaces' ? <Spaces id={id} place={place} /> : menu === 'mine' ? <Mine section={id} /> : menu === 'me' ? <Me /> : <Home />}
       </main>
       <TabBar active={menu} />
     </>

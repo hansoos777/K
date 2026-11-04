@@ -152,6 +152,23 @@ export default function ReligionDetail({ id, tab }: { id: string; tab?: RelTab }
   const learn = (
     <>
       <p className="status-note"><span className="badge">{t.r.status[L.status]}</span>{t.r.statusNote}</p>
+      {L.discover?.length > 0 && (
+        <section className="rel-sec">
+          <div className="sec-head"><h2>{t.r.discover}</h2><span className="progress-label">{t.r.discoverSub}</span></div>
+          <ul className="disc">
+            {L.discover.map((d) => (
+              <li key={d.q}>
+                <strong>{d.q}</strong>
+                <p>{d.a}</p>
+                <span className="disc-links">
+                  {d.lesson && L.lessons.some((l) => l.id === d.lesson) && <button className="text-link" onClick={() => study(d.lesson!)}>{t.r.readMore}</button>}
+                  {d.place && <a className="text-link" href={href(`w/${id}/${d.place}`)}>{t.r.tryPlace} →</a>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <section className="rel-sec">
         {t.r.enMore && <p className="hint">{t.r.enMore}</p>}
         <Course scope={id} world={id} lessons={L.lessons} open={openLesson} setOpen={setOpenLesson} />

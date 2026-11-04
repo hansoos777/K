@@ -1,6 +1,6 @@
 import type { LearnPack } from './types'
 
-// 강의 본문: 사용자 제공 「실제 학습 본문 초안」(p1~p4) + 보강 강의. 게시 전 전문가 검수 필요.
+// 강의 본문: 사용자 제공 「실제 학습 본문 초안」(p1~p4) + 보강 강의. discover는 LEVEL 1 발견하기(질문형 짧은 글). 게시 전 전문가 검수 필요.
 const pack: LearnPack = {
   "ko": {
     "title": "불교",
@@ -495,6 +495,32 @@ const pack: LearnPack = {
       "대한불교조계종 신행 안내",
       "한국민족문화대백과사전 \"불교\"",
       "Encyclopaedia Britannica, \"Buddhism\""
+    ],
+    "discover": [
+      {
+        "q": "사찰에는 왜 탑이 있을까요?",
+        "a": "탑은 부처님의 사리를 모신 데서 시작되었어요. 그래서 사람들은 탑을 시계 방향으로 돌며 예를 올려요(탑돌이).",
+        "lesson": "layout",
+        "place": "courtyard"
+      },
+      {
+        "q": "부처는 어떤 삶을 살았을까요?",
+        "a": "전승에 따르면 왕자로 태어난 싯다르타는 늙음과 병, 죽음을 보고 출가했어요. 보리수 아래에서 깨달음을 얻은 뒤 평생 가르침을 전했어요.",
+        "lesson": "p1",
+        "place": "daeung"
+      },
+      {
+        "q": "연꽃은 왜 불교를 상징할까요?",
+        "a": "진흙 속에서 자라도 물들지 않고 깨끗하게 피어나기 때문이에요. 번뇌 속에서도 깨달음에 이를 수 있다는 뜻을 담고 있어요.",
+        "lesson": "p3",
+        "place": "courtyard"
+      },
+      {
+        "q": "명상은 어떤 의미일까요?",
+        "a": "숨과 몸, 마음에서 일어나는 일을 있는 그대로 알아차리는 수행이에요. 한국 선방에서는 죽비 소리로 시작과 끝을 알려요.",
+        "lesson": "practice",
+        "place": "meditation"
+      }
     ]
   },
   "en": {
@@ -855,6 +881,32 @@ const pack: LearnPack = {
       "Jogye Order of Korean Buddhism",
       "Encyclopedia of Korean Culture, \"Buddhism\"",
       "Encyclopaedia Britannica, \"Buddhism\""
+    ],
+    "discover": [
+      {
+        "q": "Why do temples have pagodas?",
+        "a": "Pagodas began as places holding the Buddha’s relics, so people walk around them clockwise in respect.",
+        "lesson": "layout",
+        "place": "courtyard"
+      },
+      {
+        "q": "What kind of life did the Buddha live?",
+        "a": "Tradition says Prince Siddhartha left home after seeing old age, sickness and death, awakened under the Bodhi tree and taught for the rest of his life.",
+        "lesson": "life",
+        "place": "daeung"
+      },
+      {
+        "q": "Why is the lotus a Buddhist symbol?",
+        "a": "It grows in mud yet blooms clean, a sign that awakening is possible amid the mind’s troubles.",
+        "lesson": "teach",
+        "place": "courtyard"
+      },
+      {
+        "q": "What does meditation mean?",
+        "a": "Knowing breath, body and mind as they are. In Korean halls a bamboo clapper marks the start and end.",
+        "lesson": "practice",
+        "place": "meditation"
+      }
     ]
   }
 }

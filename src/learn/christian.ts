@@ -1,6 +1,6 @@
 import type { LearnPack } from './types'
 
-// 강의 본문: 사용자 제공 「실제 학습 본문 초안」(p1~p4) + 보강 강의. 게시 전 전문가 검수 필요.
+// 강의 본문: 사용자 제공 「실제 학습 본문 초안」(p1~p4) + 보강 강의. discover는 LEVEL 1 발견하기(질문형 짧은 글). 게시 전 전문가 검수 필요.
 const pack: LearnPack = {
   "ko": {
     "title": "기독교 (개신교)",
@@ -781,6 +781,30 @@ const pack: LearnPack = {
       "대한성서공회 성경 안내",
       "한국민족문화대백과사전 \"개신교\"",
       "Encyclopaedia Britannica, \"Protestantism\""
+    ],
+    "discover": [
+      {
+        "q": "교회는 왜 십자가를 사용할까요?",
+        "a": "십자가는 예수가 사람들을 위해 희생했고 다시 살아났다는 믿음을 기억하게 해요. 개신교 교회에는 보통 형상이 없는 빈 십자가를 두는데, 부활을 강조하는 뜻이 있어요.",
+        "lesson": "cross",
+        "place": "traditional"
+      },
+      {
+        "q": "예배는 어떤 의미일까요?",
+        "a": "주일에 함께 모여 하나님께 감사하고 말씀을 듣는 시간이에요. 찬송, 기도, 성경 읽기, 설교가 이어지며 교회마다 순서는 조금씩 달라요.",
+        "lesson": "p4",
+        "place": "traditional"
+      },
+      {
+        "q": "예수는 어떤 가르침을 전했을까요?",
+        "a": "하나님 나라가 가까이 왔다고 전하며, 하나님과 이웃을 사랑하라고 가르쳤어요. 가난하고 소외된 사람들과 함께하고 용서를 강조했어요.",
+        "lesson": "p1"
+      },
+      {
+        "q": "성경에는 어떤 이야기가 담겨 있을까요?",
+        "a": "세상의 창조, 아브라함과 모세, 다윗 왕, 예언자들, 예수의 생애와 초기 교회 이야기까지 오랜 시간에 걸친 이야기와 시, 편지가 담겨 있어요.",
+        "lesson": "p2"
+      }
     ]
   },
   "en": {
@@ -1130,6 +1154,30 @@ const pack: LearnPack = {
       "Korean Bible Society",
       "Encyclopedia of Korean Culture, \"Protestantism\"",
       "Encyclopaedia Britannica, \"Protestantism\""
+    ],
+    "discover": [
+      {
+        "q": "Why do churches use the cross?",
+        "a": "It recalls the belief that Jesus gave his life for people and rose again. Protestant churches usually show an empty cross, stressing the resurrection.",
+        "lesson": "space",
+        "place": "traditional"
+      },
+      {
+        "q": "What does worship mean?",
+        "a": "Gathering on Sunday to thank God and hear the Word, with hymns, prayer, Bible reading and a sermon; the order varies by church.",
+        "lesson": "worship",
+        "place": "traditional"
+      },
+      {
+        "q": "What did Jesus teach?",
+        "a": "That the kingdom of God is near, and to love God and neighbour. He stood with the poor and outcast and stressed forgiveness.",
+        "lesson": "believe"
+      },
+      {
+        "q": "What stories are in the Bible?",
+        "a": "Creation, Abraham and Moses, King David, the prophets, the life of Jesus and the early church: stories, poems and letters over many centuries.",
+        "lesson": "bible"
+      }
     ]
   }
 }

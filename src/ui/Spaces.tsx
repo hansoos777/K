@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react'
 import { worldById, WORLDS } from '../core/registry'
 import { go, href } from '../core/router'
 import { useStore } from '../core/store'
 import { useT } from '../i18n'
+import type { Learn } from '../learn/types'
 import { Icon } from './icons'
 import { img, Photo } from './Photo'
 
@@ -23,23 +25,88 @@ export function SpaceRow({ world, place }: { world: string; place: string }) {
   }
   return (
     <li className="space-row">
-      <a className="sr-img" href={href(`w/${w.id}/${p.id}`)} aria-label={`${name} · ${t.sp.enter}`}>
+      <a className="sr-img" href={href(`spaces/${w.id}/${p.id}`)} aria-label={`${name} · ${t.sx.about}`}>
         <img src={`/photos/${w.id}_${p.id}.webp`} alt="" loading="lazy" width="320" height="220" />
       </a>
-      <span className="sr-body">
+      <a className="sr-body" href={href(`spaces/${w.id}/${p.id}`)}>
         <strong>{name}</strong>
         <small>{t.worlds[w.id].name} · {t.sp.cat[w.id]}</small>
         {p.desc && <span>{lang === 'en' ? p.desc.en : p.desc.ko}</span>}
-        <a className="sr-tour" href={href(`w/${w.id}/${p.id}/tour`)}>{t.sp.enterTour}</a>
-      </span>
+        <small className="sr-min">{t.sx.minutes(MINUTES[`${w.id}/${p.id}`] ?? 5)}</small>
+      </a>
       <a className="pill" href={href(`w/${w.id}/${p.id}`)}>{t.sp.enter}<Icon name="chev" size={14} /></a>
     </li>
   )
 }
 
-/** ③ 가상 공간: 큰 사진 아래 모든 공간을 한 줄씩. 종교 탭은 거르기 */
-export default function Spaces({ id }: { id?: string }) {
+/** 실제 둘러볼 거리(안내 지점·할 수 있는 일) 기준의 대략적인 체험 시간(분) */
+export const MINUTES: Record<string, number> = {
+  'christian/traditional': 6, 'christian/modern': 5, 'christian/prayer': 3,
+  'catholic/gothic': 8, 'catholic/parish': 6, 'catholic/grotto': 4, 'catholic/confessional': 3,
+  'temple/daeung': 7, 'temple/courtyard': 6, 'temple/meditation': 5,
+  'mandir/mandir': 10, 'mandir/shrine': 10,
+}
+
+/** 공간 소개(입장 전): 사진 · 이름 · 종교 · 짧은 소개 · 예상 시간 · 해 볼 수 있는 것 · 이 공간 이야기 · 입장 */
+function SpaceDetail({ world, place }: { world: string; place: string }) {
   const t = useT()
+  const lang = useStore((s) => s.lang)
+  const w = worldById(world)
+  const p = w?.places.find((x) => x.id === place)
+  const [L, setL] = useState<Learn | null>(null)
+  useEffect(() => {
+    if (!w) return
+    let alive = true
+    w.learn().then((m) => alive && setL(lang === 'en' ? m.default.en : m.default.ko))
+    return () => { alive = false }
+  }, [w, lang])
+  if (!w || !p || p.soon) return <div className="screen"><p className="hint">{t.soon}</p></div>
+  const name = lang === 'en' ? p.en : p.ko
+  const acts = L ? [...L.activities.filter((a) => a.place === place).map((a) => a.name), ...L.practice.filter((x) => x.place === place).map((x) => x.label)] : []
+  const uniq = [...new Set(acts)]
+  const stories = L?.discover?.filter((d) => d.place === place) ?? []
+  const others = w.places.filter((x) => x.id !== place && !x.soon)
+  return (
+    <div className="screen screen-cover">
+      <a className="back-link" href={href(`spaces/${world}`)}><Icon name="back" size={18} />{t.nav.spaces}</a>
+      <section className="sd-cover">
+        <img src={`/photos/${world}_${place}.webp`} alt="" width="1200" height="800" />
+      </section>
+      <div className="sd-body">
+        <span className="sd-k">{t.worlds[w.id].name} · {t.sp.cat[w.id]} · {t.sx.minutes(MINUTES[`${world}/${place}`] ?? 5)}</span>
+        <h1>{name}</h1>
+        {p.desc && <p className="sd-desc">{lang === 'en' ? p.desc.en : p.desc.ko}</p>}
+        <div className="row sd-actions">
+          <a className="btn5" href={href(`w/${world}/${place}`)}>{t.sx.enter} <span aria-hidden="true">→</span></a>
+          <a className="button" href={href(`w/${world}/${place}/tour`)}>{t.sp.enterTour}</a>
+        </div>
+        {uniq.length > 0 && (
+          <section className="sd-sec">
+            <h2>{t.sx.canDo}</h2>
+            <ul className="sd-chips">{uniq.map((x) => <li key={x}>{x}</li>)}</ul>
+          </section>
+        )}
+        {stories.length > 0 && (
+          <section className="sd-sec">
+            <h2>{t.sx.stories}</h2>
+            <ul className="disc">{stories.map((d) => <li key={d.q}><strong>{d.q}</strong><p>{d.a}</p><span className="disc-links"><a className="text-link" href={href(`explore/${world}/learn`)}>{t.r.readMore} →</a></span></li>)}</ul>
+          </section>
+        )}
+        {others.length > 0 && (
+          <section className="sd-sec">
+            <h2>{t.sx.others(t.sp.cat[w.id])}</h2>
+            <ul className="space-rows">{others.map((x) => <SpaceRow key={x.id} world={world} place={x.id} />)}</ul>
+          </section>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/** ③ 탐험: 큰 사진 아래 모든 공간을 한 줄씩. 종교 탭은 거르기. #/spaces/<종교>/<공간>은 입장 전 소개 */
+export default function Spaces({ id, place }: { id?: string; place?: string }) {
+  const t = useT()
+  if (id && place) return <SpaceDetail world={id} place={place} />
   const interests = useStore((s) => s.interests)
   const order = [...WORLDS].sort((a, b) => Number(interests.includes(b.id)) - Number(interests.includes(a.id)))
   const cur = WORLDS.find((w) => w.id === id)

@@ -1,6 +1,6 @@
 import type { LearnPack } from './types'
 
-// 강의 본문: 사용자 제공 「실제 학습 본문 초안」(p1~p4) + 보강 강의. 게시 전 전문가 검수 필요.
+// 강의 본문: 사용자 제공 「실제 학습 본문 초안」(p1~p4) + 보강 강의. discover는 LEVEL 1 발견하기(질문형 짧은 글). 게시 전 전문가 검수 필요.
 const pack: LearnPack = {
   "ko": {
     "title": "힌두교",
@@ -490,6 +490,32 @@ const pack: LearnPack = {
       "Encyclopaedia Britannica, \"Hinduism\"",
       "한국민족문화대백과사전 · 두산백과의 힌두교 항목",
       "힌두교 사원 축제·신 자료"
+    ],
+    "discover": [
+      {
+        "q": "힌두교에는 왜 다양한 신이 있을까요?",
+        "a": "오랜 세월 여러 지역의 전통이 함께 자라 왔기 때문이에요. 많은 전통에서는 여러 신을 하나의 궁극적 실재(브라만)가 드러난 여러 모습으로 이해하기도 해요.",
+        "lesson": "p1",
+        "place": "mandir"
+      },
+      {
+        "q": "가네샤는 어떤 신일까요?",
+        "a": "코끼리 머리를 한 신으로, 장애를 없애고 새로운 시작을 돕는다고 여겨져요. 그래서 무엇을 시작할 때 가장 먼저 모셔요.",
+        "lesson": "p4",
+        "place": "mandir"
+      },
+      {
+        "q": "아르티는 어떤 의식일까요?",
+        "a": "불을 밝힌 등잔을 신상 앞에서 시계 방향으로 돌리며 빛으로 신을 공경하는 의식이에요. 노래와 종소리가 함께해요.",
+        "lesson": "p4",
+        "place": "mandir"
+      },
+      {
+        "q": "힌두 사원은 왜 화려하게 장식되어 있을까요?",
+        "a": "사원은 신이 머무는 집으로 여겨져요. 높은 탑과 조각, 꽃과 등불로 꾸며 신을 귀한 손님처럼 맞이하는 마음을 표현해요.",
+        "lesson": "mandir",
+        "place": "mandir"
+      }
     ]
   },
   "en": {
@@ -850,6 +876,32 @@ const pack: LearnPack = {
       "Encyclopaedia Britannica, \"Hinduism\"",
       "Encyclopedia of Korean Culture · Doopedia entries on Hinduism",
       "Hindu temple festival and deity data"
+    ],
+    "discover": [
+      {
+        "q": "Why are there so many gods in Hinduism?",
+        "a": "Many regional traditions grew together over centuries; many understand the gods as forms of one ultimate reality, Brahman.",
+        "lesson": "what",
+        "place": "mandir"
+      },
+      {
+        "q": "Who is Ganesha?",
+        "a": "The elephant-headed god who removes obstacles and blesses beginnings, so he is honoured first.",
+        "lesson": "deities",
+        "place": "mandir"
+      },
+      {
+        "q": "What is aarti?",
+        "a": "A lit lamp is circled clockwise before the deity, honouring the divine with light, with songs and bells.",
+        "lesson": "puja",
+        "place": "mandir"
+      },
+      {
+        "q": "Why are Hindu temples so richly decorated?",
+        "a": "A temple is the deity’s home; towers, carvings, flowers and lamps welcome the deity as an honoured guest.",
+        "lesson": "mandir",
+        "place": "mandir"
+      }
     ]
   }
 }

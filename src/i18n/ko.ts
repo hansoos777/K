@@ -1,5 +1,11 @@
 import { BRAND } from '../brand'
 /** 공통 화면 문구. 종교별 공간의 문구는 각 월드 폴더의 strings.ts에 있다. */
+/** 받침이 있으면 '을', 없으면 '를' (괄호 설명은 건너뜀) */
+const obj = (w: string) => {
+  const c = w.replace(/\s*\([^)]*\)\s*$/, '').trim().slice(-1).charCodeAt(0)
+  return c >= 0xac00 && c <= 0xd7a3 && (c - 0xac00) % 28 ? '을' : '를'
+}
+
 const ko = {
   brand: BRAND.ko,
   brandLocal: BRAND.ko,
@@ -70,6 +76,11 @@ const ko = {
     keyTerms: '주요 용어',
     enMore: '',
     levelAll: '전체',
+    groups: { understand: '이해하기', deep: '깊이 알아보기', experience: '체험' } as Record<string, string>,
+    discover: '발견하기',
+    discoverSub: '짧은 질문부터 가볍게 읽어 보세요.',
+    readMore: '더 읽기',
+    tryPlace: '공간에서 보기',
     progress: (d: number, n: number) => `탐험 기록 ${d} / ${n}`,
     level: { intro: '입문', basic: '기초', advanced: '심화', experience: '체험' } as Record<string, string>,
     markLearned: '다 읽었어요',
@@ -113,6 +124,26 @@ const ko = {
   },
   nav: { home: '홈', explore: '알아보기', spaces: '탐험', mine: '나의 공간', me: '마이페이지' },
   // 5차: 경험 먼저 (홈)
+  sx: {
+    about: '공간 소개',
+    enter: '공간 입장하기',
+    minutes: (n: number) => `약 ${n}분`,
+    canDo: '이곳에서 해 볼 수 있는 것',
+    stories: '이 공간에 담긴 이야기',
+    others: (c: string) => `다른 ${c} 공간`,
+    storyAsk: '이 공간에 담긴 이야기가 궁금하신가요?',
+    storyYes: '더 알아보기',
+    storyNo: '계속 둘러보기',
+    endTitle: (n: string) => `${n}${obj(n)} 둘러보셨네요.`,
+    endStory: '이 공간의 이야기 알아보기',
+    endActs: '신앙 활동 알아보기',
+    endOther: (c: string) => `${c}도 둘러보기`,
+    endWorld: '다른 종교 공간 탐험하기',
+    endLeave: '나가기',
+    likeTitle: '이런 공간도 좋아할 것 같아요',
+    likeNote: '둘러본 공간을 바탕으로 한 추천이에요. 신앙을 짐작하지 않아요.',
+    likeStories: (w: string) => `${w}의 이야기도 만나 보세요`,
+  },
   x: {
     heroTitle: '새로운 세계를 만나보세요.',
     heroSub: '교회, 성당, 사찰, 힌두 사원을 직접 둘러보세요.',

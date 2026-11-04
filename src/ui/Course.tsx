@@ -31,8 +31,10 @@ export default function Course({ scope, world, lessons, open, setOpen }: { scope
   const [lv, setLv] = useState<string>('all')
   const key = (l: Lesson) => `${scope}/${l.id}`
   const done = lessons.filter((l) => learned.includes(key(l))).length
-  const levels = (['intro', 'basic', 'advanced', 'experience'] as const).filter((k) => lessons.some((l) => (l.level ?? 'intro') === k))
-  const shown = lessons.filter((l) => lv === 'all' || (l.level ?? 'intro') === lv)
+  // 순서대로 들어야 하는 코스가 아니라 묶음: 이해하기(입문·기초) · 깊이 알아보기(심화) · 체험
+  const group = (l: Lesson) => (l.level === 'advanced' ? 'deep' : l.level === 'experience' ? 'experience' : 'understand')
+  const levels = (['understand', 'deep', 'experience'] as const).filter((k) => lessons.some((l) => group(l) === k))
+  const shown = lessons.filter((l) => lv === 'all' || group(l) === lv)
   const go = (id: string) => {
     setOpen(id)
     setTimeout(() => document.getElementById(`lesson-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
@@ -47,7 +49,7 @@ export default function Course({ scope, world, lessons, open, setOpen }: { scope
       {levels.length > 1 && (
         <div className="chips level-filter" role="tablist">
           {['all', ...levels].map((k) => (
-            <button key={k} role="tab" aria-selected={lv === k} className={`chip ${lv === k ? 'on' : ''}`} onClick={() => setLv(k)}>{k === 'all' ? t.r.levelAll : t.r.level[k]}</button>
+            <button key={k} role="tab" aria-selected={lv === k} className={`chip ${lv === k ? 'on' : ''}`} onClick={() => setLv(k)}>{k === 'all' ? t.r.levelAll : t.r.groups[k]}</button>
           ))}
         </div>
       )}

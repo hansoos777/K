@@ -72,6 +72,11 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
   const [step, setStep] = useState<number | null>(null)
   const [sweeping, setSweeping] = useState(false)
   const [seat, setSeat] = useState<'near' | 'seated' | null>(null)
+  // 발견형 안내: 안내 지점을 3곳 이상 둘러본 뒤 한 번만 "이야기가 궁금하신가요?"
+  const seenSpots = useRef(new Set<string>())
+  const [ask, setAsk] = useState(false)
+  const [end, setEnd] = useState(false)
+  const enteredAt = useRef(Date.now())
   const [seatPray, setSeatPray] = useState(false)
   const say = useRef((m: string) => setToast(m))
   const coarse = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches
@@ -166,6 +171,19 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
     if (cur?.action === a.id) next()
   }
 
+  useEffect(() => {
+    if (!spot) return
+    seenSpots.current.add(spot)
+    const done = getState().tutorials.includes(`story:${key}`)
+    if (!done && seenSpots.current.size >= 3 && step == null) {
+      setAsk(true)
+      update((s) => ({ tutorials: [...s.tutorials, `story:${key}`] }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spot])
+  useEffect(() => { enteredAt.current = Date.now(); seenSpots.current = new Set() }, [key])
+  const otherPlace = open.find((p) => p.id !== current.id)
+
   const active = sc.actions.find((a) => a.id === sheet)
   const infoOpen = sheet === 'info'
   const spotInfo = spot ? sc.spots?.[spot] : undefined
@@ -184,7 +202,10 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
       {state === 'nogl' && <div className="space-loading"><p>{t.noGL}</p></div>}
 
       <header className="hud-top">
-        <a className="glass-btn" href={href(`spaces/${id}`)} aria-label={t.back}><Icon name="back" /></a>
+        <a className="glass-btn" href={href(`spaces/${id}`)} aria-label={t.back} onClick={(e) => {
+          // 30초 넘게 둘러봤으면 나가기 전에 다음 할 일을 제안
+          if (!end && Date.now() - enteredAt.current > 30000 && step == null) { e.preventDefault(); setEnd(true) }
+        }}><Icon name="back" /></a>
         <div className="hud-title glass">
           <span className="world-brand">{lang === 'en' ? def.brand : t.worlds[id].name}</span>
           <strong aria-current="location">{name(current)}</strong>
@@ -237,7 +258,33 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
         <div className="spot glass" role="status">
           <strong>{spotInfo.label}</strong>
           {spotInfo.text && <p>{spotInfo.text}</p>}
-          {spotAction && <button className="btn btn-primary" onClick={() => runAction(spotAction)}>{spotAction.label}</button>}
+          <div className="row">
+            {spotAction && <button className="btn btn-primary" onClick={() => runAction(spotAction)}>{spotAction.label}</button>}
+            <a className="btn" href={href(`explore/${id}/learn`)}>{t.sx.storyYes}</a>
+          </div>
+        </div>
+      )}
+
+      {/* 충분히 둘러본 뒤 한 번만: 이야기가 궁금하신가요? */}
+      {ask && !end && (
+        <div className="ask glass" role="dialog">
+          <p>{t.sx.storyAsk}</p>
+          <div className="row">
+            <a className="btn btn-primary" href={href(`explore/${id}/learn`)}>{t.sx.storyYes}</a>
+            <button className="btn" onClick={() => setAsk(false)}>{t.sx.storyNo}</button>
+          </div>
+        </div>
+      )}
+
+      {/* 체험을 마치고 나갈 때: 다음 행동 제안 */}
+      {end && (
+        <div className="end-card glass" role="dialog" aria-label={t.sx.endTitle(name(current))}>
+          <h3>{t.sx.endTitle(name(current))}</h3>
+          <a className="end-opt" href={href(`explore/${id}/learn`)}>{t.sx.endStory}<Icon name="chev" size={16} /></a>
+          <a className="end-opt" href={href(`explore/${id}/activities`)}>{t.sx.endActs}<Icon name="chev" size={16} /></a>
+          {otherPlace && <a className="end-opt" href={href(`w/${id}/${otherPlace.id}`)} onClick={() => setEnd(false)}>{t.sx.endOther(name(otherPlace))}<Icon name="chev" size={16} /></a>}
+          <a className="end-opt" href={href('spaces')}>{t.sx.endWorld}<Icon name="chev" size={16} /></a>
+          <a className="btn" href={href(`spaces/${id}`)}>{t.sx.endLeave}</a>
         </div>
       )}
 

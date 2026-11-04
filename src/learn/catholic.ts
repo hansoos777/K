@@ -1,6 +1,6 @@
 import type { LearnPack } from './types'
 
-// 강의 본문: 사용자 제공 「실제 학습 본문 초안」(p1~p4) + 보강 강의. 게시 전 전문가 검수 필요.
+// 강의 본문: 사용자 제공 「실제 학습 본문 초안」(p1~p4) + 보강 강의. discover는 LEVEL 1 발견하기(질문형 짧은 글). 게시 전 전문가 검수 필요.
 const pack: LearnPack = {
   "ko": {
     "title": "천주교 (가톨릭)",
@@ -446,6 +446,32 @@ const pack: LearnPack = {
       "한국천주교주교회의 가톨릭 정보",
       "가톨릭 교회 교리서",
       "Encyclopaedia Britannica, \"Roman Catholicism\""
+    ],
+    "discover": [
+      {
+        "q": "성당의 스테인드글라스는 왜 아름다울까요?",
+        "a": "색유리를 통과한 빛이 성당 안을 물들이도록 만들었어요. 글을 읽기 어렵던 시대에는 창에 그린 성경 장면이 이야기를 전하는 역할도 했어요.",
+        "lesson": "p3",
+        "place": "gothic"
+      },
+      {
+        "q": "미사는 어떻게 진행될까요?",
+        "a": "크게 말씀 전례와 성찬 전례로 이루어져요. 성경을 듣고 강론을 들은 뒤, 빵과 포도주를 봉헌하고 영성체를 해요. 영성체는 세례받은 신자가 해요.",
+        "lesson": "p2",
+        "place": "parish"
+      },
+      {
+        "q": "묵주기도는 무엇일까요?",
+        "a": "묵주 알을 하나씩 넘기며 주님의 기도와 성모송을 바치는 기도예요. 반복 자체보다 예수의 생애 장면을 묵상하는 것이 중심이에요.",
+        "lesson": "p4",
+        "place": "grotto"
+      },
+      {
+        "q": "성당 내부의 제단은 어떤 의미일까요?",
+        "a": "제대는 미사에서 성찬례가 거행되는 성당의 중심이에요. 가까이에 십자고상이 있고, 감실에는 성체를 모셔요.",
+        "lesson": "p3",
+        "place": "gothic"
+      }
     ]
   },
   "en": {
@@ -800,6 +826,32 @@ const pack: LearnPack = {
       "Catholic Bishops' Conference of Korea",
       "Catechism of the Catholic Church",
       "Encyclopaedia Britannica, \"Roman Catholicism\""
+    ],
+    "discover": [
+      {
+        "q": "Why is stained glass so beautiful?",
+        "a": "Coloured light was meant to fill the church, and when few could read, the windows told Bible stories in pictures.",
+        "lesson": "space",
+        "place": "gothic"
+      },
+      {
+        "q": "How does Mass work?",
+        "a": "It has the Liturgy of the Word and the Liturgy of the Eucharist: readings and a homily, then bread and wine are offered and Communion is received by baptised Catholics.",
+        "lesson": "mass",
+        "place": "parish"
+      },
+      {
+        "q": "What is the Rosary?",
+        "a": "A prayer of the Our Father and Hail Marys counted on beads; the heart of it is reflecting on scenes from the life of Jesus.",
+        "lesson": "mary",
+        "place": "grotto"
+      },
+      {
+        "q": "What does the altar mean?",
+        "a": "The altar is the centre where the Eucharist is celebrated. A crucifix is near it and the tabernacle holds the Eucharist.",
+        "lesson": "space",
+        "place": "gothic"
+      }
     ]
   }
 }

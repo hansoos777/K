@@ -31,6 +31,8 @@ export interface Quiz { q: string; options: string[]; answer: number; explain: s
 /** 용어 사전 */
 export interface Term { term: string; original?: string; def: string }
 export interface Faq { q: string; a: string }
+/** LEVEL 1 발견하기: 짧은 질문과 답. lesson은 더 읽을 강의 id, place는 해 볼 3D 공간 */
+export interface Discover { q: string; a: string; lesson?: string; place?: string }
 export interface PracticeLink { label: string; place: string; text: string }
 /** 신앙 활동: 종교마다 실제 전통에 있는 것만 (서로 섞지 않음) */
 export interface Activity {
@@ -67,6 +69,7 @@ export interface Learn {
   culture: Figure[]
   glossary: Term[]
   faq: Faq[]
+  discover: Discover[]
   quiz: Quiz[]
   status: Status
   festivals: Festival[]
