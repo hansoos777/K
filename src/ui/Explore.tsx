@@ -3,11 +3,43 @@ import { WORLDS } from '../core/registry'
 import { go, href } from '../core/router'
 import { useStore } from '../core/store'
 import type { CompareTopic } from '../learn/compare'
+import type { Lesson } from '../learn/types'
+import Course from './Course'
 import { useT } from '../i18n'
 import { COVER, photo } from './Home'
 import { Icon } from './icons'
 import { EXT, img, Photo } from './Photo'
 import ReligionDetail, { type RelTab } from './ReligionDetail'
+
+/** 공통 입문 과정 (#/explore/intro) */
+function Intro() {
+  const t = useT()
+  const lang = useStore((s) => s.lang)
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [open, setOpen] = useState('p1')
+  useEffect(() => {
+    let alive = true
+    import('../learn/common').then((m) => alive && setLessons(lang === 'en' && m.default.en.lessons.length ? m.default.en.lessons : m.default.ko.lessons))
+    return () => { alive = false }
+  }, [lang])
+  return (
+    <div className="screen">
+      <a className="back-link" href={href('explore')}><Icon name="back" size={18} />{t.ex.title}</a>
+      <div className="screen-head">
+        <h1>{t.r.commonTitle}</h1>
+        <p className="hint">{t.r.commonSub}</p>
+      </div>
+      {t.r.enMore && <p className="hint">{t.r.enMore}</p>}
+      <section className="rel-sec" style={{ marginTop: 0 }}>
+        <Course scope="common" lessons={lessons} open={open} setOpen={setOpen} />
+      </section>
+      <a className="compare-link" href={href('explore/compare')}>
+        <span><strong>{t.cmp.title}</strong><span>{t.cmp.sub}</span></span>
+        <Icon name="chev" size={18} />
+      </a>
+    </div>
+  )
+}
 
 /** 종교 간 비교 학습 (#/explore/compare) */
 function Compare() {
@@ -58,6 +90,7 @@ function Compare() {
 export default function Explore({ id, tab }: { id?: string; tab?: string }) {
   const t = useT()
   if (id === 'compare') return <Compare />
+  if (id === 'intro') return <Intro />
   const cur = WORLDS.find((w) => w.id === id)
   if (!cur) {
     return (
@@ -66,6 +99,10 @@ export default function Explore({ id, tab }: { id?: string; tab?: string }) {
           <h1>{t.h.exTitle}</h1>
           <p className="hint">{t.h.exSub}</p>
         </div>
+        <a className="compare-link intro-link" href={href('explore/intro')}>
+          <span><strong>{t.r.commonTitle}</strong><span>{t.r.commonSub}</span></span>
+          <Icon name="chev" size={18} />
+        </a>
         <ul className="faith-grid">
           {WORLDS.map((w) => (
             <li key={w.id}>

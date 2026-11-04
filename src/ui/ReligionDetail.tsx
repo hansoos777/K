@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { worldById } from '../core/registry'
 import { go, href } from '../core/router'
-import { toggleIn, update, useStore } from '../core/store'
+import { update, useStore } from '../core/store'
 import type { Figure, Learn, Quiz } from '../learn/types'
 import { useT } from '../i18n'
 import { COVER, photo } from './Home'
+import Course from './Course'
 import { Icon } from './icons'
 import { EXT, img, Photo } from './Photo'
 
@@ -21,7 +22,7 @@ function Defs({ items }: { items: Figure[] }) {
 }
 
 /** 확인 퀴즈: 한 문제씩, 고르면 정답·해설·다시 공부하기 */
-function QuizBox({ id, items, lessonTitle, onStudy }: { id: string; items: Quiz[]; lessonTitle: (i: number) => string; onStudy: (i: number) => void }) {
+function QuizBox({ id, items, lessonTitle, onStudy }: { id: string; items: Quiz[]; lessonTitle: (i: string) => string; onStudy: (i: string) => void }) {
   const t = useT()
   const [i, setI] = useState(0)
   const [pick, setPick] = useState<number | null>(null)
@@ -87,15 +88,12 @@ export default function ReligionDetail({ id, tab }: { id: string; tab?: RelTab }
   const t = useT()
   const lang = useStore((s) => s.lang)
   const mode = useStore((s) => s.modes[id] ?? 'learn')
-  const learned = useStore((s) => s.learned)
-  const saved = useStore((s) => s.savedLessons)
   const def = worldById(id)
   const [L, setL] = useState<Learn | null>(null)
-  const [openLesson, setOpenLesson] = useState(-1)
+  const [openLesson, setOpenLesson] = useState('')
   const [openAct, setOpenAct] = useState(-1)
   const [openFaq, setOpenFaq] = useState(0)
   const [termQ, setTermQ] = useState('')
-  const [lv, setLv] = useState<string>('all')
   const cur: RelTab = tab && TABS.includes(tab) ? tab : 'activities'
 
   useEffect(() => {
@@ -116,9 +114,7 @@ export default function ReligionDetail({ id, tab }: { id: string; tab?: RelTab }
 
   if (!L) return <div className="rel-loading"><div className="spinner" /></div>
 
-  const lkey = (i: number) => `${id}/${i}`
-  const doneCount = L.lessons.filter((_, i) => learned.includes(lkey(i))).length
-  const study = (i: number) => {
+  const study = (i: string) => {
     setOpenLesson(i)
     setTimeout(() => document.getElementById(`lesson-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
   }
@@ -157,53 +153,13 @@ export default function ReligionDetail({ id, tab }: { id: string; tab?: RelTab }
     <>
       <p className="status-note"><span className="badge">{t.r.status[L.status]}</span>{t.r.statusNote}</p>
       <section className="rel-sec">
-        <div className="sec-head">
-          <h2>{t.r.course}</h2>
-          <span className="progress-label">{t.r.progress(doneCount, L.lessons.length)}</span>
-        </div>
-        <div className="progress" aria-hidden="true"><span style={{ width: `${(doneCount / Math.max(1, L.lessons.length)) * 100}%` }} /></div>
-        <div className="chips level-filter" role="tablist">
-          {['all', ...(['intro', 'basic', 'advanced', 'experience'] as const).filter((k) => L.lessons.some((l) => (l.level ?? 'intro') === k))].map((k) => (
-            <button key={k} role="tab" aria-selected={lv === k} className={`chip ${lv === k ? 'on' : ''}`} onClick={() => setLv(k)}>{k === 'all' ? t.r.levelAll : t.r.level[k]}</button>
-          ))}
-        </div>
         {t.r.enMore && <p className="hint">{t.r.enMore}</p>}
-        <div className="lessons">
-          {L.lessons.map((l, i) => {
-            if (lv !== 'all' && (l.level ?? 'intro') !== lv) return null
-            const k = lkey(i)
-            const isDone = learned.includes(k)
-            return (
-              <article key={l.title} id={`lesson-${i}`} className={`lesson ${openLesson === i ? 'open' : ''}`}>
-                <button className="lesson-h" onClick={() => setOpenLesson(openLesson === i ? -1 : i)} aria-expanded={openLesson === i}>
-                  <span className="num">{isDone ? <Icon name="check" size={16} /> : String(i + 1).padStart(2, '0')}</span>
-                  <span className="lesson-t">{l.title}<small>{t.r.level[l.level ?? 'intro']}{l.unit ? ` · ${l.unit}` : ''}</small></span>
-                  <span className="chev">{openLesson === i ? '−' : '+'}</span>
-                </button>
-                {openLesson === i && (
-                  <div className="lesson-b">
-                    {l.goal && <p className="lesson-goal"><b>{t.r.goal}</b>{l.goal}</p>}
-                    {l.body.map((b) => <p key={b}>{b}</p>)}
-                    {l.points && l.points.length > 0 && (
-                      <div className="lesson-points"><b>{t.r.points}</b><ul>{l.points.map((x) => <li key={x}>{x}</li>)}</ul></div>
-                    )}
-                    {l.terms && l.terms.length > 0 && <p className="lesson-terms"><b>{t.r.keyTerms}</b>{l.terms.join(' · ')}</p>}
-                    <div className="row">
-                      <button className={`button ${isDone ? '' : 'primary'}`} onClick={() => toggleIn('learned', k)}>{isDone ? t.r.unlearn : t.r.markLearned}</button>
-                      <button className="button" onClick={() => toggleIn('savedLessons', k)}>{saved.includes(k) ? t.r.unsave : t.r.save}</button>
-                      {l.place && <a className="text-link" href={href(`w/${id}/${l.place}`)}>{t.r.see3d} →</a>}
-                    </div>
-                  </div>
-                )}
-              </article>
-            )
-          })}
-        </div>
+        <Course scope={id} world={id} lessons={L.lessons} open={openLesson} setOpen={setOpenLesson} />
       </section>
       {L.quiz.length > 0 && (
         <section className="rel-sec">
           <h2>{t.r.quiz}</h2>
-          <QuizBox id={id} items={L.quiz} lessonTitle={(i) => L.lessons[i]?.title ?? ''} onStudy={study} />
+          <QuizBox id={id} items={L.quiz} lessonTitle={(i) => L.lessons.find((l) => l.id === i)?.title ?? ''} onStudy={study} />
         </section>
       )}
       <section className="rel-sec"><h2>{t.r.scriptures}</h2><Defs items={L.scriptures} /></section>

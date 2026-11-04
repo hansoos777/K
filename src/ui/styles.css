@@ -1037,3 +1037,15 @@ fieldset { scroll-margin-top: 80px; }
 .lesson-points ul { margin: 0; padding-left: 1.1em; line-height: 1.8; }
 .lesson-terms { color: var(--muted); font-size: .92rem; }
 .level-filter { margin: 0 0 14px; }
+.intro-link { margin: 0 0 24px; background: #F1ECE3; box-shadow: none; }
+.think { margin: 18px 0; padding: 16px; background: #fff; border: 1px solid var(--line); border-radius: 10px; }
+.think > b, .lesson-defs > b { display: block; font-size: .78rem; letter-spacing: .1em; color: var(--bronze); margin-bottom: 6px; }
+.think p { margin: 0 0 10px; }
+.think textarea { width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+.think-guide { background: #F7F4EE; padding: 12px; border-radius: 8px; line-height: 1.75; }
+.think-guide small { display: block; color: var(--bronze); margin-bottom: 4px; }
+.lesson-defs { margin: 16px 0; }
+.lesson-defs > div { display: grid; grid-template-columns: 7em 1fr; gap: 10px; padding: 6px 0; border-top: 1px dashed var(--line); }
+.lesson-defs dt { font-weight: 600; }
+.lesson-defs dd { margin: 0; color: var(--text); line-height: 1.65; }
+@media (max-width: 520px) { .lesson-defs > div { grid-template-columns: 1fr; gap: 2px; } }
