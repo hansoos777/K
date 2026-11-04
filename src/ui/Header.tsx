@@ -2,6 +2,7 @@ import { href } from '../core/router'
 import { update, useStore } from '../core/store'
 import { useT } from '../i18n'
 import { Icon, type IconName } from './icons'
+import { LogoMark } from './Logo'
 
 /** 메인 메뉴 5개: 모바일은 아래쪽 고정, PC는 위쪽 가운데 */
 export const MENU: { id: 'home' | 'explore' | 'spaces' | 'mine' | 'me'; path: string; icon: IconName }[] = [
@@ -19,8 +20,8 @@ export function Header({ active, title }: { active: string; title?: string }) {
   return (
     <header className="topbar">
       <a className="logo-link" href={href('')} aria-label={t.nav.home}>
-        <span className="logo-mark"><Icon name="arch" size={22} /></span>
-        <span className={`wordmark ${lang === 'ko' ? 'ko' : ''}`}>{t.brand}</span>
+        <LogoMark size={34} />
+        <span className={`wordmark ${lang === 'ko' ? 'ko' : ''}`}>{t.brand}{lang === 'ko' && <small>RUBELIEVE</small>}</span>
       </a>
       {title && <span className="page-title" aria-current="page">{title}</span>}
       <nav className="topnav" aria-label="menu">

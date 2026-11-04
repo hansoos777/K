@@ -160,10 +160,10 @@ export default function Mine({ section }: { section?: string }) {
       </section>
 
       <ul className="tiles">
-        <li><button onClick={() => open('pray')}><Icon name="pray" size={26} /><strong>{t.mine.tPray}</strong><small>{t.mine.tPraySub}</small></button></li>
-        <li><button onClick={() => open('meditate')}><Icon name="lotus" size={26} /><strong>{t.mine.tMed}</strong><small>{t.mine.tMedSub}</small></button></li>
-        <li><a href={href('w/mandir/shrine')}><Icon name="diya" size={26} /><strong>{t.mine.tShrine}</strong><small>{t.mine.tShrineSub}</small></a></li>
-        <li><button onClick={() => scrollTo('log')}><Icon name="note" size={26} /><strong>{t.mine.logTitle}</strong><small>{t.mine.tLogSub}</small></button></li>
+        <li><button onClick={() => open('pray')}><span className="ic4 lav"><Icon name="pray" size={22} /></span><strong>{t.mine.tPray}</strong><small>{t.mine.tPraySub}</small></button></li>
+        <li><button onClick={() => open('meditate')}><span className="ic4 sky"><Icon name="breath" size={22} /></span><strong>{t.mine.tMed}</strong><small>{t.mine.tMedSub}</small></button></li>
+        <li><a href={href('w/mandir/shrine')}><span className="ic4 peach"><Icon name="diya" size={22} /></span><strong>{t.mine.tShrine}</strong><small>{t.mine.tShrineSub}</small></a></li>
+        <li><button onClick={() => scrollTo('log')}><span className="ic4 gold"><Icon name="note" size={22} /></span><strong>{t.mine.logTitle}</strong><small>{t.mine.tLogSub}</small></button></li>
       </ul>
 
       <section>

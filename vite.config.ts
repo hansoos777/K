@@ -10,8 +10,8 @@ function brand(): Plugin {
     description: BRAND.tagline,
     start_url: '/',
     display: 'standalone',
-    background_color: '#0e1118',
-    theme_color: '#0e1118',
+    background_color: '#FBF7F0',
+    theme_color: '#FBF7F0',
     lang: 'ko',
     icons: [{ src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' }],
   }, null, 2)
