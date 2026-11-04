@@ -1,5 +1,10 @@
 import * as THREE from 'three'
-import { bell, jukbi, moktak } from '../../core/audio'
+import { bell, jukbi, moktak, sweepSound } from '../../core/audio'
+import { Incense } from '../../engine/pt/incense'
+import { brassEnv } from '../../engine/pt/kit'
+
+/** 마당 쓸기 안내 문구 (화면 쪽에서 언어에 맞게 바꿔 넣음) */
+export const sweepMsg = { half: '마당이 반쯤 깨끗해졌어요.', done: '마당을 다 쓸었어요. 마음도 맑아졌나요?' }
 import { update } from '../../core/store'
 import { LOOKS, visitorLook } from '../../engine/avatar'
 import { bellMesh, box, bronze, cushion, cyl, halo, hanokRoof, lotusLantern, pine, ridge, sag, sky, std } from '../../engine/props'
@@ -111,30 +116,65 @@ export function buildCourtyard(ctx: BuildCtx): Built {
   scene.add(tower)
   ctx.block({ x0: -6.4, z0: -8.4, x1: -3.6, z1: -5.6 })
 
-  // 향로
-  const burner = new THREE.Group()
-  burner.add(cyl(0.6, 0.4, 0.6, bronze(), 0, 0.5, 0), cyl(0.15, 0.25, 0.5, bronze(), 0, 0, 0), box(1.6, 0.06, 0.06, bronze(), 0, 1.1, 0))
-  burner.position.set(0, 0, -9.5)
-  scene.add(burner)
-  ctx.block({ x0: -0.8, z0: -10.3, x1: 0.8, z1: -8.7 })
-  const smoke: THREE.Sprite[] = []
-  for (let i = 0; i < (high ? 10 : 5); i++) {
-    const s = halo('#e8e2d8', 0.6, 0)
-    s.position.set(0, 1.2, -9.5)
-    s.material.blending = THREE.NormalBlending
-    scene.add(s)
-    smoke.push(s)
+  // 향로 (돌 받침 위 큰 청동 향로, 가는 연기 띠)
+  scene.add(box(1.6, 0.7, 1.6, std('#b8ad98', { map: stone('#bdb29c', [1, 1]) }), 0, 0, -9.5))
+  const inc = new Incense(brassEnv(), 1.7, { count: 3, smokeH: 3.6 })
+  inc.group.position.set(0, 0.7, -9.5)
+  scene.add(inc.group)
+  ctx.block({ x0: -0.9, z0: -10.4, x1: 0.9, z1: -8.6 })
+  ctx.every((t, dt) => inc.tick(t, dt))
+
+  // 마당의 낙엽 (빗자루로 쓸면 밀려나며 사라짐)
+  const LEAF = [0xc8862a, 0xb5562a, 0xd9a63a, 0x9a6a2a, 0xc87a3a]
+  const leafGeo = new THREE.PlaneGeometry(0.2, 0.11)
+  leafGeo.rotateX(-Math.PI / 2)
+  const N = high ? 320 : 200
+  const leaves = new THREE.InstancedMesh(leafGeo, new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide }), N)
+  const lp: { x: number; z: number; r: number; s: number; gone: boolean }[] = []
+  const ld = new THREE.Object3D()
+  const lc = new THREE.Color()
+  for (let i = 0; i < N; i++) {
+    let x = 0, z = 0
+    do { x = -11 + Math.random() * 22; z = -8 + Math.random() * 17 } while (Math.abs(x) < 1.2 && z > -10 && z < -8.4)
+    lp.push({ x, z, r: Math.random() * Math.PI, s: 0.8 + Math.random() * 0.6, gone: false })
+    lc.setHex(LEAF[i % LEAF.length])
+    leaves.setColorAt(i, lc)
   }
-  let incense = 0
-  ctx.every((t, dt) => {
-    if (incense <= 0) return
-    incense -= dt
-    smoke.forEach((s, i) => {
-      const k = ((t * 0.25 + i / smoke.length) % 1)
-      s.position.set(Math.sin(t + i) * 0.2 * k, 1.2 + k * 3, -9.5 + Math.cos(t * 0.7 + i) * 0.15 * k)
-      s.scale.setScalar(0.3 + k * 1.2)
-      s.material.opacity = Math.min(0.5, incense / 3) * (1 - k) * 0.7
+  const placeLeaf = (i: number) => {
+    const l = lp[i]
+    ld.position.set(l.x, 0.03, l.z)
+    ld.rotation.set(0, l.r, 0)
+    ld.scale.setScalar(l.gone ? 0.0001 : l.s)
+    ld.updateMatrix()
+    leaves.setMatrixAt(i, ld.matrix)
+  }
+  lp.forEach((_, i) => placeLeaf(i))
+  scene.add(leaves)
+  let swept = 0, said = 0, swish = 0
+  ctx.every((_t, dt) => {
+    if (!ctx.isSweeping()) return
+    const me = ctx.me()
+    let changed = false
+    swish -= dt
+    lp.forEach((l, i) => {
+      if (l.gone) return
+      const dx = l.x - me.x, dz = l.z - me.z
+      const d = Math.hypot(dx, dz)
+      if (d > 1.2) return
+      // 쓸린 낙엽은 바깥으로 밀려나며 작아지다 사라짐
+      l.x += (dx / (d || 1)) * dt * 2.4
+      l.z += (dz / (d || 1)) * dt * 2.4
+      l.r += dt * 4
+      l.s *= 1 - dt * 2.2
+      if (l.s < 0.12) { l.gone = true; swept++ }
+      placeLeaf(i)
+      changed = true
+      if (swish <= 0) { sweepSound(); swish = 0.45 }
     })
+    if (changed) leaves.instanceMatrix.needsUpdate = true
+    const pct = swept / N
+    if (pct > 0.5 && said < 1) { said = 1; ctx.say(sweepMsg.half) }
+    if (pct > 0.95 && said < 2) { said = 2; ctx.say(sweepMsg.done) }
   })
 
   // 범종각
@@ -252,7 +292,7 @@ export function buildCourtyard(ctx: BuildCtx): Built {
       lantern: () => { lightLantern() },
       bell: () => ctx.walkTo(10, 0.4, strike),
       moktak: () => moktak(),
-      incense: () => ctx.walkTo(0, -7.6, () => { incense = 180; ctx.pose('pray') }),
+      incense: () => ctx.walkTo(0, -7.8, () => { ctx.face(0, -9.5); inc.light(180); ctx.pose('pray') }),
       lit: () => void litCount,
     },
   }
@@ -298,6 +338,8 @@ export function buildMeditation(ctx: BuildCtx): Built & { api: Record<string, ()
       const cu = cushion(r === 1 && c === 1 ? '#8c3a2c' : '#6b2c24')
       cu.position.set(-3.6 + c * 2.4, 0, -4 + r * 2.4)
       scene.add(cu)
+      const taken = (r === 0 && (c === 0 || c === 3)) || (r === 1 && c === 2)
+      if (!taken) ctx.seat(cu.position.x, cu.position.z, 0.1, Math.PI)
     }
   // 앞쪽 작은 탁자, 향, 죽비
   scene.add(box(1.6, 0.4, 0.6, std('#4a2e1a', { map: wood('#4a2e1a') }), 0, 0, Z0 + 1))

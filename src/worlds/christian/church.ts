@@ -284,8 +284,9 @@ export function buildChurch(ctx: BuildCtx): Built {
       p.position.set(side * 3.9, 0, z)
       scene.add(p)
       for (let k = 0; k < 3; k++) {
-        if ((r * 3 + k + (side > 0 ? 2 : 0)) % 4 === 0 || r > 11) continue
-        people.push({ x: side * (2.2 + k * 1.4), z: z - 0.05, y: 0.36, yaw: Math.PI, look: visitorLook('christian', pi++), joined: pi % 5 === 0 })
+        const x = side * (2.2 + k * 1.4)
+        if ((r * 3 + k + (side > 0 ? 2 : 0)) % 4 === 0 || r > 11) { ctx.seat(x, z - 0.05, 0.36, Math.PI); continue }
+        people.push({ x, z: z - 0.05, y: 0.36, yaw: Math.PI, look: visitorLook('christian', pi++), joined: pi % 5 === 0 })
       }
     }
   ctx.crowd(people)

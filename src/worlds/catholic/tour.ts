@@ -4,6 +4,7 @@ const ko: Pack = {
   gestures: [
     { id: 'pray', label: '기도하기', pose: 'pray', note: '두 손을 모아 기도합니다' },
     { id: 'bow', label: '절하기', pose: 'bow', note: '감실(성체)을 향해 깊이 고개 숙여 절합니다' },
+    { id: 'sit', label: '자리에 앉기', pose: 'sit', note: '빈 자리에 앉았어요. 움직이면 일어나요.' },
   ],
   spots: {
     font: { label: '성수대', text: '성당에 들어서며 성수를 찍어 십자성호를 긋습니다.' },
@@ -31,6 +32,7 @@ const en: Pack = {
   gestures: [
     { id: 'pray', label: 'Pray', pose: 'pray', note: 'Hands joined in prayer' },
     { id: 'bow', label: 'Bow', pose: 'bow', note: 'A deep bow toward the tabernacle' },
+    { id: 'sit', label: 'Sit down', pose: 'sit', note: 'Seated. Move to stand up.' },
   ],
   spots: {
     font: { label: 'Holy water font', text: 'On entering, the faithful make the sign of the cross with holy water.' },

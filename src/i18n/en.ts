@@ -2,7 +2,7 @@ import { BRAND } from '../brand'
 import type { Dict } from './ko'
 
 const en: Dict = {
-  brand: BRAND.name,
+  brand: BRAND.en,
   brandLocal: BRAND.en,
   tagline: BRAND.tagline,
   heroSub: "Quietly visit the world's sacred places, anytime and anywhere.",
@@ -151,6 +151,9 @@ const en: Dict = {
     slogan: 'Find Your Own Way to Believe.',
     profile: 'Profile',
   },
+  noSeat: 'There is no seat here.',
+  sit: 'Sit down',
+  sitNote: 'Seated. Move to stand up.',
   favAdd: 'Add to favorites',
   favRemove: 'Remove from favorites',
   here: 'You are here',

@@ -132,99 +132,144 @@ export function buildTraditional(ctx: BuildCtx): Built {
   }
 }
 
-/** 현대 교회: 무대·LED 스크린·움직이는 조명 */
+/** 현대 교회: 밝은 자연광, 참나무, 천창 빛이 떨어지는 나무 십자가, 곡선 의자, 피아노와 낮은 강단 (공연장 느낌 없이) */
 export function buildModern(ctx: BuildCtx): Built {
   const { scene, high } = ctx
-  scene.background = new THREE.Color('#06070c')
-  scene.fog = new THREE.Fog('#06070c', 20, 50)
-  const W = 24, Z0 = -16, Z1 = 14, H = 10
-  room(ctx, W, Z0, Z1, H, std('#14161f', { roughness: 0.9 }), std('#2a2c36', { roughness: 0.7 }))
-  // 무대
-  const stage = box(18, 1, 7, std('#1b1d26', { roughness: 0.4, metalness: 0.2 }), 0, 0, Z0 + 3.5)
-  scene.add(stage)
-  const edge = box(18, 0.06, 0.06, new THREE.MeshBasicMaterial({ color: '#5a6cff', toneMapped: false }), 0, 1, Z0 + 7)
-  scene.add(edge)
-  ctx.block({ x0: -9, z0: Z0, x1: 9, z1: Z0 + 7 })
-  // LED 스크린 (천천히 색이 흐름)
-  const screenMat = new THREE.MeshBasicMaterial({ color: '#2a3a8a', toneMapped: false })
-  const scr = new THREE.Mesh(new THREE.PlaneGeometry(13, 5.5), screenMat)
-  scr.position.set(0, 5.2, Z0 + 0.1)
-  scene.add(scr)
-  ;[-1, 1].forEach((s) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 2.6), screenMat)
-    m.position.set(s * 10, 5.5, Z0 + 0.5)
-    m.rotation.y = -s * 0.35
-    scene.add(m)
-  })
-  const lc = cross(3, new THREE.MeshBasicMaterial({ color: '#ffffff', toneMapped: false }), 0.22)
-  lc.position.set(0, 3.6, Z0 + 0.15)
-  scene.add(lc)
-  const c1 = new THREE.Color('#2a3a9a'), c2 = new THREE.Color('#8a2a7a'), c3 = new THREE.Color('#1a6a8a')
-  ctx.every((t) => {
-    const k = (Math.sin(t * 0.3) + 1) / 2, j = (Math.sin(t * 0.17 + 1) + 1) / 2
-    screenMat.color.copy(c1).lerp(c2, k).lerp(c3, j * 0.5)
-  })
-  // 악기: 드럼, 건반, 마이크
-  const kit = new THREE.Group()
-  const shell = std('#a8a8b8', { metalness: 0.5, roughness: 0.3 })
-  kit.add(cyl(0.45, 0.45, 0.5, shell, 0, 1, 0), cyl(0.28, 0.28, 0.3, shell, -0.7, 1.5, 0.2), cyl(0.28, 0.28, 0.3, shell, 0.7, 1.5, 0.2), cyl(0.4, 0.4, 0.02, gold(), -1.1, 2.2, 0.4), cyl(0.4, 0.4, 0.02, gold(), 1.1, 2.3, 0.4))
-  kit.position.set(4, 0, Z0 + 2.5)
-  scene.add(kit, box(2, 0.12, 0.6, std('#111'), -4, 1.9, Z0 + 3), box(0.08, 0.9, 0.08, std('#333'), -4.8, 1, Z0 + 3), box(0.08, 0.9, 0.08, std('#333'), -3.2, 1, Z0 + 3))
-  for (const x of [-1.5, 0, 1.5]) scene.add(cyl(0.02, 0.03, 1.5, std('#555', { metalness: 0.6 }), x, 1, Z0 + 5.5, 6), cyl(0.05, 0.05, 0.14, std('#222'), x, 2.5, Z0 + 5.5, 8))
-  // 움직이는 조명 빔
-  const beams: THREE.Mesh[] = []
-  const beamColors = ['#5a6cff', '#ff5aa8', '#ffe8a8', '#5affd8', '#a85aff']
-  for (let i = 0; i < (high ? 8 : 4); i++) {
-    const g = new THREE.ConeGeometry(1.2, 12, 16, 1, true)
-    g.translate(0, -6, 0)
-    const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: beamColors[i % 5], transparent: true, opacity: 0.09, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }))
-    m.position.set(-8 + i * (16 / ((high ? 8 : 4) - 1)), H - 0.3, Z0 + 4)
-    scene.add(m)
-    beams.push(m)
+  const W = 20, Z0 = -22, Z1 = 12, H = 11
+  scene.background = new THREE.Color('#e8e4dc')
+  scene.fog = new THREE.Fog('#efe9df', 40, 90)
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb8a890, 2.6))
+  const sun = new THREE.DirectionalLight(0xfff4e2, 1.5)
+  sun.position.set(14, 16, 6)
+  scene.add(sun)
+  const oak = std('#c8a476', { map: wood('#c09a6a') })
+  const lightOak = std('#d8bc92', { map: wood('#d0b084') })
+  const plaster = std('#f6f3ec')
+  // 밝은 참나무 마루
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, Z1 - Z0), std('#d2b48a', { map: planks('#c8a476', [8, 14]) }))
+  floor.rotation.x = -Math.PI / 2
+  floor.position.z = (Z0 + Z1) / 2
+  scene.add(floor)
+  ctx.floor(floor)
+  // 흰 회벽, 뒤·왼쪽 벽
+  const wall = (w: number, h: number, x: number, y: number, z: number, ry: number, m: THREE.Material) => {
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m)
+    mesh.position.set(x, y, z)
+    mesh.rotation.y = ry
+    scene.add(mesh)
   }
-  ctx.every((t) => beams.forEach((b, i) => {
-    b.rotation.z = Math.sin(t * 0.6 + i) * 0.5
-    b.rotation.x = 0.3 + Math.cos(t * 0.45 + i * 1.7) * 0.35
-  }))
-  // 의자 (InstancedMesh 한 번에)
-  const seats: THREE.Matrix4[] = []
-  const d = new THREE.Object3D()
-  for (let r = 0; r < 9; r++) {
-    const n = 14 + r
-    for (let c = 0; c < n; c++) {
-      const x = -((n - 1) * 0.75) / 2 + c * 0.75
-      if (Math.abs(x) < 0.9) continue
-      d.position.set(x, 0, Z0 + 10 + r * 1.2)
-      d.rotation.y = Math.atan2(x, 18) * 0.6
-      d.updateMatrix()
-      seats.push(d.matrix.clone())
+  wall(Z1 - Z0, H, -W / 2, H / 2, (Z0 + Z1) / 2, Math.PI / 2, plaster)
+  wall(W, H, 0, H / 2, Z1, Math.PI, plaster)
+  // 오른쪽 벽: 바닥부터 천장까지 세로로 긴 창(맑은 유리, 낮의 빛)
+  const glass = new THREE.MeshBasicMaterial({ color: 0xf4f8fb })
+  for (let z = Z0 + 3; z < Z1 - 1; z += 3.2) {
+    wall(1.2, H - 1.4, W / 2 - 0.02, H / 2, z, -Math.PI / 2, glass)
+    scene.add(box(0.2, H, 2, plaster, W / 2 - 0.1, 0, z + 1.6))
+    if (high) {
+      const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 12), new THREE.MeshBasicMaterial({ color: 0xfff6e0, transparent: true, opacity: 0.08, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }))
+      sh.position.set(W / 2 - 3, 4.5, z)
+      sh.rotation.set(0, -Math.PI / 2, 0.55)
+      scene.add(sh)
     }
   }
-  const chairGeo = new THREE.BoxGeometry(0.55, 0.9, 0.55)
+  // 나무 살 천장
+  scene.add(box(W, 0.2, Z1 - Z0, plaster, 0, H, (Z0 + Z1) / 2))
+  for (let x = -W / 2 + 0.5; x < W / 2; x += 0.6) scene.add(box(0.12, 0.25, Z1 - Z0, lightOak, x, H - 0.25, (Z0 + Z1) / 2))
+  // 정면: 세로 나무 살 벽 + 단순한 나무 십자가 + 위에서 떨어지는 빛(천창)
+  scene.add(box(W, H, 0.3, std('#eae4d8'), 0, 0, Z0))
+  for (let x = -W / 2 + 0.3; x < W / 2; x += 0.42) scene.add(box(0.2, H, 0.18, oak, x, 0, Z0 + 0.25))
+  const cr = cross(4.6, std('#8a6238', { map: wood('#7a5432') }), 0.32)
+  cr.position.set(0, 3, Z0 + 0.5)
+  scene.add(cr)
+  const skylight = new THREE.Mesh(new THREE.PlaneGeometry(3.4, H), new THREE.MeshBasicMaterial({ color: 0xfff3d8, transparent: true, opacity: 0.22, depthWrite: false, blending: THREE.AdditiveBlending }))
+  skylight.position.set(0, H / 2, Z0 + 0.6)
+  scene.add(skylight, box(3.6, 0.1, 1.2, new THREE.MeshBasicMaterial({ color: 0xffffff }), 0, H - 0.05, Z0 + 0.8))
+  const crossGlow = halo('#fff2d0', 7, 0.3)
+  crossGlow.position.set(0, 5.2, Z0 + 0.7)
+  scene.add(crossGlow)
+  // 낮은 강단: 강대상(나무), 성찬상, 피아노, 화분
+  const pZ = Z0 + 3.5
+  scene.add(box(14, 0.45, 6, lightOak, 0, 0, pZ))
+  for (let i = 0; i < 2; i++) scene.add(box(14, 0.22, 0.4, lightOak, 0, i * 0.22, pZ + 3.2 - i * 0.4 + 0.4))
+  ctx.block({ x0: -7, z0: Z0, x1: 7, z1: pZ + 3.4 })
+  const lectern = new THREE.Group()
+  lectern.add(box(0.9, 1.15, 0.5, oak), box(1, 0.05, 0.6, std('#b08a5a'), 0, 1.15, 0))
+  const bk = box(0.5, 0.05, 0.36, std('#fff8e8'), 0, 1.2, 0.04)
+  bk.rotation.x = -0.25
+  lectern.add(bk)
+  lectern.position.set(-2.6, 0.45, pZ + 1)
+  scene.add(lectern)
+  scene.add(box(2.4, 0.9, 0.9, oak, 1.4, 0.45, pZ + 1.6), box(2.5, 0.04, 1, std('#fffaf2'), 1.4, 1.35, pZ + 1.6))
+  scene.add(cyl(0.08, 0.1, 0.22, std('#c9a45c'), 1.0, 1.39, pZ + 1.6, 12), cyl(0.2, 0.2, 0.06, std('#d8b47a'), 1.8, 1.39, pZ + 1.6, 16))
+  // 그랜드 피아노
+  const piano = new THREE.Group()
+  const black = std('#1a1a1c')
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 0.35, 24, 1, false, 0, Math.PI), black)
+  body.scale.set(0.8, 1, 1.3)
+  body.position.y = 0.85
+  piano.add(body, box(1.6, 0.35, 0.5, black, 0, 0.68, 0.1), box(1.4, 0.04, 0.2, std('#f4f2ee'), 0, 1.03, 0.25))
+  for (const [x, z] of [[-0.7, 0.2], [0.7, 0.2], [0, -1]] as const) piano.add(cyl(0.05, 0.05, 0.7, black, x, 0, z, 8))
+  piano.position.set(4.8, 0.45, pZ + 0.6)
+  piano.rotation.y = -0.5
+  scene.add(piano)
+  // 올리브 나무 화분
+  for (const x of [-6.2, 6.4]) {
+    scene.add(cyl(0.45, 0.35, 0.8, std('#d8d0c2'), x, 0.45, pZ - 1.6, 16), cyl(0.06, 0.08, 1.6, std('#7a6248'), x, 1.25, pZ - 1.6, 6))
+    for (let i = 0; i < 7; i++) {
+      const leaf = new THREE.Mesh(new THREE.IcosahedronGeometry(0.42, 1), std('#8a9a6a', { flatShading: true }))
+      leaf.position.set(x + Math.cos(i) * 0.4, 3 + (i % 3) * 0.3, pZ - 1.6 + Math.sin(i * 1.7) * 0.35)
+      scene.add(leaf)
+    }
+  }
+  // 펜던트 조명(가는 막대 빛)
+  for (let z = Z0 + 8; z < Z1 - 2; z += 5) for (const x of [-4, 4]) {
+    scene.add(cyl(0.008, 0.008, 2.5, std('#444'), x, H - 2.5, z, 4), box(2.2, 0.06, 0.12, new THREE.MeshBasicMaterial({ color: 0xfff2d8 }), x, H - 2.6, z))
+  }
+  // 곡선으로 놓인 나무 의자 + 앉은 교인 + 빈 자리
+  const chairGeo = new THREE.BoxGeometry(0.55, 0.06, 0.5)
   chairGeo.translate(0, 0.45, 0)
-  const chairs = new THREE.InstancedMesh(chairGeo, std('#2a2e48', { roughness: 0.8 }), seats.length)
-  seats.forEach((m, i) => chairs.setMatrixAt(i, m))
-  scene.add(chairs)
-  ctx.block({ x0: -10, z0: Z0 + 9.5, x1: -0.9, z1: Z0 + 20.5 })
-  ctx.block({ x0: 0.9, z0: Z0 + 9.5, x1: 10, z1: Z0 + 20.5 })
-  // 객석 조명
-  scene.add(new THREE.HemisphereLight('#6a7aff', '#1a1020', 0.9))
-  const front = new THREE.DirectionalLight('#ffe8d0', 1.2)
-  front.position.set(0, 8, 10)
-  scene.add(front)
-  ctx.pointLight('#7a8aff', 12, 20, [0, 6, Z0 + 4])
-  ctx.pointLight('#ff6ab0', 6, 14, [-8, 4, Z0 + 3])
-  ctx.spot('stage', 0, Z0 + 8, 2.2)
-  ctx.npc(-2, Z0 + 10, Math.PI, visitorLook('christian', 0), 'idle')
-  ctx.npc(2.6, Z0 + 11.2, Math.PI, visitorLook('christian', 2), 'pray')
-  ctx.npc(-4, Z0 + 12.4, Math.PI, visitorLook('christian', 4), 'idle')
-  ctx.walk({ x0: -W / 2, z0: Z0 + 7.2, x1: W / 2, z1: Z1 })
+  const backGeo = new THREE.BoxGeometry(0.55, 0.45, 0.05)
+  backGeo.translate(0, 0.7, 0.24)
+  const mats: THREE.Matrix4[] = []
+  const d = new THREE.Object3D()
+  const people: Parameters<BuildCtx['crowd']>[0] = []
+  let pi = 0
+  for (let r = 0; r < 9; r++) {
+    const rad = 10 + r * 1.15
+    for (let c = -7; c <= 7; c++) {
+      if (c === 0) continue // 가운데 통로
+      const a = c * (0.9 / rad) * 1.15
+      const x = Math.sin(a) * rad
+      const z = pZ + 4.2 - 10 + Math.cos(a) * rad + 0.2
+      if (Math.abs(x) > W / 2 - 1.2) continue
+      const yaw = Math.PI + a
+      d.position.set(x, 0, z)
+      d.rotation.set(0, a, 0)
+      d.updateMatrix()
+      mats.push(d.matrix.clone())
+      if ((r * 5 + c + 20) % 4 !== 0 && r < 8) people.push({ x, z: z - 0.05, y: 0.45, yaw, look: visitorLook('christian', pi++) })
+      else ctx.seat(x, z - 0.05, 0.45, yaw)
+    }
+  }
+  const seatM = new THREE.InstancedMesh(chairGeo, std('#6a7a80'), mats.length)
+  const backM = new THREE.InstancedMesh(backGeo, lightOak, mats.length)
+  mats.forEach((m, i) => { seatM.setMatrixAt(i, m); backM.setMatrixAt(i, m) })
+  scene.add(seatM, backM)
+  ctx.crowd(people)
+  for (const m of mats) {
+    const p = new THREE.Vector3().setFromMatrixPosition(m)
+    ctx.block({ x0: p.x - 0.32, z0: p.z - 0.3, x1: p.x + 0.32, z1: p.z + 0.3 })
+  }
+  ctx.spot('stage', 0, pZ + 4.6, 2)
+  ctx.walk({ x0: -W / 2, z0: pZ + 3.4, x1: W / 2, z1: Z1 })
   return {
-    spawn: [0, 5],
+    spawn: [0, 7],
     yaw: 0,
     look: LOOKS.christian,
-    dist: 5.4,
-    maxDist: 11,
+    dist: 8,
+    maxDist: 14,
+    pitch: 0.22,
+    lookY: 2.2,
     camBox: { min: [-W / 2 + 0.4, 0.5, Z0 + 0.5], max: [W / 2 - 0.4, H - 0.5, Z1 - 0.3] },
     api: {},
   }

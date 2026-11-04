@@ -27,7 +27,7 @@ export interface Action {
 }
 
 /** 인사·예절 동작 (종교마다 이름과 동작이 다름) */
-export interface Gesture { id: string; label: string; pose: 'pray' | 'bow'; note?: string }
+export interface Gesture { id: string; label: string; pose: 'pray' | 'bow' | 'sit' | 'sweep'; note?: string }
 
 /** 가까이 가면 뜨는 안내 */
 export interface SpotInfo { label: string; text?: string; action?: string }
@@ -70,6 +70,7 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
   const [toast, setToast] = useState<string | null>(null)
   const [spot, setSpot] = useState<string | null>(null)
   const [step, setStep] = useState<number | null>(null)
+  const [sweeping, setSweeping] = useState(false)
   const say = useRef((m: string) => setToast(m))
   const coarse = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches
   const name = (p: { ko: string; en: string }) => (lang === 'en' ? p.en : p.ko)
@@ -90,6 +91,7 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
     setSheet(null)
     setHint(true)
     setSpot(null)
+    setSweeping(false)
     setState('loading')
     let alive = true
     const raf = requestAnimationFrame(async () => {
@@ -245,8 +247,21 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
       {sc.gestures && state === 'ready' && (
         <div className="gestures" role="toolbar" aria-label={t.gestures}>
           {sc.gestures.map((g) => (
-            <button key={g.id} className="gesture glass" onClick={() => {
-              stageRef.current?.setPose(g.pose)
+            <button key={g.id} className={`gesture glass ${g.pose === 'sweep' && sweeping ? 'on' : ''}`} onClick={() => {
+              const st = stageRef.current
+              if (!st) return
+              if (g.pose === 'sweep') {
+                st.setSweep(!st.sweeping)
+                setSweeping(st.sweeping)
+                if (st.sweeping && g.note) setToast(g.note)
+                return
+              }
+              if (g.pose === 'sit') {
+                if (!st.sitNearest()) setToast(t.noSeat)
+                else if (g.note) setToast(g.note)
+                return
+              }
+              st.setPose(g.pose)
               if (g.note) setToast(g.note)
               if (cur?.action === g.id) next()
             }}>{g.label}</button>

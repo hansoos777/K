@@ -1,7 +1,7 @@
 import { BRAND } from '../brand'
 /** 공통 화면 문구. 종교별 공간의 문구는 각 월드 폴더의 strings.ts에 있다. */
 const ko = {
-  brand: BRAND.name,
+  brand: BRAND.ko,
   brandLocal: BRAND.ko,
   tagline: '나만의 방식으로 믿음을 찾다',
   heroSub: '세계의 여러 종교 공간을 언제 어디서나 조용히 방문해 보세요.',
@@ -150,6 +150,9 @@ const ko = {
     slogan: '나만의 방식으로 믿음을 찾다.',
     profile: '프로필',
   },
+  noSeat: '이곳에는 앉을 자리가 없어요.',
+  sit: '자리에 앉기',
+  sitNote: '가까운 빈 자리에 앉았어요. 움직이면 일어나요.',
   favAdd: '즐겨찾기에 추가',
   favRemove: '즐겨찾기에서 빼기',
   here: '현재 위치',

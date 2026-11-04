@@ -4,6 +4,7 @@ const ko: Pack = {
   gestures: [
     { id: 'hapjang', label: '합장', pose: 'pray', note: '두 손을 모아 마음을 하나로 — 합장' },
     { id: 'banbae', label: '반배', pose: 'bow', note: '합장한 채 허리를 굽혀 반배로 인사합니다' },
+    { id: 'sit', label: '방석에 앉기', pose: 'sit', note: '빈 방석에 앉았어요. 움직이면 일어나요.' },
   ],
   spots: {
     gate: { label: '일주문', text: '기둥이 한 줄로 선 첫 문. 세속의 마음을 내려놓고 한마음으로 들어선다는 뜻입니다.' },
@@ -40,6 +41,7 @@ const en: Pack = {
   gestures: [
     { id: 'hapjang', label: 'Hapjang', pose: 'pray', note: 'Palms joined, mind gathered — hapjang' },
     { id: 'banbae', label: 'Half bow', pose: 'bow', note: 'With joined palms, bow from the waist' },
+    { id: 'sit', label: 'Sit on a cushion', pose: 'sit', note: 'Seated. Move to stand up.' },
   ],
   spots: {
     gate: { label: 'Iljumun', text: 'The One-Pillar Gate: entering with a single mind.' },

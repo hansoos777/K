@@ -8,7 +8,7 @@ import { Btn, Note } from '../../ui/kit'
 import { Space, type PlaceScene, type SceneApi } from '../../ui/Space'
 import S from './strings'
 import TOUR from './tour'
-import { buildMeditation, buildCourtyard } from './three'
+import { buildMeditation, buildCourtyard, sweepMsg } from './three'
 import { buildDaeung } from './daeung'
 
 type T = (typeof S)['ko']
@@ -86,7 +86,11 @@ export default function TempleWorld({ place, tour }: WorldProps) {
         spots: g.spots,
       }
     return {
-      build: buildCourtyard,
+      build: (ctx) => {
+        sweepMsg.half = t.sweepHalf
+        sweepMsg.done = t.sweepDone
+        return buildCourtyard(ctx)
+      },
       intro: t.intro.courtyard,
       actions: [
         { id: 'lantern', label: t.lanternTitle, icon: 'lantern', run: (api) => { api.lantern?.(); return t.lanternCount(lanterns + 1) } },
@@ -96,7 +100,7 @@ export default function TempleWorld({ place, tour }: WorldProps) {
         { id: 'wind', label: t.wind, icon: 'wind', run: () => (toggleMusic('wind') ? t.wind : soundOff()) },
         { id: 'path', label: t.pathTitle, icon: 'path', panel: <><DefList items={t.path} /><Note>{t.pathNote}</Note><Note>{t.others}</Note></> },
       ],
-      gestures: g.gestures,
+      gestures: [...g.gestures.filter((x) => x.pose !== 'sit'), { id: 'sweep', label: t.sweep, pose: 'sweep', note: t.sweepNote }],
       spots: g.spots,
       tour: g.tour,
     }

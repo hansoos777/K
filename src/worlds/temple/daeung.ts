@@ -5,6 +5,7 @@ import { LOOKS, visitorLook } from '../../engine/avatar'
 import { cyl, box, std } from '../../engine/props'
 import { lightShaft, sunburst } from '../../engine/pt/decor'
 import { brass, brassEnv, canvasTexture, Flame, glowTexture, makeFlameTextures } from '../../engine/pt/kit'
+import { Incense } from '../../engine/pt/incense'
 import { buddha, dancheongBand, dancheongCeiling, lotusThrone, mandorla, maruTexture, realStatue } from '../../engine/pt/statues'
 import type { BuildCtx, Layout } from '../../engine/stage'
 
@@ -189,7 +190,6 @@ export function buildDaeung(ctx: BuildCtx): Built {
     scene.add(f.group)
     flames.push(f)
   }
-  scene.add(cyl(0.4, 0.3, 0.4, brass(env, 0xc8a070), 0, 0.98, tableZ, 16))
   for (const [x, col] of [[-1.2, 0xe86a4a], [1.2, 0xf2c24a], [-0.6, 0x9ad06a], [0.6, 0xf28a6a]] as const) {
     scene.add(cyl(0.28, 0.18, 0.18, gold, x, 0.98, tableZ, 12))
     const fruit = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), std('#fff', { emissive: '#000' }))
@@ -197,25 +197,14 @@ export function buildDaeung(ctx: BuildCtx): Built {
     fruit.position.set(x, 1.32, tableZ)
     scene.add(fruit)
   }
-  // 향 연기
-  const smoke: THREE.Sprite[] = []
-  const smokeTex = glowTexture('240,236,228', '220,214,204')
-  for (let i = 0; i < (high ? 12 : 6); i++) {
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: smokeTex, transparent: true, depthWrite: false, opacity: 0 }))
-    scene.add(sp)
-    smoke.push(sp)
-  }
-  let incense = 60
+  // 향로와 향 (가는 연기 띠가 흔들리며 올라감)
+  const inc = new Incense(env, 1, { count: 3, smokeH: 4 })
+  inc.group.position.set(0, 0.98, tableZ)
+  scene.add(inc.group)
+  inc.light(60)
   ctx.every((t, dt) => {
     flames.forEach((f) => f.tick(t))
-    if (incense <= 0) { smoke.forEach((s) => (s.material.opacity = 0)); return }
-    incense -= dt
-    smoke.forEach((s, i) => {
-      const k = (t * 0.18 + i / smoke.length) % 1
-      s.position.set(Math.sin(t * 0.8 + i) * 0.3 * k, 1.3 + k * 4.5, tableZ + Math.cos(t * 0.6 + i) * 0.2 * k)
-      s.scale.setScalar(0.4 + k * 1.6)
-      s.material.opacity = 0.35 * (1 - k) * Math.min(1, incense / 4)
-    })
+    inc.tick(t, dt)
   })
 
   // 천장 가득한 연등 (인스턴스 한 번에)
@@ -263,6 +252,7 @@ export function buildDaeung(ctx: BuildCtx): Built {
       const z = altarZ + 8 + r * 1.7
       cushionPts.push(new THREE.Vector3(x, 0.06, z))
       if ((r * 8 + c) % 3 !== 1 && r < 5) people.push({ x, z, y: 0.12, yaw: Math.PI, look: visitorLook('temple', pi++), joined: pi % 2 === 0, bows: pi % 3 === 0 })
+      else ctx.seat(x, z, 0.12, Math.PI)
     }
   const cushions = new THREE.InstancedMesh(cushionGeo, std('#8c3a2c'), cushionPts.length)
   cushionPts.forEach((p, i) => { dd.position.copy(p); dd.rotation.set(0, 0, 0); dd.updateMatrix(); cushions.setMatrixAt(i, dd.matrix) })
@@ -284,7 +274,7 @@ export function buildDaeung(ctx: BuildCtx): Built {
     camBox: { min: [-W / 2 + 0.5, 0.6, Z0 + 1], max: [W / 2 - 0.5, H - 3.8, Z1 - 0.4] },
     api: {
       bow: () => ctx.walkTo(0, altarZ + 7.4, () => ctx.pose('bow')),
-      incense: () => ctx.walkTo(0, tableZ + 1.6, () => { incense = 180; ctx.pose('pray') }),
+      incense: () => ctx.walkTo(0, tableZ + 1.6, () => { ctx.face(0, tableZ); inc.light(180); ctx.pose('pray') }),
       moktak: () => moktak(),
       jukbi: () => jukbi(1),
       lantern: () => {

@@ -1,4 +1,3 @@
-import { BRAND } from '../brand'
 import { WORLDS } from '../core/registry'
 import { href } from '../core/router'
 import { useStore } from '../core/store'
@@ -96,7 +95,7 @@ export default function Home() {
       </section>
 
       <footer className="foot">
-        <p className="foot-brand">{BRAND.name} — {t.h.slogan}</p>
+        <p className="foot-brand">{t.brand} — {t.h.slogan}</p>
         <p className="disclaimer">{t.disclaimer}</p>
       </footer>
     </div>

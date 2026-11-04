@@ -1,4 +1,3 @@
-import { BRAND } from '../brand'
 import { href } from '../core/router'
 import { update, useStore } from '../core/store'
 import { useT } from '../i18n'
@@ -20,7 +19,7 @@ export function Header({ active, title }: { active: string; title?: string }) {
   return (
     <header className="topbar">
       <a className="logo-link" href={href('')} aria-label={t.nav.home}>
-        <span className="wordmark">{BRAND.name}</span>
+        <span className={`wordmark ${lang === 'ko' ? 'ko' : ''}`}>{t.brand}</span>
       </a>
       {title && <span className="page-title" aria-current="page">{title}</span>}
       <nav className="topnav" aria-label="menu">

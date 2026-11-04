@@ -33,10 +33,10 @@ export interface WorldDef {
 }
 
 export const WORLDS: WorldDef[] = [
-  { id: 'christian', brand: `${BRAND.name} CHRISTIAN`, status: 'open', places: christian, colors: ['#2b3a55', '#c9a45c'], load: () => import('../worlds/christian/World'), learn: () => import('../learn/christian') },
-  { id: 'catholic', brand: `${BRAND.name} CATHOLIC`, status: 'open', places: catholic, colors: ['#3a1f3d', '#d9b35b'], load: () => import('../worlds/catholic/World'), learn: () => import('../learn/catholic') },
-  { id: 'temple', brand: `${BRAND.name} TEMPLE`, status: 'open', places: temple, colors: ['#1f3b33', '#c8553d'], load: () => import('../worlds/temple/World'), learn: () => import('../learn/buddhist') },
-  { id: 'mandir', brand: `${BRAND.name} MANDIR`, status: 'bridge', places: mandir, colors: ['#7a2412', '#f2a33a'], load: () => import('../worlds/mandir/World'), learn: () => import('../learn/hindu') },
+  { id: 'christian', brand: `${BRAND.en} CHRISTIAN`, status: 'open', places: christian, colors: ['#2b3a55', '#c9a45c'], load: () => import('../worlds/christian/World'), learn: () => import('../learn/christian') },
+  { id: 'catholic', brand: `${BRAND.en} CATHOLIC`, status: 'open', places: catholic, colors: ['#3a1f3d', '#d9b35b'], load: () => import('../worlds/catholic/World'), learn: () => import('../learn/catholic') },
+  { id: 'temple', brand: `${BRAND.en} TEMPLE`, status: 'open', places: temple, colors: ['#1f3b33', '#c8553d'], load: () => import('../worlds/temple/World'), learn: () => import('../learn/buddhist') },
+  { id: 'mandir', brand: `${BRAND.en} MANDIR`, status: 'bridge', places: mandir, colors: ['#7a2412', '#f2a33a'], load: () => import('../worlds/mandir/World'), learn: () => import('../learn/hindu') },
 ]
 
 export const worldById = (id: string) => WORLDS.find((w) => w.id === id)

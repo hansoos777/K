@@ -6,7 +6,7 @@ import { blob } from './tex'
  * 방문자 캐릭터: PujaTime의 2등신 신자 캐릭터(pt/devotee.ts)를 그대로 쓴다.
  * 서 있기 / 두 손 모으기 두 모습을 만들어 두고 자세에 따라 바꾼다.
  */
-export type Pose = 'idle' | 'walk' | 'pray' | 'bow'
+export type Pose = 'idle' | 'walk' | 'pray' | 'bow' | 'sit'
 export type AvatarLook = Omit<DevoteeOpts, 'ratio' | 'pose' | 'joined'>
 
 /** 종교별 기본 옷차림 (사용자 캐릭터) */
@@ -61,6 +61,10 @@ export class Avatar {
   private body = new THREE.Group()
   private stand: THREE.Group
   private joined: THREE.Group
+  private seated: THREE.Group
+  private broom: THREE.Group
+  /** 빗자루 들고 쓰는 중 */
+  sweeping = false
   pose: Pose = 'idle'
   private phase = 0
   private bowB = 0
@@ -69,7 +73,24 @@ export class Avatar {
     this.stand = makeDevotee({ ...look, ratio: 2, pose: sit ? 'sit' : 'stand' })
     this.joined = makeDevotee({ ...look, ratio: 2, pose: sit ? 'sit' : 'stand', joined: true })
     this.joined.visible = false
-    this.body.add(this.stand, this.joined)
+    // 앉은 모습(의자·장의자·방석 공통): 두 손을 무릎 위에 모음
+    this.seated = makeDevotee({ ...look, ratio: 2, pose: 'sit', joined: true })
+    this.seated.visible = false
+    this.body.add(this.stand, this.joined, this.seated)
+    // 빗자루 (사찰 마당 쓸기) — 몸 크기와 상관없이 실제 길이로
+    this.broom = new THREE.Group()
+    const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.02, 1.05, 8), new THREE.MeshLambertMaterial({ color: 0x9a7448 }))
+    stick.position.y = 0.52
+    const head = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.38, 12, 1, true), new THREE.MeshLambertMaterial({ color: 0xc9a86a, side: THREE.DoubleSide }))
+    head.position.y = -0.05
+    head.rotation.x = Math.PI
+    const tie = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.012, 6, 12), new THREE.MeshLambertMaterial({ color: 0x7a3a1e }))
+    tie.rotation.x = Math.PI / 2
+    tie.position.y = 0.12
+    this.broom.add(stick, head, tie)
+    this.broom.position.set(0.22, 0.12, 0.34)
+    this.broom.rotation.x = 0.55
+    this.broom.visible = false
     this.body.scale.setScalar(SCALE)
     const shadow = new THREE.Mesh(
       new THREE.PlaneGeometry(0.9, 0.9),
@@ -77,20 +98,30 @@ export class Avatar {
     )
     shadow.rotation.x = -Math.PI / 2
     shadow.position.y = 0.01
-    this.root.add(shadow, this.body)
+    this.root.add(shadow, this.body, this.broom)
   }
 
   update(dt: number, moving: boolean) {
     this.pose = moving ? 'walk' : this.pose === 'walk' ? 'idle' : this.pose
     const hands = this.pose === 'pray' || this.pose === 'bow'
-    this.stand.visible = !hands
-    this.joined.visible = hands
+    const sit = this.pose === 'sit'
+    this.stand.visible = !hands && !sit
+    this.joined.visible = hands && !sit
+    this.seated.visible = sit
+    this.broom.visible = this.sweeping && !sit
+    if (this.sweeping && !sit) {
+      // 쓱쓱: 빗자루를 좌우로 쓸고 몸도 조금 흔들림
+      const k = performance.now() / 1000
+      this.broom.rotation.z = Math.sin(k * 7) * 0.55
+      this.broom.position.x = 0.22 + Math.sin(k * 7) * 0.12
+      this.body.rotation.y = Math.sin(k * 7) * 0.12
+    } else this.body.rotation.y = 0
     this.bowB += ((this.pose === 'bow' ? 1 : 0) - this.bowB) * Math.min(1, dt * 4)
     if (moving) this.phase += dt * 12
     else this.phase *= 0.8
     const s = Math.sin(this.phase)
     // 통통 튀며 좌우로 흔들리는 걸음 (PujaTime 캐릭터와 같은 느낌)
-    this.body.position.y = moving ? Math.abs(s) * 0.06 : Math.sin(performance.now() / 900) * 0.006
+    this.body.position.y = moving ? Math.abs(s) * 0.06 : sit ? 0 : Math.sin(performance.now() / 900) * 0.006
     this.body.rotation.z = moving ? s * 0.07 : 0
     this.body.rotation.x = 0.5 * this.bowB
   }

@@ -1,13 +1,13 @@
 import type { Gesture, SpotInfo, TourStep } from '../../ui/Space'
 interface Pack { gestures: Gesture[]; spots: Record<string, SpotInfo>; tour: TourStep[] }
 const ko: Pack = {
-  gestures: [{ id: 'pray', label: '기도하기', pose: 'pray', note: '눈을 감고 두 손을 모아 기도합니다' }],
+  gestures: [{ id: 'pray', label: '기도하기', pose: 'pray', note: '눈을 감고 두 손을 모아 기도합니다' }, { id: 'sit', label: '자리에 앉기', pose: 'sit', note: '빈 자리에 앉았어요. 움직이면 일어나요.' }],
   spots: {
     entrance: { label: '예배당 입구', text: '예배 중에는 휴대전화를 무음으로 하고 조용히 들어갑니다.' },
     pews: { label: '장의자', text: '예배하는 사람들이 앉는 긴 의자입니다.' },
     pulpit: { label: '강단과 강대상', text: '말씀(설교)을 전하는 곳. 개신교 예배의 중심입니다.' },
     organ: { label: '성가대와 오르간', text: '찬송으로 예배를 돕습니다.', action: 'hymn' },
-    stage: { label: '예배 무대', text: '찬양팀이 예배 음악을 이끄는 곳입니다.', action: 'pad' },
+    stage: { label: '강단', text: '말씀을 전하고 피아노 반주로 찬양하는 낮은 강단입니다.', action: 'pad' },
     table: { label: '기도 탁자', text: '성경과 촛불 앞에서 조용히 기도합니다.', action: 'silent' },
   },
   tour: [
@@ -21,13 +21,13 @@ const ko: Pack = {
   ],
 }
 const en: Pack = {
-  gestures: [{ id: 'pray', label: 'Pray', pose: 'pray', note: 'Eyes closed, hands joined in prayer' }],
+  gestures: [{ id: 'pray', label: 'Pray', pose: 'pray', note: 'Eyes closed, hands joined in prayer' }, { id: 'sit', label: 'Sit down', pose: 'sit', note: 'Seated. Move to stand up.' }],
   spots: {
     entrance: { label: 'Entrance', text: 'Silence your phone and enter quietly during worship.' },
     pews: { label: 'Pews', text: 'Where the congregation sits.' },
     pulpit: { label: 'Pulpit', text: 'Where the sermon is preached — the heart of Protestant worship.' },
     organ: { label: 'Choir and organ', text: 'Hymns lead the worship.', action: 'hymn' },
-    stage: { label: 'Worship stage', text: 'Where the band leads worship.', action: 'pad' },
+    stage: { label: 'Platform', text: 'A low platform for the sermon and songs with piano.', action: 'pad' },
     table: { label: 'Prayer table', text: 'Pray quietly before the Bible and candle.', action: 'silent' },
   },
   tour: [

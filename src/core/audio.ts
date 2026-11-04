@@ -105,6 +105,31 @@ export function jukbi(times = 1) {
   }
 }
 
+/** 빗자루 쓰는 소리: 짧게 쓱 */
+export function sweepSound() {
+  const c = ac()
+  if (!c || !master) return
+  const t = c.currentTime + 0.01
+  const len = Math.floor(c.sampleRate * 0.32)
+  const buf = c.createBuffer(1, len, c.sampleRate)
+  const d = buf.getChannelData(0)
+  for (let j = 0; j < len; j++) {
+    const k = j / len
+    d[j] = (Math.random() * 2 - 1) * Math.sin(k * Math.PI) * 0.6
+  }
+  const src = c.createBufferSource()
+  src.buffer = buf
+  const bp = c.createBiquadFilter()
+  bp.type = 'bandpass'
+  bp.frequency.value = 3200
+  bp.Q.value = 0.7
+  const g = c.createGain()
+  g.gain.value = 0.35
+  src.connect(bp).connect(g).connect(master)
+  src.start(t)
+  track(src)
+}
+
 /** 목탁: 짧고 둥근 나무 소리 */
 export function moktak() {
   const c = ac()
@@ -153,6 +178,12 @@ function organNote(c: AudioContext, n: number, start: number, dur: number, vel =
   })
 }
 
+/** 피아노 느낌: 배음이 빠르게 사라지는 짧은 음 */
+function pianoNote(c: AudioContext, n: number, start: number, dur: number, vel = 0.12) {
+  const f = midi(n)
+  ;[1, 2, 3, 4.01].forEach((h, i) => partial(c, master!, f * h, vel / (1 + i * 1.6), start, dur * (1 - i * 0.18)))
+}
+
 /** 부드러운 패드(현대 예배용) */
 function padNote(c: AudioContext, n: number, start: number, dur: number, vel = 0.05) {
   const g = c.createGain()
@@ -186,7 +217,7 @@ const OLD_100TH: [number, number][] = [
 ]
 const BASS: Record<number, number> = { 67: 55, 66: 50, 64: 52, 62: 55, 69: 54, 71: 55, 72: 57, 74: 55 }
 
-export type Music = 'hymn-organ' | 'worship-pad' | 'cathedral-organ'
+export type Music = 'hymn-organ' | 'worship-pad' | 'worship-piano' | 'cathedral-organ'
 
 /** 음악 재생. 다른 소리는 멈추고 새로 시작. 재생 길이(초)를 돌려줌, 못 틀면 0 */
 export function playMusic(kind: Music): number {
@@ -214,6 +245,17 @@ export function playMusic(kind: Music): number {
       t += 4
     }
     return t - t0 + 0.3
+  }
+  if (kind === 'worship-piano') {
+    // 잔잔한 피아노 펼침화음: I–V–vi–IV (D장조, 흔한 진행이라 저작권 대상 아님)
+    const prog = [[50, 62, 66, 69], [45, 61, 64, 69], [47, 62, 66, 71], [43, 59, 62, 67]]
+    for (let rep = 0; rep < 3; rep++)
+      for (const ch of prog) {
+        pianoNote(c, ch[0], t, 3.2, 0.14)
+        ;[1, 2, 3, 2, 1, 2, 3, 2].forEach((k, i) => pianoNote(c, ch[k], t + i * 0.45, 1.6, 0.08))
+        t += 3.6
+      }
+    return t - t0 + 1
   }
   // 현대 예배 패드: I–V–vi–IV (D장조, 흔한 진행이라 저작권 대상 아님)
   const prog = [[62, 66, 69], [57, 61, 64], [59, 62, 66], [55, 59, 62]]

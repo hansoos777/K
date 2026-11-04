@@ -711,3 +711,5 @@ input[type='range'], .toggle input { accent-color: var(--text); }
   .faiths a span:not(.arrow) { grid-column: 1; }
   .faiths .arrow { grid-row: 1 / span 2; grid-column: 2; align-self: center; }
 }
+.wordmark.ko { letter-spacing: .12em; font-weight: 600; }
+.gesture.on { background: var(--accent); color: #17130a; }

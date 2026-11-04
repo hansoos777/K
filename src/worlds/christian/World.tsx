@@ -84,14 +84,14 @@ export default function ChristianWorld({ place, tour }: WorldProps) {
   const g = useLocal(TOUR)
   const c = useT()
   const apiRef = useRef<SceneApi | null>(null)
-  const music = (k: 'hymn-organ' | 'worship-pad', label: string) => () => (toggleMusic(k) ? label : getState().sound ? undefined : c.soundOff)
+  const music = (k: 'hymn-organ' | 'worship-piano', label: string) => () => (toggleMusic(k) ? label : getState().sound ? undefined : c.soundOff)
   const scene = (p: string): PlaceScene => {
     if (p === 'modern')
       return {
         build: buildModern,
         intro: t.intro.modern,
         actions: [
-          { id: 'pad', label: t.worshipPad, icon: 'music', run: music('worship-pad', t.worshipPad) },
+          { id: 'pad', label: t.worshipPad, icon: 'music', run: music('worship-piano', t.worshipPad) },
           { id: 'modern', label: t.modernTitle, icon: 'info', panel: <ul>{t.modernList.map((o) => <li key={o}>{o}</li>)}</ul> },
           {
             id: 'diff', label: t.diffTitle, icon: 'book', panel: (

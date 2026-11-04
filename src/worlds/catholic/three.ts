@@ -342,6 +342,7 @@ export function buildParish(ctx: BuildCtx): Built {
       p.position.set(x, 0, z)
       scene.add(p)
     }
+  for (let z = Z0 + 6.5; z <= Z1 - 3; z += 2.2) for (const x of [-1.6, 1.6, -3.2, 3.2]) ctx.seat(x, z - 0.05, 0.36, Math.PI)
   ctx.block({ x0: -4.4, z0: Z0 + 6.1, x1: -0.8, z1: Z1 - 2.5 })
   ctx.block({ x0: 0.8, z0: Z0 + 6.1, x1: 4.4, z1: Z1 - 2.5 })
   // 14처

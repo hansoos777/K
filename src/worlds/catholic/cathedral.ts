@@ -193,7 +193,7 @@ export function buildCathedral(ctx: BuildCtx): Built {
   maryGlow.position.set(-W / 2 + 0.6, 3.3, -4)
   maryGlow.rotation.y = Math.PI / 2
   scene.add(maryGlow)
-  ctx.block({ x0: -W / 2, z0: -5, x1: -W / 2 + 2.6, z1: -3 })
+  ctx.block({ x0: -W / 2, z0: -5, x1: -W / 2 + 2.4, z1: -3 })
   // 예수 성심상 (오른쪽 측랑 앞, 성모 제대와 마주 봄) — 제대 중심은 십자고상, 성심상은 측면에
   // 실사 석고상 사진(public/statues/sacredheart.png)이 있을 때만 받침과 함께 나타남
   const heartChapel = new THREE.Group()
@@ -216,28 +216,34 @@ export function buildCathedral(ctx: BuildCtx): Built {
   am.position.set(-3.4, 0.6, sZ + 2.4)
   am.rotation.y = 0.35
   scene.add(am)
-  // 봉헌초 받침 (켤 수 있음)
-  const rackX = -W / 2 + 2.2, rackZ = -0.6
-  const iron = std('#2a2420')
-  for (let r = 0; r < 3; r++) scene.add(box(0.5, 0.04, 2.6, iron, rackX - r * 0.2, 0.8 + r * 0.16, rackZ))
+  // 봉헌초 받침: 성모 제대 옆 벽 쪽, 기둥과 기둥 사이(z -8.5)라 신랑 쪽에서 보면 가리지 않음
+  const rackX = -W / 2 + 0.95, rackZ = -8.5
+  const rack = new THREE.Group()
+  const iron = brass(env, 0x8a7050)
+  for (let r = 0; r < 3; r++) rack.add(box(0.5, 0.04, 2.6, iron, rackX - r * 0.2, 0.8 + r * 0.16, rackZ))
+  rack.add(box(0.06, 0.8, 0.06, iron, rackX, 0, rackZ - 1.2), box(0.06, 0.8, 0.06, iron, rackX, 0, rackZ + 1.2))
+  scene.add(rack)
   const votives: Flame[] = []
   for (let i = 0; i < 24; i++) {
     const r = Math.floor(i / 8), k = i % 8
     const x = rackX - r * 0.2, y = 0.84 + r * 0.16, z = rackZ - 1.1 + k * 0.31
-    scene.add(cyl(0.05, 0.05, 0.1, std('#c8352a', { emissive: '#3a0a06' }), x, y, z, 8))
-    const f = new Flame(ft, gt, 0.12)
+    rack.add(cyl(0.05, 0.05, 0.1, std('#c8352a', { emissive: '#3a0a06' }), x, y, z, 8))
+    const f = new Flame(ft, gt, 0.14)
     f.group.position.set(x, y + 0.1, z)
     f.group.visible = i < 9
     scene.add(f.group)
     votives.push(f)
   }
-  ctx.block({ x0: -W / 2, z0: rackZ - 1.5, x1: rackX + 0.4, z1: rackZ + 1.5 })
+  ctx.block({ x0: rackX - 0.7, z0: rackZ - 1.4, x1: rackX + 0.35, z1: rackZ + 1.4 })
   let lit = 9
   const lightCandle = () => {
     if (lit < votives.length) votives[lit++].group.visible = true
     update((s) => ({ candles: s.candles + 1 }))
   }
-  ctx.tap(votives[0].group.parent!, lightCandle)
+  // 받침 앞 측랑 자리(기둥 사이)에서 받침을 바라보고 켬
+  const vX = rackX + 1.4, vZ = rackZ
+  const goLight = () => ctx.walkTo(vX, vZ, () => { ctx.face(rackX, rackZ); lightCandle(); ctx.pose('pray') })
+  ctx.tap(rack, goLight)
 
   // 신랑에 매단 금빛 등
   for (let z = Z0 + 10; z < Z1 - 2; z += 7) {
@@ -262,8 +268,9 @@ export function buildCathedral(ctx: BuildCtx): Built {
       p.position.set(side * 3.2, 0, z)
       scene.add(p)
       for (let k = 0; k < 3; k++) {
-        if ((r * 3 + k + (side > 0 ? 1 : 0)) % 4 === 0 || r > 11) continue
-        people.push({ x: side * (1.9 + k * 1.2), z: z - 0.05, y: 0.36, yaw: Math.PI, look: visitorLook('catholic', pi++), joined: pi % 3 === 0 })
+        const x = side * (1.9 + k * 1.2)
+        if ((r * 3 + k + (side > 0 ? 1 : 0)) % 4 === 0 || r > 11) { ctx.seat(x, z - 0.05, 0.36, Math.PI); continue }
+        people.push({ x, z: z - 0.05, y: 0.36, yaw: Math.PI, look: visitorLook('catholic', pi++), joined: pi % 3 === 0 })
       }
     }
   ctx.crowd(people)
@@ -288,7 +295,7 @@ export function buildCathedral(ctx: BuildCtx): Built {
   ctx.spot('font', 0, Z1 - 3, 1.8)
   ctx.spot('nave', 0, -6, 1.8)
   ctx.spot('altar', 0, sZ + 5.6, 2.2)
-  ctx.spot('votive', rackX + 1.4, rackZ, 1.6)
+  ctx.spot('votive', vX, vZ, 1.4)
   ctx.spot('station', W / 2 - 1.6, sZ + 9, 1.6)
   ctx.spot('heart', W / 2 - 3.4, -4, 1.6)
   ctx.spot('mary', -W / 2 + 3.4, -4.8, 1.4)
@@ -305,7 +312,7 @@ export function buildCathedral(ctx: BuildCtx): Built {
     lookY: 2.4,
     camBox: { min: [-W / 2 + 0.5, 0.6, Z0 + 1], max: [W / 2 - 0.5, 18, Z1 - 0.4] },
     api: {
-      candle: () => ctx.walkTo(rackX + 1.4, rackZ, () => { lightCandle(); ctx.pose('pray') }),
+      candle: goLight,
       bell: () => bell('church'),
       kneel: () => ctx.walkTo(0, sZ + 5.6, () => ctx.pose('bow')),
     },

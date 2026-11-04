@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { BRAND } from './brand'
 import { go, useRoute } from './core/router'
 import { effectiveQuality, useStore } from './core/store'
 import { useT } from './i18n'
@@ -41,7 +40,7 @@ export default function App() {
   const menu = page === 'explore' || page === 'spaces' || page === 'mine' || page === 'me' ? page : 'home'
   const title = menu === 'home' ? undefined : t.nav[menu]
   useEffect(() => {
-    document.title = page === 'w' && id ? `${t.worlds[id as keyof typeof t.worlds]?.name ?? ''} · ${BRAND.name}` : title ? `${title} · ${BRAND.name}` : `${BRAND.name} ${t.brandLocal}`
+    document.title = page === 'w' && id ? `${t.worlds[id as keyof typeof t.worlds]?.name ?? ''} · ${t.brand}` : title ? `${title} · ${t.brand}` : `${t.brand} · ${t.tagline}`
   }, [page, id, t, title])
 
   // #me#finder 처럼 화면 안 위치로 바로 이동

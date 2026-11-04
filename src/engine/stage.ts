@@ -30,7 +30,7 @@ export interface BuildCtx {
   /** 실시간 점광원은 개수를 제한 (고급 모드 6개, 절약 모드 2개) */
   pointLight(color: string, intensity: number, distance: number, pos: [number, number, number]): THREE.PointLight | null
   /** 아바타 자세 (기도할 때 합장) */
-  pose(p: 'idle' | 'pray' | 'bow'): void
+  pose(p: 'idle' | 'pray' | 'bow' | 'sit'): void
   /** 아바타를 걸어가게 함 */
   walkTo(x: number, z: number, then?: () => void): void
   /** 화면에 짧은 안내 문구 */
@@ -39,6 +39,14 @@ export interface BuildCtx {
   spot(id: string, x: number, z: number, r?: number): void
   /** 공간을 함께 채우는 방문객 (실제 사용자가 아님 · 장식용) */
   npc(x: number, z: number, yaw: number, look: AvatarLook, pose?: 'idle' | 'pray' | 'bow'): void
+  /** 앉을 수 있는 자리 (장의자 빈 자리·의자·방석). y는 앉은 높이, yaw는 바라보는 방향 */
+  seat(x: number, z: number, y: number, yaw: number): void
+  /** 캐릭터를 (x, z) 쪽으로 돌리고 카메라도 그 뒤로 (가리지 않게 보기) */
+  face(x: number, z: number): void
+  /** 지금 캐릭터 위치 (바닥 기준) */
+  me(): THREE.Vector3
+  /** 빗자루로 쓰는 중인지 */
+  isSweeping(): boolean
   /** 앉아 있는 많은 사람 (PujaTime 사원 홀처럼 종류별로 합쳐 인스턴스로 그림). bow가 있으면 가끔 절함 */
   crowd(people: { x: number; z: number; y?: number; yaw: number; look: AvatarLook; joined?: boolean; bows?: boolean }[], scale?: number): void
 }
@@ -79,6 +87,8 @@ export class Stage {
   private taps: { o: THREE.Object3D; fn: () => void; approach?: [number, number] }[] = []
   private updaters: ((t: number, dt: number) => void)[] = []
   private spots: { id: string; x: number; z: number; r: number }[] = []
+  private seats: { x: number; z: number; y: number; yaw: number; taken?: boolean }[] = []
+  private seatedAt: { x: number; z: number; y: number; yaw: number; from: THREE.Vector3 } | null = null
   private curSpot: string | null = null
   private npcs: Avatar[] = []
   private stick = new THREE.Vector2()
@@ -154,6 +164,10 @@ export class Stage {
         this.npcs.push(a)
         this.blocks.push({ x0: x - 0.3, z0: z - 0.3, x1: x + 0.3, z1: z + 0.3 })
       },
+      seat: (x, z, y, yaw) => this.seats.push({ x, z, y, yaw }),
+      face: (x, z) => this.face(x, z),
+      me: () => this.avatar.root.position,
+      isSweeping: () => this.avatar.sweeping,
       crowd: (people, scale = 0.55) => {
         if (photo) return
         const groups = new Map<string, typeof people>()
@@ -241,6 +255,7 @@ export class Stage {
 
   /** 아바타를 그 자리로 걸어가게 함 */
   walkTo(x: number, z: number, then?: () => void) {
+    this.standUp()
     this.avatar.pose = 'idle'
     const a = this.avatar.root.position
     this.path = this.findPath(a.x, a.z, x, z)
@@ -255,10 +270,58 @@ export class Stage {
     this.showMarker(last.x, last.y)
   }
 
-  setPose(p: 'idle' | 'pray' | 'bow') {
+  setPose(p: 'idle' | 'pray' | 'bow' | 'sit') {
+    if (p === 'sit') {
+      this.sitNearest()
+      return
+    }
     this.target = null
     this.path = []
-    this.avatar.pose = p
+    if (this.seatedAt && p === 'idle') this.standUp()
+    this.avatar.pose = this.seatedAt ? 'sit' : p
+  }
+
+  /** 가장 가까운 빈 자리로 걸어가 앉음. 자리가 없으면 false */
+  sitNearest() {
+    const a = this.avatar.root.position
+    const free = this.seats.filter((s) => !s.taken)
+    if (!free.length) return false
+    const s = free.reduce((b, c) => (Math.hypot(c.x - a.x, c.z - a.z) < Math.hypot(b.x - a.x, b.z - a.z) ? c : b))
+    this.walkTo(s.x, s.z, () => {
+      const from = this.avatar.root.position.clone()
+      this.seatedAt = { ...s, from }
+      this.avatar.root.position.set(s.x, s.y, s.z)
+      this.avatar.root.rotation.y = s.yaw
+      this.yaw = s.yaw + Math.PI
+      this.avatar.pose = 'sit'
+    })
+    return true
+  }
+
+  /** 앉아 있으면 일어나 원래 서 있던 곳으로 */
+  standUp() {
+    if (!this.seatedAt) return
+    this.avatar.root.position.copy(this.seatedAt.from)
+    this.avatar.root.position.y = 0
+    this.seatedAt = null
+    this.avatar.pose = 'idle'
+  }
+
+  /** 캐릭터가 (x, z)를 바라보게 하고 카메라는 그 뒤에서 */
+  face(x: number, z: number) {
+    const a = this.avatar.root.position
+    this.avatar.root.rotation.y = Math.atan2(x - a.x, z - a.z)
+    this.yaw = Math.atan2(a.x - x, a.z - z)
+  }
+
+  /** 빗자루 들기/내려놓기 */
+  setSweep(on: boolean) {
+    this.standUp()
+    this.avatar.sweeping = on
+  }
+
+  get sweeping() {
+    return this.avatar.sweeping
   }
 
   /** 조이스틱 값 (-1..1). 위로 밀면 y가 -1 */
@@ -440,6 +503,7 @@ export class Stage {
       speedK = Math.min(1, this.stick.length())
     }
     if (kx || kz) {
+      this.standUp()
       this.target = null
       this.path = []
       if (this.avatar.pose !== 'walk') this.avatar.pose = 'idle'
@@ -485,7 +549,8 @@ export class Stage {
         a.rotation.y += diff * Math.min(1, dt * 10)
       }
     }
-    this.avatar.update(dt, moving)
+    if (this.avatar.pose === 'walk' && this.seatedAt) this.avatar.pose = 'sit'
+    this.avatar.update(dt, moving && !this.seatedAt)
     for (const n of this.npcs) n.update(dt, false)
 
     // 안내 지점 들어감/나옴
@@ -507,7 +572,7 @@ export class Stage {
     }
 
     // 3인칭 카메라: 아바타 뒤에서 따라감
-    const head = new THREE.Vector3(a.position.x, 1.0, a.position.z)
+    const head = new THREE.Vector3(a.position.x, 1.0 + (this.seatedAt ? this.seatedAt.y - 0.5 : 0), a.position.z)
     const off = new THREE.Vector3(
       Math.sin(this.yaw) * Math.cos(this.pitch),
       Math.sin(this.pitch),
