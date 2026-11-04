@@ -1,0 +1,41 @@
+# 자동 배포: 이 브랜치(또는 main)에 올리면 GitHub이 빌드해서 Cloudflare Pages(oruvia)에 올린다.
+# 한 번만 설정: GitHub 저장소 → Settings → Secrets and variables → Actions 에
+#   CLOUDFLARE_API_TOKEN  (Cloudflare → My Profile → API Tokens → 권한: Account · Cloudflare Pages · Edit)
+#   CLOUDFLARE_ACCOUNT_ID (Cloudflare 대시보드 오른쪽 아래 Account ID)
+# 비밀값은 코드에 넣지 않는다. PujaTime 프로젝트는 건드리지 않는다.
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main, claude/puja-time-code-review-19b93m]
+  workflow_dispatch:
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            modules/pujatime/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
+        working-directory: modules/pujatime
+      - run: npm run build
+      - name: Upload to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name oruvia --branch main --commit-dirty=true
