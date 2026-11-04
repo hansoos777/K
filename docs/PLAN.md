@@ -185,7 +185,7 @@ src/
 ## 사용자 결정이 필요한 것
 
 1. PujaTime 소스를 이 저장소로 가져올지(또는 PujaTime용 저장소를 따로 만들지)
-2. 도메인(예: oruvia.com 등) 구입 여부, Cloudflare Pages 프로젝트 이름
+2. 도메인(현재 mideobogga.pages.dev) 구입 여부, Cloudflare Pages 프로젝트 이름
 3. 로그인 방식(Google·Kakao·Apple 중 무엇을 먼저)
 4. 종교별 콘텐츠 검토자
 

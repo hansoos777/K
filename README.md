@@ -39,7 +39,7 @@ npm run preview   # 빌드 결과 미리보기
 
 ```bash
 npm run build
-npx wrangler pages deploy dist --project-name oruvia --branch main
+npx wrangler pages deploy dist --project-name mideobogga --branch main
 ```
 
 `public/_headers`에 캐시 정책과 보안 헤더가 있습니다.
