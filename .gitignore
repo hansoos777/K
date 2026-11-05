@@ -4,3 +4,6 @@ dist
 .wrangler
 modules/pujatime/node_modules
 scripts/statues/source
+
+# 앱인토스 번들
+*.ait
