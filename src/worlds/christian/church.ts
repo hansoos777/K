@@ -72,7 +72,7 @@ const wainscot = () =>
  */
 export function buildChurch(ctx: BuildCtx): Built {
   const { scene, high } = ctx
-  const W = 32, Z0 = -34, Z1 = 40, H = 22
+  const W = 31, Z0 = -34, Z1 = 26, H = 22
   const GAL = 4.2 // 갤러리 깊이
   const GY = 5.4 // 갤러리 바닥 높이
   const env = brassEnv()

@@ -248,7 +248,7 @@ export function buildParish(ctx: BuildCtx): Built {
   const { scene } = ctx
   scene.background = new THREE.Color('#1a1512')
   scene.fog = new THREE.Fog('#1a1512', 30, 60)
-  const W = 16, Z0 = -18, Z1 = 22
+  const W = 14, Z0 = -18, Z1 = 13
   const L = Z1 - Z0
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, L), std('#aaa', { map: marble('#d8d0c2', '#a89c86', [4, 8]), roughness: 0.4 }))
   floor.rotation.x = -Math.PI / 2

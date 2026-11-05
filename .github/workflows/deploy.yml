@@ -1,4 +1,4 @@
-# 자동 배포: 이 브랜치(또는 main)에 올리면 GitHub이 빌드해서 Cloudflare Pages(oruvia)에 올린다.
+# 자동 배포: 이 브랜치(또는 main)에 올리면 GitHub이 빌드해서 Cloudflare Pages(mideobogga)에 올린다.
 # 한 번만 설정: GitHub 저장소 → Settings → Secrets and variables → Actions 에
 #   CLOUDFLARE_API_TOKEN  (Cloudflare → My Profile → API Tokens → 권한: Account · Cloudflare Pages · Edit)
 #   CLOUDFLARE_ACCOUNT_ID (Cloudflare 대시보드 오른쪽 아래 Account ID)

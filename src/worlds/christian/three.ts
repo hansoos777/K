@@ -135,7 +135,7 @@ export function buildTraditional(ctx: BuildCtx): Built {
 /** 현대 교회: 밝은 자연광, 참나무, 천창 빛이 떨어지는 나무 십자가, 곡선 의자, 피아노와 낮은 강단 (공연장 느낌 없이) */
 export function buildModern(ctx: BuildCtx): Built {
   const { scene, high } = ctx
-  const W = 28, Z0 = -22, Z1 = 28, H = 15
+  const W = 26, Z0 = -22, Z1 = 22, H = 14
   scene.background = new THREE.Color('#e8e4dc')
   scene.fog = new THREE.Fog('#efe9df', 40, 90)
   scene.add(new THREE.HemisphereLight(0xffffff, 0xb8a890, 2.6))
@@ -230,7 +230,7 @@ export function buildModern(ctx: BuildCtx): Built {
   const people: Parameters<BuildCtx['crowd']>[0] = []
   let pi = 0
   const x0 = 1.0, x1 = W / 2 - 1.6, len = x1 - x0
-  for (let r = 0; r < 17; r++) {
+  for (let r = 0; r < 15; r++) {
     const z = pZ + 5 + r * 1.45
     for (const side of [-1, 1]) {
       const xc = side * (x0 + len / 2)
@@ -248,7 +248,7 @@ export function buildModern(ctx: BuildCtx): Built {
       ctx.block({ x0: xc - len / 2 - 0.05, z0: z - 0.3, x1: xc + len / 2 + 0.05, z1: z + 0.3 })
       for (let k = 0; k < 10; k++) {
         const x = side * (x0 + 0.4 + k * ((len - 0.8) / 9))
-        if ((r * 7 + k + (side > 0 ? 3 : 0)) % 4 !== 0 && r < 16) people.push({ x, z: z - 0.03, y: 0.45, yaw: Math.PI, look: visitorLook('christian', pi++) })
+        if ((r * 7 + k + (side > 0 ? 3 : 0)) % 4 !== 0 && r < 14) people.push({ x, z: z - 0.03, y: 0.45, yaw: Math.PI, look: visitorLook('christian', pi++) })
         else ctx.seat(x, z - 0.03, 0.45, Math.PI)
       }
     }

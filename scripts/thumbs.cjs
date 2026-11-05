@@ -17,7 +17,7 @@ const places = process.argv.slice(2).length ? process.argv.slice(2) : [
     await p.waitForSelector('.stage-canvas', { timeout: 20000 })
     await p.addStyleTag({ content: '.hud-top,.hud-places,.hud-dock,.hud-hint,.sheet,.space-loading,.tour,.spot,.gestures,.joystick{display:none!important}' })
     await p.waitForTimeout(2500)
-    const png = `/tmp/oruvia-thumb.png`
+    const png = `/tmp/site-thumb.png`
     await p.screenshot({ path: png })
     execFileSync('python3', ['-c', `
 from PIL import Image

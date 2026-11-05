@@ -46,7 +46,7 @@ const floorTexture = () =>
 /** 고딕 대성당 (PujaTime 사원 홀과 같은 방식: 밝은 재질 색 + 빛 번짐 + 금장식 + 앉아 있는 신자들) */
 export function buildCathedral(ctx: BuildCtx): Built {
   const { scene, high } = ctx
-  const W = 22, Z0 = -34, Z1 = 34, NAVE = 15
+  const W = 23, Z0 = -34, Z1 = 23, NAVE = 14
   const env = brassEnv()
   const gold = brass(env)
   const marble = marbleEnv()
