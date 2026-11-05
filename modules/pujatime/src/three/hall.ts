@@ -566,7 +566,7 @@ export class HallWorld {
     this.camGoal.z = THREE.MathUtils.clamp(this.camGoal.z, Z_BACK + 1.5, Z_FRONT - 1.2)
     this.camera.position.lerp(this.camGoal, k)
     const look = focus.clone().add(new THREE.Vector3(-Math.sin(this.yaw), 0, -Math.cos(this.yaw)).multiplyScalar(2.2))
-    look.y += 5.4 // 믿어보까: 높은 천장이 보이도록 더 위쪽을 봄
+    look.y += 2.4 // 믿어보까: 높은 천장이 보이도록 더 위쪽을 봄
     this.camLook.lerp(look, k)
     this.camera.lookAt(this.camLook)
   }
