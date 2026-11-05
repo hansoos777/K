@@ -30,6 +30,8 @@ const TABS: { id: Tab; key: 'shrine' | 'mandir' | 'soon'; icon: string }[] = [
 export function App() {
   const shrine = useShrine()
   const t = useT()
+  // 믿어보까 토스 앱 버전: 토스 상단 바가 뒤로가기를 맡으므로 '나가기' 버튼을 숨김
+  if (new URLSearchParams(location.search).get('toss') === '1') document.documentElement.dataset.toss = '1'
   // 믿어보까에서 ?tab=mandir 로 열면 사원 탭부터 보여 줌
   const [tab, setTab] = useState<Tab>(() => (new URLSearchParams(location.search).get('tab') === 'mandir' ? 'mandir' : 'home'))
   const [puja, setPuja] = useState<DeityId | null>(null)

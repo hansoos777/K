@@ -333,3 +333,6 @@ ul { margin: 6px 0; padding-left: 20px; }
 .puja-text:has(.song-pick) .link { min-height: 32px; padding: 4px 8px; }
 .puja .flowers button { min-height: 58px; }
 .puja .flowers svg { width: 34px; height: 34px; }
+
+/* 믿어보까 토스 앱 버전: 토스 상단 바와 겹치는 '나가기' 숨김 */
+[data-toss='1'] .exit-btn { display: none !important; }

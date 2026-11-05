@@ -32,7 +32,9 @@ export default function MandirWorld({ place, tour }: WorldProps) {
     update((s) => ({ tutorials: s.tutorials.includes('mandir/mandir') ? s.tutorials : [...s.tutorials, 'mandir/mandir'] }))
     setStep(null)
   }
-  const src = `/hindu/${cur.id === 'mandir' ? '?tab=mandir' : ''}`
+  const toss = import.meta.env.MODE === 'toss'
+  const q = [cur.id === 'mandir' ? 'tab=mandir' : '', toss ? 'toss=1' : ''].filter(Boolean).join('&')
+  const src = `/hindu/${q ? `?${q}` : ''}`
   const s = step != null && step >= 0 ? steps[step] : null
 
   return (

@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "size": "node scripts/size-report.mjs",
     "build:web": "tsc --noEmit && vite build",
-    "build:toss": "npm run build && ait build",
+    "build:toss": "tsc --noEmit && vite build --mode toss && node scripts/build-hindu.mjs && ait build",
     "deploy:toss": "ait deploy"
   },
   "dependencies": {

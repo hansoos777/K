@@ -1409,3 +1409,12 @@ h1, h2, h3, legend, .sec-title, .wordmark { font-family: var(--serif); font-weig
 @media (max-width: 620px) { .like5 { grid-template-columns: 1fr 1fr; } .like5 li:nth-child(3) { display: none; } }
 .space .ask .btn:not(.btn-primary), .space .end-card .btn:not(.btn-primary), .space .spot .btn:not(.btn-primary) { color: #fff; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .35); }
 .space .ask { top: calc(max(12px, env(safe-area-inset-top)) + 100px); bottom: auto; }
+
+/* 토스 앱 버전: 토스 상단 바(뒤로가기·제목)와 겹치지 않게 우리 헤더·뒤로가기 버튼을 숨김 */
+[data-toss='1'] .topbar,
+[data-toss='1'] .back-link,
+[data-toss='1'] .hud-top > a.glass-btn,
+[data-toss='1'] .embed-bar > a.glass-btn,
+[data-toss='1'] .faith-switch > button:first-child { display: none !important; }
+[data-toss='1'] .page > * { padding-top: 12px !important; }
+[data-toss='1'] .rel-tabs, [data-toss='1'] .tabs { top: 0 !important; }
