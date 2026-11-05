@@ -105,8 +105,13 @@ function SpaceDetail({ world, place }: { world: string; place: string }) {
 
 /** ③ 탐험: 큰 사진 아래 모든 공간을 한 줄씩. 종교 탭은 거르기. #/spaces/<종교>/<공간>은 입장 전 소개 */
 export default function Spaces({ id, place }: { id?: string; place?: string }) {
+  // 목록과 소개 화면은 훅 순서가 달라서 서로 다른 컴포넌트로 나눠 그린다(같은 컴포넌트에서 바뀌면 빈 화면이 됨)
+  if (id && place) return <SpaceDetail key={`${id}/${place}`} world={id} place={place} />
+  return <SpaceList id={id} />
+}
+
+function SpaceList({ id }: { id?: string }) {
   const t = useT()
-  if (id && place) return <SpaceDetail world={id} place={place} />
   const interests = useStore((s) => s.interests)
   const order = [...WORLDS].sort((a, b) => Number(interests.includes(b.id)) - Number(interests.includes(a.id)))
   const cur = WORLDS.find((w) => w.id === id)
