@@ -25,15 +25,15 @@ export function SpaceRow({ world, place }: { world: string; place: string }) {
   }
   return (
     <li className="space-row">
-      <a className="sr-img" href={href(`spaces/${w.id}/${p.id}`)} aria-label={`${name} · ${t.sx.about}`}>
+      <span className="sr-img">
         <img src={`/photos/${w.id}_${p.id}.webp`} alt="" loading="lazy" width="320" height="220" />
-      </a>
-      <a className="sr-body" href={href(`spaces/${w.id}/${p.id}`)}>
+      </span>
+      <span className="sr-body">
         <strong>{name}</strong>
         <small>{t.worlds[w.id].name} · {t.sp.cat[w.id]}</small>
         {p.desc && <span>{lang === 'en' ? p.desc.en : p.desc.ko}</span>}
         <small className="sr-min">{t.sx.minutes(MINUTES[`${w.id}/${p.id}`] ?? 5)}</small>
-      </a>
+      </span>
       <a className="pill" href={href(`w/${w.id}/${p.id}`)}>{t.sp.enter}<Icon name="chev" size={14} /></a>
     </li>
   )
