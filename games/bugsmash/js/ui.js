@@ -46,7 +46,7 @@ export const MARKUP = `
       </button>
       <button class="mode" data-mode="challenge" type="button">
         <span class="mt" id="t-chal"></span>
-        <span class="mx"><b>60초 도전</b><small>도망가기 전에 잡아요 · 최고 <em id="m-best">0</em>점</small></span>
+        <span class="mx"><b>60초 도전</b><small>도망가기 전에 잡아요 · 최고 <em id="m-best">0</em></small></span>
       </button>
       <button class="mode" data-mode="course" type="button">
         <span class="mt" id="t-course"></span>
@@ -62,6 +62,15 @@ export const MARKUP = `
         <button type="button" data-v="3"><span class="st"></span>리얼</button>
       </div>
       <p id="style-desc" class="desc"></p>
+    </div>
+    <div class="field">
+      <div class="label">난이도</div>
+      <div class="seg flat" id="seg-diff" role="group" aria-label="난이도">
+        <button type="button" data-v="1">하</button>
+        <button type="button" data-v="2">중</button>
+        <button type="button" data-v="3">상</button>
+      </div>
+      <p id="diff-desc" class="desc"></p>
     </div>
     <div class="field">
       <div class="label">바닥</div>

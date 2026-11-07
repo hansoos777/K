@@ -1,5 +1,5 @@
 // 오프라인용 서비스 워커: 게임 파일은 미리 담아 두고, 글꼴은 처음 받을 때 담아 둔다.
-const VERSION = 'bugsmash-v1'
+const VERSION = 'bugsmash-v2'
 const SHELL = [
   './', './index.html', './style.css', './manifest.webmanifest',
   './js/main.js', './js/state.js', './js/util.js', './js/audio.js', './js/fx.js', './js/art.js',

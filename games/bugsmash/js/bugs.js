@@ -1,7 +1,7 @@
 // 벌레 행동: 종류마다 움직이는 방식이 다르다.
 // 바퀴벌레는 벽을 따라 달리다 멈추고, 모기는 사람 쪽으로 다가오고, 파리는 앉았다 튀고,
 // 개미는 줄지어 걷고, 거미는 가만히 있다 갑자기 달리고 천장에서 내려오며, 지네는 마디가 물결친다.
-import { G } from './state.js'
+import { G, diff } from './state.js'
 import { TAU, R, RI, pick, clamp, lerp, angDiff } from './util.js'
 import { drawBug, palette } from './art.js'
 import * as FX from './fx.js'
@@ -37,11 +37,12 @@ export class Bug {
     this.style = opts.style || G.style
     this.x = x; this.y = y; this.a = a; this.ta = a
     this.len = clamp(G.U * sp.len[0], sp.len[1], sp.len[2]) * R(0.88, 1.12)
-    this.base = sp.speed[this.style - 1] * G.U * R(0.85, 1.15) * (opts.speedMul || 1)
+    const D = diff()
+    this.base = sp.speed[this.style - 1] * G.U * R(0.85, 1.15) * (opts.speedMul || 1) * D.speed
     this.v = 0; this.vt = this.base
     this.turn = type === 'roach' ? 9 : type === 'fly' ? 14 : type === 'centipede' ? 3.2 : 6
     this.hp = sp.hp
-    this.pad = Math.max(14, this.len * sp.hitK)
+    this.pad = Math.max(14 * D.pad, this.len * sp.hitK * D.pad)
     this.z = sp.flyer ? 1 : 0
     this.t = R(10); this.phase = R(TAU); this.gait = 0
     this.state = 'alive'
@@ -53,7 +54,7 @@ export class Bug {
     this.rnd = Array.from({ length: 16 }, () => Math.random())
     this.fed = type === 'mosquito' && Math.random() < 0.35
     this.groom = false
-    this.life = opts.life || Infinity
+    this.life = opts.life ? opts.life * D.life : Infinity
     this.leaving = false; this.exit = null
     this.zapCd = 0
     this.inside = false
@@ -61,7 +62,7 @@ export class Bug {
       const n = 16, s = this.len / n
       this.segs = []
       for (let i = 1; i <= n; i++) this.segs.push({ x: x - Math.cos(a) * s * i, y: y - Math.sin(a) * s * i })
-      this.pad = Math.max(14, s * 1.4)
+      this.pad = Math.max(14 * D.pad, s * 1.4 * D.pad)
     }
     if (opts.dangle) {
       this.mode = 'dangle'; this.a = Math.PI / 2; this.ta = this.a
@@ -78,6 +79,22 @@ export class Bug {
     return p
   }
   /** 무기 범위(원 또는 돌아간 사각형)에 닿았나 */
+  /** 무기 중심에서 몸통까지 거리(사각형 무기는 몸통 중심이 사각형 안이면 0) */
+  coreDist(h) {
+    let best = Infinity
+    for (const [x, y] of this.points()) {
+      let d
+      if (h.w) {
+        const dx = x - h.x, dy = y - h.y, ca = Math.cos(-h.a), sa = Math.sin(-h.a)
+        const lx = Math.abs(dx * ca - dy * sa) - h.w / 2, ly = Math.abs(dx * sa + dy * ca) - h.h / 2
+        d = Math.hypot(Math.max(0, lx), Math.max(0, ly))
+      } else d = Math.hypot(x - h.x, y - h.y)
+      if (d < best) best = d
+    }
+    return best
+  }
+  /** 상 난이도: 이만큼 가까이 맞아야 제대로 맞은 것 */
+  coreR() { return this.type === 'centipede' ? Math.max(10, (this.len / this.segs.length) * 1.2) : Math.max(10, this.len * 0.3) }
   inShape(h) {
     for (const [x, y, pad] of this.points()) {
       if (h.w) {
@@ -106,7 +123,7 @@ export class Bug {
   warn(x, y) {
     if (this.state !== 'alive' || this.mode === 'dangle') return
     const p = { mosquito: [0.08, 0.16, 0.24], fly: [0.18, 0.32, 0.45], spider: [0, 0.08, 0.15], roach: [0, 0.05, 0.1] }[this.type]
-    if (!p || Math.random() > p[this.style - 1] * (this.injured ? 0.3 : 1)) return
+    if (!p || Math.random() > p[this.style - 1] * diff().dodge * (this.injured ? 0.3 : 1)) return
     const away = Math.atan2(this.y - y, this.x - x) + R(-0.4, 0.4)
     this.a = away; this.ta = away
     this.v = this.base * (this.spec.flyer ? 5 : 3.5)
@@ -312,7 +329,8 @@ export class Bug {
     this.injured = true; this.slow = 0.55
     FX.splat(this.x, this.y, { color: this.goo(), size: this.len * 0.18, style: this.style, type: this.type })
     sfx.crunch(this.x, 3, 0.35)
-    if (this.style > 1 && Math.random() < 0.6) FX.pop(pick(['아직 살아있다!', '버텼다!', '질기다…']), this.x, this.y - 40, '#ffe28a', 0.6)
+    if (h.graze) FX.pop('빗맞음!', this.x, this.y - 40, '#ffb0a0', 0.65)
+    else if (this.style > 1 && Math.random() < 0.6) FX.pop(pick(['아직 살아있다!', '버텼다!', '질기다…']), this.x, this.y - 40, '#ffe28a', 0.6)
     this.scare(h.x ?? this.x, h.y ?? this.y)
     return false
   }

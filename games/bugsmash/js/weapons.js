@@ -1,6 +1,6 @@
 // 무기: 톡 치는 무기(tap)는 화면을 누를 때마다 효과 하나가 생기고,
 // 누르고 있는 무기(hold)는 손가락을 따라다닌다.
-import { G } from './state.js'
+import { G, diff } from './state.js'
 import { TAU, R, clamp, lerp, pick, easeIn, easeOut } from './util.js'
 import * as FX from './fx.js'
 import { SPR } from './fx.js'
@@ -250,10 +250,11 @@ const racket = {
     this.tilt *= Math.exp(-dt * 6)
     loop('hum', this.on ? 1 : 0)
     if (!this.on) return
-    const rx = this.S * 0.5, ry = this.S * 0.6
+    const k = diff().precise ? 0.62 : 1, pk = diff().precise ? 0 : 0.5
+    const rx = this.S * 0.5 * k, ry = this.S * 0.6 * k
     for (const b of G.bugs) {
       if (b.state !== 'alive' || b.zapCd > 0) continue
-      const hit = b.points().some(([x, y, pad]) => ((x - this.x) / (rx + pad * 0.5)) ** 2 + ((y - this.y) / (ry + pad * 0.5)) ** 2 < 1)
+      const hit = b.points().some(([x, y, pad]) => ((x - this.x) / (rx + pad * pk)) ** 2 + ((y - this.y) / (ry + pad * pk)) ** 2 < 1)
       if (!hit) continue
       b.zapCd = 0.2
       G.strike({ x: b.x, y: b.y, r: 1, dmg: 99, kind: 'zap', air: true, wpn: 'racket', only: b })
