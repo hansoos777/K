@@ -4,7 +4,7 @@ import { R, pick, clamp, lerp, rr, ell } from './util.js'
 import * as FX from './fx.js'
 import { SPR, initSprites } from './fx.js'
 import { SPECS, TYPES, spawn } from './bugs.js'
-import { drawBug, drawShadow, drawGroundShadow, drawThumb } from './art.js'
+import { drawBug, drawShadow, drawGroundShadow, drawThumb, drawBossUnder, drawBossOver } from './art.js'
 import { WEAPONS, byId, holds, stopHolds } from './weapons.js'
 import { drawBg, paintBg, ambientUnder, ambientOver } from './bg.js'
 import { MAPS, HEARTS } from './maps.js'
@@ -252,6 +252,15 @@ function hazards(dt) {
       if (dx * dx + dy * dy < r * r) { tox += 1 - m.age / m.life; if (tox > 8) break }
     }
     const k = diff().haz
+    if (b.boss) {
+      const dps = (heat ? Math.min(heat, 6) * 0.5 : 0) + (tox ? Math.min(tox, 8) * 0.25 : 0)
+      if (dps) {
+        b.hp -= dt * dps * k; b.lastHit = G.t
+        if (heat && Math.random() < dt * 6) FX.fireAt(b.x, b.y, 2, b.len * 0.25, 0.35, b.len * 0.4)
+        if (b.hp <= 0) b.die(heat ? 'burn' : 'poison', 0, { wpn: heat ? 'flame' : 'spray' })
+      }
+      continue
+    }
     const res = b.spec.resist * (b.resistMul || 1)
     if (heat) b.burn += (dt * Math.min(heat, 6) * 0.35 * k) / res
     if (tox) b.poison += (dt * Math.min(tox, 8) * 0.16 * k) / res
@@ -626,20 +635,12 @@ $('#me-menu').addEventListener('click', toMenu)
 function drawBossUI(c) {
   const b = G.bugs.find((x) => x.boss && x.state === 'alive')
   if (!b) return
-  const hx = b.type === 'centipede' ? b.x : b.x + Math.cos(b.a) * b.len * 0.36
-  const hy = (b.type === 'centipede' ? b.y : b.y + Math.sin(b.a) * b.len * 0.36) - b.len * 0.2
-  const s = Math.max(18, b.len * 0.2)
-  c.save(); c.translate(hx, hy)
-  c.beginPath(); c.moveTo(-s, s * 0.4); c.lineTo(-s, -s * 0.3); c.lineTo(-s * 0.5, s * 0.05); c.lineTo(0, -s * 0.55); c.lineTo(s * 0.5, s * 0.05); c.lineTo(s, -s * 0.3); c.lineTo(s, s * 0.4); c.closePath()
-  c.fillStyle = '#ffcc33'; c.fill(); c.strokeStyle = '#6b4a00'; c.lineWidth = 2; c.stroke()
-  c.fillStyle = '#e2412b'; for (const x of [-0.5, 0, 0.5]) { ell(c, x * s, s * 0.18, s * 0.11, s * 0.11); c.fill() }
-  c.restore()
   const w = Math.min(G.W * 0.72, 380), x = (G.W - w) / 2, y = G.area.y0 + 6
   c.fillStyle = 'rgba(15,12,10,.72)'; rr(c, x - 8, y - 4, w + 16, 34, 10); c.fill()
   c.fillStyle = '#3a1410'; rr(c, x, y + 16, w, 9, 4.5); c.fill()
-  c.fillStyle = b.enraged ? '#ff6a3c' : '#e2412b'; rr(c, x, y + 16, Math.max(0, w * (b.hp / b.maxHp)), 9, 4.5); c.fill()
+  c.fillStyle = b.regen ? '#5fd36a' : b.enraged ? '#ff6a3c' : '#e2412b'; rr(c, x, y + 16, Math.max(0, w * (b.hp / b.maxHp)), 9, 4.5); c.fill()
   c.font = '13px "Jua", sans-serif'; c.textBaseline = 'middle'; c.fillStyle = '#f3eee3'
-  c.textAlign = 'left'; c.fillText(`보스 · ${b.boss.name}${b.enraged ? ' (화남)' : ''}`, x, y + 7)
+  c.textAlign = 'left'; c.fillText(`보스 · ${b.boss.name}${b.regen ? ' (회복 중! 계속 때려요)' : b.enraged ? ' (화남)' : ''}`, x, y + 7)
   c.textAlign = 'right'; c.fillText(`${Math.max(0, Math.ceil(b.hp))} / ${b.maxHp}`, x + w, y + 7)
 }
 
@@ -734,6 +735,11 @@ function update(dt) {
   FX.update(dt)
   G.flash = Math.max(0, G.flash - dt * 2.5)
   G.shake = Math.min(30, G.shake) * Math.exp(-dt * 12)
+  const boss = G.state === 'play' && G.bugs.find((b) => b.boss && b.state === 'alive')
+  if (boss) {
+    beatT -= dt
+    if (beatT <= 0) { beatT = boss.enraged ? 0.6 : 1.1; sfx.heartbeat() }
+  }
   // 윙~ 소리: 날고 있는 모기·파리 수만큼
   if (G.state === 'play' || G.state === 'menu') {
     let m = 0, f = 0, mx = 0, fx = 0
@@ -759,9 +765,11 @@ function render() {
   c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 1
   for (const b of G.bugs) if (b.mode === 'dangle' && b.state === 'alive') { c.beginPath(); c.moveTo(b.x, -10); c.lineTo(b.x, b.y - b.len * 0.15); c.stroke() }
   for (const b of G.bugs) drawShadow(c, b, SPR.shadow)
+  for (const b of G.bugs) if (b.boss && b.state === 'alive') drawBossUnder(c, b, G.t)
   for (const b of G.bugs) drawGroundShadow(c, b, SPR.contact)
   for (const b of G.bugs) if (b.z <= 0.05) drawBug(c, b, bugOpts(b))
   for (const b of G.bugs) if (b.z > 0.05) drawBug(c, b, bugOpts(b))
+  for (const b of G.bugs) if (b.boss && b.state === 'alive') drawBossOver(c, b, G.t)
   FX.drawNormal(c)
   ambientOver(c, frameDt)
   FX.drawAdditive(c)
@@ -773,7 +781,7 @@ function render() {
   if (G.shake > 0.4) { stage.style.transform = `translate(${R(-1, 1) * G.shake}px,${R(-1, 1) * G.shake}px)`; shaking = true }
   else if (shaking) { stage.style.transform = ''; shaking = false }
 }
-let last = performance.now(), frameDt = 0
+let last = performance.now(), frameDt = 0, beatT = 0
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000)
   last = now

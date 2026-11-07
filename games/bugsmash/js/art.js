@@ -39,9 +39,11 @@ const BASE = {
 export function palette(b) {
   const B = BASE[b.type][b.style]
   const k = b.charred ? 1 : Math.max(clamp(b.burn * 1.1, 0, 1) * 0.85, b.flatDark || 0)
-  if (k <= 0.02) return B
+  if (k <= 0.02 && !b.boss) return B
   const P = {}
   for (const key in B) P[key] = mix(B[key], CHAR, k)
+  // 보스는 붉은 기운 위에서도 다리가 보이게 다리를 밝힌다
+  if (b.boss && !b.charred) { P.leg = mix(B.leg, '#c08a58', 0.45); P.dark = mix(B.dark, '#8a5a34', 0.35) }
   return P
 }
 
@@ -519,4 +521,78 @@ export function drawThumb(c, type, style, size) {
     b.a = Math.atan2(b.y - b.segs[0].y, b.x - b.segs[0].x)
   } else if (type === 'spider') b.x = size / 2, b.y = size * 0.55
   drawBug(c, b, {})
+}
+
+// ── 보스를 무섭게: 밑에는 붉고 검은 기운, 위에는 흉터·가시·빛나는 눈 ──
+const EYES = { roach: [0.4, 0.05], spider: [0.27, 0.045], mosquito: [0.21, 0.035], fly: [0.3, 0.09], ant: [0.35, 0.06] }
+export function drawBossUnder(c, b, t) {
+  const pulse = 0.5 + 0.5 * Math.sin(t * (b.enraged ? 7 : 3.5))
+  const r = b.len * (b.type === 'centipede' ? 0.7 : 1.05) * (1 + pulse * 0.12)
+  const pts = b.type === 'centipede' ? [b].concat(b.segs.filter((_, i) => i % 3 === 0)) : [b]
+  for (const p of pts) {
+    const g = c.createRadialGradient(p.x, p.y, r * 0.15, p.x, p.y, r)
+    g.addColorStop(0, `rgba(120,0,0,${0.18 + pulse * 0.1})`); g.addColorStop(0.55, `rgba(90,0,0,${0.32 + pulse * 0.15})`); g.addColorStop(1, 'rgba(0,0,0,0)')
+    c.fillStyle = g; c.fillRect(p.x - r, p.y - r, r * 2, r * 2)
+  }
+}
+export function drawBossOver(c, b, t) {
+  const L = b.len, glow = b.enraged ? 1 : 0.65 + 0.2 * Math.sin(t * 5)
+  if (b.type === 'centipede') {
+    // 마디마다 가시
+    const n = b.segs.length, sp = L / n, w = sp * 1.5
+    c.fillStyle = '#1a0c06'
+    for (let i = 1; i < n; i += 1) {
+      const p = b.segs[i], q = b.segs[i - 1], a = Math.atan2(q.y - p.y, q.x - p.x)
+      for (const s of [-1, 1]) {
+        const bx = p.x + Math.cos(a + s * Math.PI / 2) * w * 0.4, by = p.y + Math.sin(a + s * Math.PI / 2) * w * 0.4
+        c.beginPath(); c.moveTo(bx + Math.cos(a) * w * 0.12, by + Math.sin(a) * w * 0.12)
+        c.lineTo(bx + Math.cos(a + s * 1.9) * w * 0.55, by + Math.sin(a + s * 1.9) * w * 0.55)
+        c.lineTo(bx - Math.cos(a) * w * 0.12, by - Math.sin(a) * w * 0.12); c.fill()
+      }
+    }
+    c.save(); c.translate(b.x, b.y); c.rotate(b.a)
+    eyesGlow(c, sp * 0.45, w * 0.22, Math.max(2.5, w * 0.12), glow)
+    c.restore()
+    return
+  }
+  c.save(); c.translate(b.x, b.y); c.rotate(b.a)
+  const sc = 1 + b.z * 0.22; c.scale(sc, sc)
+  // 등껍질 둘레 가시
+  if (b.type === 'roach' || b.type === 'spider') {
+    const cx = b.type === 'roach' ? -0.1 * L : -0.28 * L, rx = b.type === 'roach' ? 0.4 * L : 0.3 * L, ry = b.type === 'roach' ? 0.2 * L : 0.24 * L
+    c.fillStyle = '#140804'
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * TAU, ex = cx + Math.cos(a) * rx, ey = Math.sin(a) * ry, nx = Math.cos(a), ny = Math.sin(a)
+      c.beginPath(); c.moveTo(ex - ny * L * 0.025, ey + nx * L * 0.025); c.lineTo(ex + nx * L * 0.07, ey + ny * L * 0.07); c.lineTo(ex + ny * L * 0.025, ey - nx * L * 0.025); c.fill()
+    }
+    // 흉터
+    c.strokeStyle = 'rgba(230,200,170,.55)'; c.lineWidth = Math.max(1, L * 0.012); c.lineCap = 'round'
+    for (const [x0, y0, x1, y1] of [[-0.3, -0.14, -0.05, 0.1], [-0.15, 0.12, 0.05, -0.04], [-0.42, 0.02, -0.28, 0.12]]) {
+      c.beginPath(); c.moveTo((cx / L + x0 + 0.1) * L, y0 * L)
+      for (let k = 1; k <= 4; k++) c.lineTo(((cx / L + x0 + 0.1) + (x1 - x0) * k / 4) * L + Math.sin(k * 7 + L) * L * 0.012, (y0 + (y1 - y0) * k / 4) * L)
+      c.stroke()
+    }
+  }
+  // 입가 끈적한 침
+  const [ex, ey] = EYES[b.type] || [0.35, 0.05]
+  c.strokeStyle = 'rgba(200,210,160,.55)'; c.lineWidth = Math.max(1, L * 0.01)
+  for (const s of [-1, 1]) {
+    const dl = L * (0.06 + 0.04 * Math.sin(t * 2 + s))
+    c.beginPath(); c.moveTo((ex + 0.05) * L, s * ey * 0.4 * L); c.quadraticCurveTo((ex + 0.07) * L, s * ey * 0.6 * L, (ex + 0.05) * L + dl, s * ey * 0.7 * L); c.stroke()
+  }
+  eyesGlow(c, ex * L, ey * L, Math.max(2.5, L * 0.03), glow)
+  c.restore()
+}
+function eyesGlow(c, x, gap, r, glow) {
+  c.globalCompositeOperation = 'lighter'
+  for (const s of [-1, 1]) {
+    const g = c.createRadialGradient(x, s * gap, 0, x, s * gap, r * 5)
+    g.addColorStop(0, `rgba(255,60,30,${0.9 * glow})`); g.addColorStop(0.3, `rgba(255,20,0,${0.35 * glow})`); g.addColorStop(1, 'rgba(255,0,0,0)')
+    c.fillStyle = g; c.fillRect(x - r * 5, s * gap - r * 5, r * 10, r * 10)
+  }
+  c.globalCompositeOperation = 'source-over'
+  for (const s of [-1, 1]) {
+    c.fillStyle = '#ffdf9a'; ell(c, x, s * gap, r * 0.55, r * 0.55); c.fill()
+    c.fillStyle = '#ff2a10'; ell(c, x, s * gap, r, r * 0.8); c.globalAlpha = 0.85; c.fill(); c.globalAlpha = 1
+  }
 }

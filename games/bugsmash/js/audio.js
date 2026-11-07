@@ -118,6 +118,10 @@ const S = {
     [523, 659, 784, 1046].forEach((f, i) => tone({ t: i * 0.11, dur: 0.22, type: 'triangle', f, gain: 0.2 }))
   },
   whistle() { tone({ dur: 0.35, type: 'sine', f: 1200, f2: 500, gain: 0.12 }) },
+  heartbeat() { // 보스가 있을 때 낮게 쿵-쿵
+    tone({ dur: 0.18, f: 62, f2: 40, gain: 0.55 })
+    tone({ t: 0.2, dur: 0.16, f: 55, f2: 38, gain: 0.4 })
+  },
 }
 
 /** 효과음: 소리가 꺼졌거나 아직 사용자가 화면을 안 눌렀으면 조용히 넘어간다 */

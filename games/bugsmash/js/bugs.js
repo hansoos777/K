@@ -77,6 +77,8 @@ export class Bug {
       this.resistMul = 6
       this.base *= 0.75
       this.fed = false
+      this.style = this.style === 1 ? 2 : 3
+      this.lastHit = G.t; this.regen = false
     }
   }
 
@@ -130,7 +132,13 @@ export class Bug {
   }
   /** 무기가 내려오는 순간: 날벌레·거미는 확률로 피한다 */
   warn(x, y) {
-    if (this.boss) return
+    if (this.boss) {
+      if (this.state === 'alive' && this.mode !== 'dangle' && Math.random() < 0.22) {
+        const away = Math.atan2(this.y - y, this.x - x) + R(-0.5, 0.5)
+        this.a = this.ta = away; this.v = this.base * 4.5
+      }
+      return
+    }
     if (this.state !== 'alive' || this.mode === 'dangle') return
     const p = { mosquito: [0.08, 0.16, 0.24], fly: [0.18, 0.32, 0.45], spider: [0, 0.08, 0.15], roach: [0, 0.05, 0.1] }[this.type]
     if (!p || Math.random() > p[this.style - 1] * diff().dodge * (this.injured ? 0.3 : 1)) return
@@ -149,6 +157,14 @@ export class Bug {
   update(dt) {
     this.t += dt
     if (this.zapCd > 0) this.zapCd -= dt
+    if (this.boss && this.state === 'alive') {
+      this.regen = G.t - this.lastHit > 3 && this.hp < this.maxHp
+      if (this.regen) {
+        this.hp = Math.min(this.maxHp, this.hp + this.maxHp * 0.04 * dt)
+        if (Math.random() < dt * 3) FX.pop('+', this.x + R(-0.3, 0.3) * this.len, this.y - this.len * 0.3, '#7dff8a', 0.6, 0.6)
+      }
+      if (this.z < 0.1 && this.v > 5 && Math.random() < dt * 14) FX.drip(this.x - Math.cos(this.a) * this.len * 0.4, this.y - Math.sin(this.a) * this.len * 0.4, '#3a2a14', R(2, 5) * (G.U / 4))
+    }
     if (this.state === 'dying') return this.updateDying(dt)
     if (this.state !== 'alive') return
     this.life -= dt
@@ -181,7 +197,7 @@ export class Bug {
     this.x += Math.cos(this.a) * this.v * dt
     this.y += Math.sin(this.a) * this.v * dt
     this.phase += (this.v * dt) / (this.len * 0.16)
-    this.gait = clamp(this.v / (this.base * 0.3), 0, 1)
+    this.gait = this.base > 0 ? clamp(this.v / (this.base * 0.3), 0, 1) : 0
     if (this.type === 'centipede') this.follow()
     this.bounds()
     if (this.injured && this.z < 0.1 && Math.random() < dt * 6) FX.drip(this.x, this.y, this.goo(), R(1, 2.5) * (G.U / 4))
@@ -333,6 +349,7 @@ export class Bug {
   // ── 맞았을 때 ──
   damage(dmg, kind, dir, h = {}) {
     if (this.state !== 'alive') return false
+    this.lastHit = G.t
     this.hp -= kind === 'zap' ? (this.boss ? 2.5 : 99) : dmg
     if (this.boss && kind === 'zap') this.zapCd = 0.7
     if (this.hp <= 0) { this.die(kind === 'zap' ? 'zap' : 'squish', dir, h); return true }
