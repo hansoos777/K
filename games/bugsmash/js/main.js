@@ -13,8 +13,9 @@ import { MARKUP } from './ui.js'
 const $ = (s) => document.querySelector(s)
 const $$ = (s) => [...document.querySelectorAll(s)]
 
-// 개발 사이트(dev.…)는 기록을 따로 쓰고 화면 구석에 DEV 표시
-const DEV = /^dev\./.test(location.hostname) || /\/dev\/?$/.test(location.pathname.replace(/index\.html$/, ""))
+// 개발 사이트(작업 브랜치 미리보기 <브랜치>.bugsbbazizig.pages.dev)는 화면 위에 DEV 표시
+// 진짜 사이트는 bugsbbazizig.pages.dev 그대로. 주소(origin)가 달라서 기록은 원래 따로 저장된다
+const DEV = /\.bugsbbazizig\.pages\.dev$/.test(location.hostname) || /\/dev\/?$/.test(location.pathname.replace(/index\.html$/, ''))
 
 // ── 저장(이 기기에만) ──
 const KEY = DEV ? 'bugsmash.v1.dev' : 'bugsmash.v1'

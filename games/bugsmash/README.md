@@ -48,24 +48,17 @@ python3 -m http.server 8080     # 또는 npx serve .
 
 서비스 워커는 http(s)에서만 동작합니다. 파일을 바로 여는 file:// 에서는 설치·오프라인이 안 됩니다.
 
-## 배포 (Cloudflare Pages · 프로젝트 `bugsbbazizig`)
+## 배포 (Cloudflare Pages · 프로젝트 `bugsbbazizig`, GitHub 연결)
+
+Cloudflare Pages가 이 저장소에 직접 연결되어 있어서, 올리기만 하면 Cloudflare가 알아서 배포합니다(API 키 필요 없음).
 
 | 어디에 올리면 | 주소 |
 |---|---|
-| 기본 브랜치(`claude/puja-time-code-review-19b93m`) 또는 `main` | 진짜 사이트 https://bugsbbazizig.pages.dev |
-| 그 밖의 브랜치(작업 브랜치) | 개발 사이트 https://dev.bugsbbazizig.pages.dev (화면 위에 DEV 표시) |
+| 기본 브랜치(`claude/puja-time-code-review-19b93m`) | 진짜 사이트 https://bugsbbazizig.pages.dev |
+| 그 밖의 브랜치 | 개발 사이트 `https://<브랜치 이름>.bugsbbazizig.pages.dev` (화면 위에 DEV 표시) |
 
-`.github/workflows/deploy-bugsmash.yml`이 `games/bugsmash/`가 바뀔 때마다 자동으로 올립니다.
-GitHub 비밀값 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`가 있어야 합니다(믿어보까 배포와 같은 값).
-
-### 처음 한 번 설정
-
-1. Cloudflare → 오른쪽 위 프로필 → My Profile → API Tokens → Create Token → Create Custom Token
-   - 권한: Account · Cloudflare Pages · Edit → 만들고 토큰 복사
-2. Cloudflare 대시보드 → Workers & Pages → 오른쪽의 Account ID 복사
-3. GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret 으로
-   `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` 두 개 넣기
-4. GitHub → Actions → "Deploy 벌레 빠지직" → Run workflow (또는 이 폴더를 고쳐서 올리기)
+Cloudflare 설정(Workers & Pages → bugsbbazizig → Settings → Builds):
+Framework preset `None`, Build command 비움, Build output directory `games/bugsmash`.
 
 ### 손으로 올릴 때
 
