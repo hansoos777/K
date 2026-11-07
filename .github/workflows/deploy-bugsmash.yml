@@ -1,4 +1,4 @@
-# 벌레 박살(games/bugsmash) 자동 배포: 이 폴더가 바뀐 채로 main(또는 아래 브랜치)에 올라오면 Cloudflare Pages "bugsmash" 프로젝트에 올린다.
+# 벌레 박살(games/bugsmash) 자동 배포: 이 폴더가 바뀐 채로 기본 브랜치(claude/puja-time-code-review-19b93m)나 main에 올라오면 Cloudflare Pages "bugsmash" 프로젝트에 올린다.
 # 빌드 과정이 없어서 폴더를 그대로 올린다. 주소: https://bugsmash.pages.dev
 # Cloudflare 비밀값(CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID)이 있으면 Cloudflare에,
 # 없으면 GitHub Pages(https://hansoos777.github.io/K/)에 올린다. 키 없이도 바로 쓸 수 있게.
@@ -6,7 +6,7 @@ name: Deploy 벌레 박살
 
 on:
   push:
-    branches: [main, ccr-1fb8d055-uckck8]
+    branches: [main, claude/puja-time-code-review-19b93m]
     paths:
       - 'games/bugsmash/**'
       - '.github/workflows/deploy-bugsmash.yml'
