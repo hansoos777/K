@@ -52,7 +52,7 @@ python3 -m http.server 8080     # 또는 npx serve .
 
 | 어디에 올리면 | 주소 |
 |---|---|
-| 기본 브랜치(`claude/puja-time-code-review-19b93m`) 또는 `main` | 진짜 사이트 https://bugsbbazizig.pages.dev (도메인 연결 후 https://bugsbbazizig.com) |
+| 기본 브랜치(`claude/puja-time-code-review-19b93m`) 또는 `main` | 진짜 사이트 https://bugsbbazizig.pages.dev |
 | 그 밖의 브랜치(작업 브랜치) | 개발 사이트 https://dev.bugsbbazizig.pages.dev (화면 위에 DEV 표시) |
 
 `.github/workflows/deploy-bugsmash.yml`이 `games/bugsmash/`가 바뀔 때마다 자동으로 올립니다.
@@ -66,13 +66,6 @@ GitHub 비밀값 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`가 있어야 �
 3. GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret 으로
    `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` 두 개 넣기
 4. GitHub → Actions → "Deploy 벌레 빠지직" → Run workflow (또는 이 폴더를 고쳐서 올리기)
-
-### 도메인 bugsbbazizig.com 연결
-
-1. Cloudflare → Domain Registration → Register Domains 에서 `bugsbbazizig.com` 구매
-2. Workers & Pages → `bugsbbazizig` → Custom domains → Set up a custom domain → `bugsbbazizig.com`
-3. 개발 사이트도 도메인으로: DNS에 CNAME `dev` → `dev.bugsbbazizig.pages.dev` 추가 후,
-   같은 Custom domains 화면에서 `dev.bugsbbazizig.com` 연결
 
 ### 손으로 올릴 때
 
