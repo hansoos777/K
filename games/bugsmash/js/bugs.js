@@ -36,7 +36,7 @@ export class Bug {
     this.type = type; this.spec = sp
     this.style = opts.style || G.style
     this.x = x; this.y = y; this.a = a; this.ta = a
-    this.len = clamp(G.U * sp.len[0], sp.len[1], sp.len[2]) * R(0.88, 1.12)
+    this.len = clamp(G.U * sp.len[0], sp.len[1], sp.len[2]) * R(0.88, 1.12) * (opts.scale || 1)
     const D = diff()
     this.base = sp.speed[this.style - 1] * G.U * R(0.85, 1.15) * (opts.speedMul || 1) * D.speed
     this.v = 0; this.vt = this.base
@@ -70,6 +70,14 @@ export class Bug {
       this.inside = true
     }
     if (opts.path) { this.path = opts.path; this.pi = 0; this.mode = 'march'; this.wig = R(TAU) }
+    // 보스: 크고 질기고 불·살충제에 강하다. 맞을 때마다 졸개를 낳기도 한다
+    if (opts.boss) {
+      this.boss = opts.boss
+      this.hp = this.maxHp = opts.boss.hp
+      this.resistMul = 6
+      this.base *= 0.75
+      this.fed = false
+    }
   }
 
   points() {
@@ -109,6 +117,7 @@ export class Bug {
   // ── 주변 반응 ──
   /** 근처에 큰 충격이 오면 놀라서 달아난다 */
   scare(x, y) {
+    if (this.boss) return
     if (this.state !== 'alive' || this.mode === 'dangle') return
     const away = Math.atan2(this.y - y, this.x - x)
     if (this.type === 'roach') {
@@ -121,6 +130,7 @@ export class Bug {
   }
   /** 무기가 내려오는 순간: 날벌레·거미는 확률로 피한다 */
   warn(x, y) {
+    if (this.boss) return
     if (this.state !== 'alive' || this.mode === 'dangle') return
     const p = { mosquito: [0.08, 0.16, 0.24], fly: [0.18, 0.32, 0.45], spider: [0, 0.08, 0.15], roach: [0, 0.05, 0.1] }[this.type]
     if (!p || Math.random() > p[this.style - 1] * diff().dodge * (this.injured ? 0.3 : 1)) return
@@ -157,7 +167,7 @@ export class Bug {
     // 불
     if (this.burn > 0.25 && !this.onFire) { this.onFire = true; sfx.sizzle(this.x) }
     if (this.onFire) {
-      this.burn += dt * 0.5
+      this.burn += (dt * 0.5) / (this.resistMul || 1)
       this.vt = this.base * 1.5; this.ta += R(-6, 6) * dt
       if (this.spec.flyer) this.z = Math.max(0, this.z - dt * 0.8)
       FX.fireAt(this.x, this.y, 2, this.len * 0.35 + 5, 0.35, this.len * 0.4)
@@ -323,15 +333,37 @@ export class Bug {
   // ── 맞았을 때 ──
   damage(dmg, kind, dir, h = {}) {
     if (this.state !== 'alive') return false
-    this.hp -= kind === 'zap' ? 99 : dmg
+    this.hp -= kind === 'zap' ? (this.boss ? 2.5 : 99) : dmg
+    if (this.boss && kind === 'zap') this.zapCd = 0.7
     if (this.hp <= 0) { this.die(kind === 'zap' ? 'zap' : 'squish', dir, h); return true }
     // 버텼다(다쳐서 절뚝이며 체액을 흘린다)
+    if (this.boss) return this.bossHit(h)
     this.injured = true; this.slow = 0.55
     FX.splat(this.x, this.y, { color: this.goo(), size: this.len * 0.18, style: this.style, type: this.type })
     sfx.crunch(this.x, 3, 0.35)
     if (h.graze) FX.pop('빗맞음!', this.x, this.y - 40, '#ffb0a0', 0.65)
     else if (this.style > 1 && Math.random() < 0.6) FX.pop(pick(['아직 살아있다!', '버텼다!', '질기다…']), this.x, this.y - 40, '#ffe28a', 0.6)
     this.scare(h.x ?? this.x, h.y ?? this.y)
+    return false
+  }
+  /** 보스가 맞고 버텼을 때: 체액이 튀고, 확률로 졸개가 튀어나온다 */
+  bossHit(h) {
+    const B = this.boss
+    FX.splat(this.x + R(-0.2, 0.2) * this.len, this.y + R(-0.2, 0.2) * this.len, { color: this.goo(), size: this.len * 0.12, style: this.style, type: this.type })
+    sfx.crunch(this.x, 4, 0.45)
+    G.shake += 4
+    if (h.graze) FX.pop('빗맞음!', this.x, this.y - this.len * 0.5, '#ffb0a0', 0.65)
+    if (B.minion && Math.random() < B.chance && G.bugs.length < 60) {
+      for (let k = 0; k < (B.n || 1); k++) {
+        const m = new Bug(B.minion, this.x + R(-0.3, 0.3) * this.len, this.y + R(-0.3, 0.3) * this.len, R(TAU), { style: this.style, life: R(8, 12), scale: B.minionScale || 1 })
+        m.inside = true
+        G.bugs.push(m)
+      }
+    }
+    if (this.hp < this.maxHp * 0.35 && !this.enraged) { // 화가 나면 빨라진다
+      this.enraged = true; this.base *= 1.35
+      FX.pop(`${B.name} 화났다!`, this.x, this.y - this.len * 0.6, '#ff5a3c', 0.9, 1)
+    }
     return false
   }
   die(kind, dir = R(TAU), h = {}) {
@@ -367,7 +399,7 @@ export class Bug {
   bake() {
     const c = G.ctx.decal
     if (this.dk === 'squish') {
-      const big = !!(this.h && this.h.big)
+      const big = !!((this.h && this.h.big) || this.boss)
       const col = this.goo()
       const size = this.len * (this.type === 'centipede' ? 0.18 : this.type === 'mosquito' ? (this.fed ? 0.75 : 0.45) : 0.42) * (big ? 1.3 : 1)
       if (this.type === 'centipede') {

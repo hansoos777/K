@@ -1,12 +1,13 @@
-// 벌레 빠지직 — 게임 흐름(메뉴 · 자유 모드 · 60초 도전 · 공포 극복 코스), 입력, 그리기
+// 벌레 빠지직 — 게임 흐름(메뉴 · 스테이지 · 자유 모드 · 60초 도전 · 공포 극복 코스), 입력, 그리기
 import { G, DIFF, diff } from './state.js'
-import { R, pick, clamp, lerp } from './util.js'
+import { R, pick, clamp, lerp, rr, ell } from './util.js'
 import * as FX from './fx.js'
 import { SPR, initSprites } from './fx.js'
 import { SPECS, TYPES, spawn } from './bugs.js'
-import { drawBug, drawShadow, drawThumb } from './art.js'
+import { drawBug, drawShadow, drawGroundShadow, drawThumb } from './art.js'
 import { WEAPONS, byId, holds, stopHolds } from './weapons.js'
-import { drawBg, BGS } from './bg.js'
+import { drawBg, paintBg, ambientUnder, ambientOver } from './bg.js'
+import { MAPS, HEARTS } from './maps.js'
 import { audioInit, sfx, loop, stopLoops, setSound } from './audio.js'
 import { MARKUP } from './ui.js'
 
@@ -24,6 +25,7 @@ save.stats = save.stats || { kills: {}, weapons: {}, total: 0, rounds: 0 }
 save.best = save.best || 0
 save.bestBy = save.bestBy || { 2: save.best } // 난이도별 60초 최고 기록(예전 기록은 '중')
 save.course = save.course || 0
+save.maps = save.maps || { cleared: 0, stars: {} } // 스테이지: 깬 맵 수, 맵별 별
 if (save.settings) Object.assign(G.settings, save.settings)
 function persist() {
   save.settings = G.settings
@@ -208,7 +210,8 @@ G.onKill = (b, kind, h) => {
   G.combo = G.t - G.lastKill < 1.4 ? G.combo + 1 : 1
   G.lastKill = G.t
   G.bestCombo = Math.max(G.bestCombo, G.combo)
-  const pts = Math.round(b.spec.score * (1 + Math.min(3, (G.combo - 1) * 0.25)) * diff().score)
+  const pts = Math.round(b.spec.score * (b.boss ? 12 : 1) * (1 + Math.min(3, (G.combo - 1) * 0.25)) * diff().score)
+  if (b.boss) { FX.pop('보스 처치!', G.W / 2, G.H * 0.4, '#ffd23f', 1.6, 1.6); G.shake += 22; G.flash = 0.4; sfx.fanfare() }
   G.score += pts
   FX.pop('+' + pts, b.x + 30, b.y - 14, '#ffe14d', 0.5, 0.7)
   if (G.combo >= 3) FX.pop(`${G.combo} 콤보!`, G.W / 2, G.area.y0 + 50, '#ff9a3d', 0.75, 0.8)
@@ -217,7 +220,16 @@ G.onKill = (b, kind, h) => {
   hud()
 }
 G.onEscape = (b) => {
-  if (G.state !== 'play' || G.mode !== 'challenge') return
+  if (G.state !== 'play') return
+  if (G.mode === 'maps') {
+    hearts = Math.max(0, hearts - 1)
+    FX.pop(`${SPECS[b.type].name} 도망갔다! ♥-1`, clamp(b.x, 90, G.W - 90), clamp(b.y, G.area.y0 + 40, G.area.y1 - 40), '#ff6b5b', 0.65, 1)
+    sfx.whistle(); G.shake += 5
+    hud()
+    if (hearts <= 0) mapEnd(false)
+    return
+  }
+  if (G.mode !== 'challenge') return
   G.missed++
   FX.pop(`${SPECS[b.type].name} 도망갔다!`, clamp(b.x, 80, G.W - 80), clamp(b.y, G.area.y0 + 40, G.area.y1 - 40), '#ff6b5b', 0.6, 0.9)
   hud()
@@ -240,8 +252,9 @@ function hazards(dt) {
       if (dx * dx + dy * dy < r * r) { tox += 1 - m.age / m.life; if (tox > 8) break }
     }
     const k = diff().haz
-    if (heat) b.burn += (dt * Math.min(heat, 6) * 0.35 * k) / b.spec.resist
-    if (tox) b.poison += (dt * Math.min(tox, 8) * 0.16 * k) / b.spec.resist
+    const res = b.spec.resist * (b.resistMul || 1)
+    if (heat) b.burn += (dt * Math.min(heat, 6) * 0.35 * k) / res
+    if (tox) b.poison += (dt * Math.min(tox, 8) * 0.16 * k) / res
   }
 }
 
@@ -255,8 +268,23 @@ function pickType(w = WEIGHTS) {
 }
 const alive = () => G.bugs.filter((b) => b.state === 'alive').length
 let spawnT = 0, timeLeft = 0, queue = [], clearing = false, clearT = 0, stageIdx = 0
+let mapIdx = 0, wave = -1, hearts = HEARTS
 
 const MODES = {
+  maps: {
+    title: '스테이지',
+    start(i) { mapIdx = i; hearts = HEARTS; wave = -1; clearing = false; clearT = 0; queue = []; nextWave() },
+    tick(dt) {
+      spawnT += dt
+      while (queue.length && queue[0].at <= spawnT) spawnMapBug(queue.shift())
+      // 웨이브의 벌레를 다 잡고 1초 뒤 다음 웨이브(일시정지 중에는 시간이 멈춘다)
+      if (!queue.length && !clearing && G.bugs.every((b) => b.state !== 'alive')) {
+        clearT += dt
+        if (clearT > 1) { clearT = 0; nextWave() }
+      } else clearT = 0
+    },
+    main: () => `${'♥'.repeat(hearts)}${'♡'.repeat(HEARTS - hearts)}  남은 벌레 ${alive() + queue.reduce((s, q) => s + q.n, 0)}`,
+  },
   free: {
     title: '자유 모드',
     start() { for (let i = 0; i < 6; i++) setTimeout(() => G.state === 'play' && G.mode === 'free' && spawnOne(pickType()), i * 350) },
@@ -310,13 +338,44 @@ const MODES = {
     main: () => `${stageIdx + 1}단계 · 남은 벌레 ${alive() + queue.reduce((s, q) => s + q.n, 0)}`,
   },
 }
+function nextWave() {
+  const M = MAPS[mapIdx]
+  wave++; queue = []; spawnT = 0
+  if (wave < M.waves.length) {
+    const list = []
+    for (const [type, n] of M.waves[wave]) {
+      if (type === 'ant') list.push({ type, n })
+      else for (let k = 0; k < n; k++) list.push({ type, n: 1 })
+    }
+    for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]] }
+    let d = 1.3
+    for (const q of list) { q.at = d; d += R(0.35, 0.65) }
+    queue = list
+    FX.pop(`${wave + 1}웨이브`, G.W / 2, G.H * 0.42, '#ffd23f', 1.5, 1.3)
+    sfx.whistle()
+  } else if (wave === M.waves.length) {
+    queue = [{ boss: true, type: M.boss.type, n: 1, at: 1.5 }]
+    FX.pop('보스 등장!', G.W / 2, G.H * 0.38, '#ff5a3c', 1.6, 1.5)
+    FX.pop(M.boss.name, G.W / 2, G.H * 0.38 + 64, '#ffffff', 1.1, 1.5)
+    sfx.thud(null); G.shake += 10
+  } else { clearing = true; mapEnd(true) }
+  hud()
+}
+function spawnMapBug(q) {
+  if (q.boss) {
+    const B = MAPS[mapIdx].boss
+    spawn(B.type, 1, { style: G.style, boss: B, scale: B.scale, dangleChance: B.dangle ? 1 : 0 })
+  } else spawn(q.type, q.n, { style: G.style, life: R(9, 13), dangleChance: 0.4 })
+}
 function spawnOne(type, opts = {}) {
   if (type === 'ant') return spawn('ant', Math.round(R(6, 10)), opts)
   return spawn(type, 1, opts)
 }
 
 function hud() {
-  $('#h-mode').textContent = `${G.mode === 'course' ? COURSE[stageIdx].title : MODES[G.mode].title} · 난이도 ${diff().name}`
+  let title = G.mode === 'course' ? COURSE[stageIdx].title : MODES[G.mode].title
+  if (G.mode === 'maps') { const M = MAPS[mapIdx]; title = `${M.name} · ${wave < M.waves.length ? `${Math.max(1, wave + 1)}/${M.waves.length}웨이브` : '보스'}` }
+  $('#h-mode').textContent = `${title} · 난이도 ${diff().name}`
   $('#h-main').textContent = MODES[G.mode].main()
   $('#h-score').textContent = G.score.toLocaleString('ko-KR')
 }
@@ -348,11 +407,11 @@ function startGame(mode, si = 0) {
   show(null)
   stage.classList.remove('blur')
   setPlayUI(true)
-  drawBg(G.settings.bg)
+  drawBg(mode === 'maps' ? MAPS[si].bg : G.settings.bg)
   G.state = 'play'
   MODES[mode].start(si)
   hud()
-  toast(mode === 'free' ? '아래에서 무기를 골라 벌레를 눌러요. 숫자키 1~9로도 바꿀 수 있어요.' : mode === 'challenge' ? '60초 동안 최대한 많이! 오래 두면 도망가요.' : COURSE[si].tip, 2600)
+  toast(mode === 'maps' ? MAPS[si].tip : mode === 'free' ? '아래에서 무기를 골라 벌레를 눌러요. 숫자키 1~9로도 바꿀 수 있어요.' : mode === 'challenge' ? '60초 동안 최대한 많이! 오래 두면 도망가요.' : COURSE[si].tip, 2600)
 }
 function toMenu() {
   G.state = 'menu'
@@ -453,6 +512,7 @@ function renderMenu() {
   for (const b of $$('#seg-diff button')) b.setAttribute('aria-pressed', String(Number(b.dataset.v) === G.settings.diff))
   $('#diff-desc').textContent = DIFF_DESC[G.settings.diff]
   $('#m-course').textContent = `${Math.min(save.course, COURSE.length)}/${COURSE.length}`
+  $('#m-maps').textContent = `${Math.min(save.maps.cleared, MAPS.length)}/${MAPS.length}`
   for (const b of $$('#seg-style button')) b.setAttribute('aria-pressed', String(Number(b.dataset.v) === G.settings.style))
   for (const b of $$('#seg-bg button')) b.setAttribute('aria-pressed', String(b.dataset.v === G.settings.bg))
   $('#style-desc').textContent = STYLE_DESC[G.settings.style]
@@ -461,12 +521,12 @@ function renderMenu() {
   $('#b-vibe').setAttribute('aria-pressed', String(G.settings.vibe))
   $('#b-vibe').textContent = G.settings.vibe ? '진동 켬' : '진동 끔'
   const st = G.settings.style
-  for (const [sel, type] of [['#t-free', 'roach'], ['#t-chal', 'fly'], ['#t-course', 'spider']]) { const el = $(sel); el.innerHTML = ''; el.append(thumb(type, st, 52)) }
+  for (const [sel, type] of [['#t-maps', 'centipede'], ['#t-free', 'roach'], ['#t-chal', 'fly'], ['#t-course', 'spider']]) { const el = $(sel); el.innerHTML = ''; el.append(thumb(type, st, 52)) }
   for (const b of $$('#seg-style button')) { const t = b.querySelector('.st'); t.innerHTML = ''; t.append(thumb('roach', Number(b.dataset.v), 34)) }
 }
 $$('[data-mode]').forEach((b) => b.addEventListener('click', () => {
   audioInit(); sfx.click()
-  if (b.dataset.mode === 'course') { renderCourse(); show('s-course') } else startGame(b.dataset.mode)
+  if (b.dataset.mode === 'course') { renderCourse(); show('s-course') } else if (b.dataset.mode === 'maps') { renderMaps(); show('s-maps') } else startGame(b.dataset.mode)
 }))
 $$('#seg-diff button').forEach((b) => b.addEventListener('click', () => {
   G.settings.diff = Number(b.dataset.v)
@@ -497,6 +557,92 @@ function renderCourse() {
     list.append(b)
   })
 }
+// ── 스테이지: 맵 고르기 · 맵 소개 · 맵 결과 ──
+function bgPreview(kind) {
+  const cv = document.createElement('canvas'); cv.width = 360; cv.height = 240; cv.className = 'prev'
+  paintBg(cv.getContext('2d'), kind, 360, 240)
+  return cv
+}
+const starStr = (n) => '★'.repeat(n) + '☆'.repeat(3 - n)
+function renderMaps() {
+  const list = $('#map-list'); list.innerHTML = ''
+  MAPS.forEach((M, i) => {
+    const locked = i > save.maps.cleared, st = save.maps.stars[M.id] || 0
+    const b = document.createElement('button')
+    b.className = 'stage map'; b.type = 'button'; b.disabled = locked
+    b.innerHTML = `<span class="tt"><b>${i + 1}. ${M.name}</b><small>${M.desc}</small></span><span class="st">${locked ? '잠김' : st ? `<em>${starStr(st)}</em>` : '도전'}</span>`
+    b.prepend(bgPreview(M.bg))
+    b.addEventListener('click', () => { sfx.click(); openMap(i) })
+    list.append(b)
+  })
+}
+function openMap(i) {
+  mapIdx = i
+  const M = MAPS[i]
+  $('#mi-step').textContent = `맵 ${i + 1} / ${MAPS.length}`
+  $('#mi-title').textContent = M.name
+  $('#mi-desc').textContent = M.desc
+  $('#mi-tip').textContent = M.tip
+  const pv = $('#mi-prev'); pv.innerHTML = ''; pv.append(bgPreview(M.bg))
+  const types = [...new Set(M.waves.flat().map(([t]) => t))]
+  const box = $('#mi-bugs'); box.innerHTML = ''
+  for (const t of types) box.append(thumbChip(t, G.settings.style, SPECS[t].name))
+  const boss = $('#mi-boss'); boss.innerHTML = ''
+  boss.append(thumbChip(M.boss.type, G.settings.style, `보스 · ${M.boss.name}`))
+  show('s-mapintro')
+}
+function mapEnd(win) {
+  if (G.state !== 'play' || G.mode !== 'maps') return
+  G.state = 'result'
+  stopHolds(); stopLoops()
+  const M = MAPS[mapIdx], last = mapIdx === MAPS.length - 1
+  const stars = hearts >= HEARTS ? 3 : hearts >= 3 ? 2 : 1
+  if (win) {
+    save.maps.cleared = Math.max(save.maps.cleared, mapIdx + 1)
+    save.maps.stars[M.id] = Math.max(save.maps.stars[M.id] || 0, stars)
+    sfx.fanfare()
+  } else sfx.thud(null)
+  save.stats.rounds = (save.stats.rounds || 0) + 1
+  persist()
+  $('#me-step').textContent = `맵 ${mapIdx + 1} · ${M.name}`
+  $('#me-title').textContent = win ? (last ? '벌레 소굴을 무너뜨렸어요!' : `${M.name} 클리어!`) : '실패…'
+  $('#me-stars').textContent = win ? starStr(stars) : ''
+  $('#me-stars').hidden = !win
+  $('#me-msg').textContent = win
+    ? last ? '모든 맵을 깼어요. 이제 어떤 벌레도 무섭지 않아요.' : `다음 맵은 「${MAPS[mapIdx + 1].name}」. ${MAPS[mapIdx + 1].desc}`
+    : '벌레가 너무 많이 도망갔어요. 도망가기 전에 먼저 잡아 봐요.'
+  $('#me-stats').innerHTML = [['점수', G.score.toLocaleString('ko-KR')], ['잡은 벌레', `${G.kills}마리`], ['남은 하트', `${hearts}/${HEARTS}`], ['최대 콤보', `${G.bestCombo}`]]
+    .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')
+  $('#me-next').hidden = !win || last
+  setTimeout(() => show('s-mapend'), win ? 700 : 400)
+}
+$('#mi-start').addEventListener('click', () => startGame('maps', mapIdx))
+$('#mi-back').addEventListener('click', () => { sfx.click(); renderMaps(); show('s-maps') })
+$('#me-next').addEventListener('click', () => { sfx.click(); openMap(mapIdx + 1) })
+$('#me-again').addEventListener('click', () => startGame('maps', mapIdx))
+$('#me-menu').addEventListener('click', toMenu)
+
+/** 보스 체력 막대와 머리 위 왕관 */
+function drawBossUI(c) {
+  const b = G.bugs.find((x) => x.boss && x.state === 'alive')
+  if (!b) return
+  const hx = b.type === 'centipede' ? b.x : b.x + Math.cos(b.a) * b.len * 0.36
+  const hy = (b.type === 'centipede' ? b.y : b.y + Math.sin(b.a) * b.len * 0.36) - b.len * 0.2
+  const s = Math.max(18, b.len * 0.2)
+  c.save(); c.translate(hx, hy)
+  c.beginPath(); c.moveTo(-s, s * 0.4); c.lineTo(-s, -s * 0.3); c.lineTo(-s * 0.5, s * 0.05); c.lineTo(0, -s * 0.55); c.lineTo(s * 0.5, s * 0.05); c.lineTo(s, -s * 0.3); c.lineTo(s, s * 0.4); c.closePath()
+  c.fillStyle = '#ffcc33'; c.fill(); c.strokeStyle = '#6b4a00'; c.lineWidth = 2; c.stroke()
+  c.fillStyle = '#e2412b'; for (const x of [-0.5, 0, 0.5]) { ell(c, x * s, s * 0.18, s * 0.11, s * 0.11); c.fill() }
+  c.restore()
+  const w = Math.min(G.W * 0.72, 380), x = (G.W - w) / 2, y = G.area.y0 + 6
+  c.fillStyle = 'rgba(15,12,10,.72)'; rr(c, x - 8, y - 4, w + 16, 34, 10); c.fill()
+  c.fillStyle = '#3a1410'; rr(c, x, y + 16, w, 9, 4.5); c.fill()
+  c.fillStyle = b.enraged ? '#ff6a3c' : '#e2412b'; rr(c, x, y + 16, Math.max(0, w * (b.hp / b.maxHp)), 9, 4.5); c.fill()
+  c.font = '13px "Jua", sans-serif'; c.textBaseline = 'middle'; c.fillStyle = '#f3eee3'
+  c.textAlign = 'left'; c.fillText(`보스 · ${b.boss.name}${b.enraged ? ' (화남)' : ''}`, x, y + 7)
+  c.textAlign = 'right'; c.fillText(`${Math.max(0, Math.ceil(b.hp))} / ${b.maxHp}`, x + w, y + 7)
+}
+
 function renderRecords() {
   const s = save.stats, box = $('#rec-list'); box.innerHTML = ''
   for (const t of TYPES) {
@@ -510,12 +656,13 @@ function renderRecords() {
   $('#rec-fav').textContent = fav ? byId[fav[0]].name : '아직 없음'
   $('#rec-best').textContent = [1, 2, 3].map((d) => `${DIFF[d].name} ${(save.bestBy[d] || 0).toLocaleString('ko-KR')}`).join(' · ')
   $('#rec-course').textContent = `${Math.min(save.course, COURSE.length)}/${COURSE.length}단계`
+  $('#rec-maps').textContent = `${Math.min(save.maps.cleared, MAPS.length)}/${MAPS.length}맵`
 }
 
 // 일시정지 · 결과 · 코스 버튼
 $('#b-pause').addEventListener('click', () => { sfx.click(); pause() })
 $('#p-resume').addEventListener('click', () => { sfx.click(); resume() })
-$('#p-restart').addEventListener('click', () => { sfx.click(); startGame(G.mode, stageIdx) })
+$('#p-restart').addEventListener('click', () => { sfx.click(); startGame(G.mode, G.mode === 'maps' ? mapIdx : stageIdx) })
 $('#p-menu').addEventListener('click', () => { sfx.click(); toMenu() })
 $('#r-again').addEventListener('click', () => startGame('challenge'))
 $('#r-menu').addEventListener('click', toMenu)
@@ -608,24 +755,29 @@ let shaking = false
 function render() {
   const c = G.ctx.main
   c.clearRect(0, 0, G.W, G.H)
+  ambientUnder(c, frameDt)
   c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 1
   for (const b of G.bugs) if (b.mode === 'dangle' && b.state === 'alive') { c.beginPath(); c.moveTo(b.x, -10); c.lineTo(b.x, b.y - b.len * 0.15); c.stroke() }
   for (const b of G.bugs) drawShadow(c, b, SPR.shadow)
+  for (const b of G.bugs) drawGroundShadow(c, b, SPR.contact)
   for (const b of G.bugs) if (b.z <= 0.05) drawBug(c, b, bugOpts(b))
   for (const b of G.bugs) if (b.z > 0.05) drawBug(c, b, bugOpts(b))
   FX.drawNormal(c)
+  ambientOver(c, frameDt)
   FX.drawAdditive(c)
   for (const f of G.fxs) f.draw(c)
   for (const h of holds) h.draw(c)
+  drawBossUI(c)
   FX.drawPops(c)
   if (G.flash > 0.01) { c.fillStyle = `rgba(255,255,255,${G.flash})`; c.fillRect(0, 0, G.W, G.H) }
   if (G.shake > 0.4) { stage.style.transform = `translate(${R(-1, 1) * G.shake}px,${R(-1, 1) * G.shake}px)`; shaking = true }
   else if (shaking) { stage.style.transform = ''; shaking = false }
 }
-let last = performance.now()
+let last = performance.now(), frameDt = 0
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000)
   last = now
+  frameDt = G.state === 'play' || G.state === 'menu' ? dt : 0
   resize()
   if (G.state === 'play' || G.state === 'menu') { G.t += dt; update(dt) }
   render()
@@ -635,4 +787,4 @@ toMenu()
 requestAnimationFrame(frame)
 
 // 디버그·테스트용(콘솔에서 상태 확인)
-window.__bugsmash = { G, startGame, toMenu, spawn, selectWeapon, endSoon: () => { timeLeft = 0.2 } }
+window.__bugsmash = { G, startGame, toMenu, spawn, selectWeapon, endSoon: () => { timeLeft = 0.2 }, skipWave: () => { queue = []; for (const b of G.bugs) b.state = 'dead' }, hearts: (n) => { hearts = n } }

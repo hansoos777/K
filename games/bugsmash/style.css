@@ -251,3 +251,12 @@ h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 30px; 
   .tape span { animation: none; }
   #toast { animation: none; }
 }
+
+/* ── 스테이지(맵) ── */
+.stage.map { align-items: center; }
+.stage .prev { width: 72px; height: 48px; border-radius: 8px; flex: none; border: 1px solid var(--line); }
+.stage .st em { font-style: normal; color: var(--hazard); letter-spacing: .05em; }
+.mapprev { width: 100%; }
+.mapprev .prev { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 12px; border: 2px solid var(--line); }
+.chips.boss .chip { border-color: var(--blood); }
+.stars { font-size: 44px; line-height: 1; color: var(--hazard); letter-spacing: .08em; text-shadow: 2px 3px 0 var(--blood); }

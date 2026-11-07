@@ -19,6 +19,7 @@ export function initSprites() {
   SPR.mist = sprite('#eef6e2')
   SPR.dust = sprite('#cdbb98')
   SPR.shadow = sprite('#000000')
+  SPR.contact = sprite('#000000', 0.5) // 바닥 벌레 밑 그림자(가장자리만 흐림)
   SPR.glow = sprite('#ff9a3c')
   SPR.blue = sprite('#8fd0ff', 0.2)
   SPR.white = sprite('#ffffff', 0.3)

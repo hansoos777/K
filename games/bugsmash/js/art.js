@@ -45,11 +45,12 @@ export function palette(b) {
   return P
 }
 
+let REAL = false // 리얼 모습: 다리·더듬이를 어두운 테두리 + 밝은 심으로 그려 둥근 마디처럼 보이게
 function seg(c, p, w, col) {
-  c.strokeStyle = col; c.lineWidth = w
-  c.beginPath(); c.moveTo(p[0], p[1])
-  for (let i = 2; i < p.length; i += 2) c.lineTo(p[i], p[i + 1])
-  c.stroke()
+  const path = () => { c.beginPath(); c.moveTo(p[0], p[1]); for (let i = 2; i < p.length; i += 2) c.lineTo(p[i], p[i + 1]) }
+  if (REAL && w >= 1) { c.strokeStyle = 'rgba(0,0,0,.45)'; c.lineWidth = w * 1.6; path(); c.stroke() }
+  c.strokeStyle = col; c.lineWidth = w; path(); c.stroke()
+  if (REAL && w >= 1.2) { c.strokeStyle = 'rgba(255,240,220,.16)'; c.lineWidth = w * 0.35; path(); c.stroke() }
 }
 /** 다리 하나: 엉덩이 → 무릎 → 발끝. 허벅지는 옆으로, 종아리는 앞/뒤로 뻗는다 */
 function legPts(hx, hy, ang, reach, side, swing, lat = 0.6, kneeR = 0.45) {
@@ -159,6 +160,10 @@ function roach(c, b, P, L, o) {
       c.strokeStyle = P.dark; c.lineWidth = Math.max(0.8, L * 0.012)
       c.beginPath(); c.moveTo(0.12 * L, 0); c.quadraticCurveTo(-0.2 * L, 0.025 * L, -0.48 * L, 0.01 * L); c.stroke()
       if (real) {
+        c.strokeStyle = 'rgba(0,0,0,.45)'; c.lineWidth = Math.max(0.8, L * 0.014)
+        ell(c, -0.1 * L, 0, 0.4 * L, by * L); c.stroke()
+        c.strokeStyle = 'rgba(255,215,160,.28)'; c.lineWidth = Math.max(0.8, L * 0.012)
+        c.beginPath(); c.ellipse(-0.1 * L, 0, 0.38 * L, by * L * 0.92, 0, Math.PI * 1.12, Math.PI * 1.75); c.stroke()
         c.strokeStyle = 'rgba(255,210,150,.12)'
         for (const s of [-1, 1]) { c.beginPath(); c.moveTo(0.08 * L, s * 0.09 * L); c.quadraticCurveTo(-0.2 * L, s * 0.14 * L, -0.44 * L, s * 0.06 * L); c.stroke() }
         gloss(c, -0.05 * L, -0.08 * L, 0.2 * L, 0.035 * L, 0.22)
@@ -456,11 +461,13 @@ const DRAW = { roach, mosquito, fly, ant, spider }
 /** 벌레 한 마리를 그린다. o는 상태(납작·뒤집힘·탐) */
 export function drawBug(c, b, o = {}) {
   const P = palette(b)
+  REAL = b.style === 3 && !o.char
   if (b.type === 'centipede') {
     c.save()
     if (o.flat) { c.translate(b.x, b.y); c.scale(1.08, 1.08); c.translate(-b.x, -b.y) }
     centipede(c, b, P, o)
     c.restore()
+    REAL = false
     return
   }
   c.save()
@@ -471,6 +478,24 @@ export function drawBug(c, b, o = {}) {
   else c.scale(sc, sc)
   DRAW[b.type](c, b, P, b.len, o)
   c.restore()
+  REAL = false
+}
+
+/** 바닥에 붙어 있는 벌레 밑의 부드러운 그림자(빛은 왼쪽 위에서) */
+export function drawGroundShadow(c, b, img) {
+  if (b.z > 0.05 || b.mode === 'dangle') return
+  const k = b.style === 1 ? 0.25 : b.style === 2 ? 0.38 : 0.55
+  c.globalAlpha = k
+  if (b.type === 'centipede') {
+    const pts = [b].concat(b.segs), r = (b.len / b.segs.length) * 1.3
+    for (let i = 0; i < pts.length; i += 2) c.drawImage(img, pts[i].x + r * 0.3 - r, pts[i].y + r * 0.45 - r, r * 2, r * 2)
+  } else {
+    const L = b.len * (b.type === 'spider' ? 1.5 : b.type === 'mosquito' ? 0.9 : 1)
+    c.save(); c.translate(b.x + L * 0.06, b.y + L * 0.09); c.rotate(b.a)
+    c.drawImage(img, -L * 0.68, -L * 0.4, L * 1.36, L * 0.8)
+    c.restore()
+  }
+  c.globalAlpha = 1
 }
 
 /** 날고 있는 벌레의 그림자 */

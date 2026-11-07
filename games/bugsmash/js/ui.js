@@ -40,6 +40,10 @@ export const MARKUP = `
     <p class="tag">스트레스는 시원하게 풀고, 벌레 공포증은 한 단계씩 이겨내요.</p>
 
     <div class="modes">
+      <button class="mode" data-mode="maps" type="button">
+        <span class="mt" id="t-maps"></span>
+        <span class="mx"><b>스테이지</b><small>거실 → 하수구 → 폐건물 → 밀림 → 벌레 소굴 · <em id="m-maps">0/5</em></small></span>
+      </button>
       <button class="mode" data-mode="free" type="button">
         <span class="mt" id="t-free"></span>
         <span class="mx"><b>자유 모드</b><small>시간 제한 없이 마음껏. 벌레를 직접 불러서 잡아요.</small></span>
@@ -78,6 +82,9 @@ export const MARKUP = `
         <button type="button" data-v="floor">나무 마루</button>
         <button type="button" data-v="tile">주방 타일</button>
         <button type="button" data-v="screen">컴퓨터 화면</button>
+        <button type="button" data-v="sewer">하수구</button>
+        <button type="button" data-v="ruin">폐건물</button>
+        <button type="button" data-v="jungle">밀림</button>
       </div>
     </div>
 
@@ -88,6 +95,47 @@ export const MARKUP = `
       <button id="b-install" class="btn" type="button" hidden>앱으로 설치</button>
     </div>
     <p id="ios-hint" class="desc small" hidden>아이폰: 공유 버튼 → 홈 화면에 추가 하면 앱처럼 쓸 수 있어요.</p>
+  </div>
+</section>
+
+<section id="s-maps" class="screen" hidden>
+  <div class="card">
+    <div class="eyebrow">스테이지</div>
+    <h2>맵을 하나씩 깨요</h2>
+    <p class="desc">맵마다 3웨이브와 보스가 나와요. 벌레가 도망가면 하트가 하나씩 줄고, 5개를 다 잃으면 실패예요.</p>
+    <div id="map-list" class="stages"></div>
+    <div class="row"><button class="btn ghost" data-back type="button">메뉴로</button></div>
+  </div>
+</section>
+
+<section id="s-mapintro" class="screen" hidden>
+  <div class="card center">
+    <div class="eyebrow" id="mi-step"></div>
+    <h2 id="mi-title"></h2>
+    <div id="mi-prev" class="mapprev"></div>
+    <p id="mi-desc" class="desc"></p>
+    <div id="mi-bugs" class="chips"></div>
+    <div id="mi-boss" class="chips boss"></div>
+    <p id="mi-tip" class="desc small"></p>
+    <div class="row">
+      <button id="mi-back" class="btn ghost" type="button">맵 목록</button>
+      <button id="mi-start" class="btn big" type="button">시작</button>
+    </div>
+  </div>
+</section>
+
+<section id="s-mapend" class="screen" hidden>
+  <div class="card center">
+    <div class="eyebrow" id="me-step"></div>
+    <h2 id="me-title"></h2>
+    <div id="me-stars" class="stars"></div>
+    <p id="me-msg" class="desc"></p>
+    <dl id="me-stats" class="stats"></dl>
+    <div class="row">
+      <button id="me-menu" class="btn ghost" type="button">메뉴로</button>
+      <button id="me-again" class="btn ghost" type="button">다시 하기</button>
+      <button id="me-next" class="btn big" type="button">다음 맵</button>
+    </div>
   </div>
 </section>
 
@@ -169,6 +217,7 @@ export const MARKUP = `
       <div><dt>제일 많이 쓴 무기</dt><dd id="rec-fav"></dd></div>
       <div><dt>60초 최고 기록</dt><dd id="rec-best"></dd></div>
       <div><dt>공포 극복 코스</dt><dd id="rec-course"></dd></div>
+      <div><dt>스테이지</dt><dd id="rec-maps"></dd></div>
     </dl>
     <div class="row"><button class="btn ghost" data-back type="button">메뉴로</button></div>
   </div>

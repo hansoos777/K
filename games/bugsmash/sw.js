@@ -1,11 +1,11 @@
 // 오프라인용 서비스 워커: 게임 파일은 미리 담아 두고, 글꼴은 처음 받을 때 담아 둔다.
 // 진짜 사이트(/K/)와 개발 사이트(/K/dev/)가 서로의 저장소를 지우지 않게 이름에 범위를 붙인다
 const SCOPE = self.registration.scope
-const VERSION = 'bugsmash-v4@' + SCOPE
+const VERSION = 'bugsmash-v6@' + SCOPE
 const SHELL = [
   './', './index.html', './style.css', './manifest.webmanifest',
   './js/main.js', './js/state.js', './js/util.js', './js/audio.js', './js/fx.js', './js/art.js',
-  './js/bugs.js', './js/gear.js', './js/weapons.js', './js/bg.js', './js/ui.js',
+  './js/bugs.js', './js/gear.js', './js/weapons.js', './js/bg.js', './js/ui.js', './js/maps.js',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
 ]
 self.addEventListener('install', (e) => {
