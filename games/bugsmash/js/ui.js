@@ -36,7 +36,7 @@ export const MARKUP = `
 <section id="s-menu" class="screen">
   <div class="card menu">
     <div class="tape" aria-hidden="true"><span>해충 박멸 작전 · 해충 박멸 작전 · 해충 박멸 작전 · 해충 박멸 작전 ·</span></div>
-    <h1 class="logo"><span>벌레</span><span>박살</span></h1>
+    <h1 class="logo"><span>벌레</span><span>빠지직</span></h1>
     <p class="tag">스트레스는 시원하게 풀고, 벌레 공포증은 한 단계씩 이겨내요.</p>
 
     <div class="modes">

@@ -1,40 +1,28 @@
-# 벌레 박살(games/bugsmash) 자동 배포: 이 폴더가 바뀐 채로 기본 브랜치(claude/puja-time-code-review-19b93m)나 main에 올라오면 Cloudflare Pages "bugsmash" 프로젝트에 올린다.
-# 빌드 과정이 없어서 폴더를 그대로 올린다. 주소: https://bugsmash.pages.dev
-# Cloudflare 비밀값(CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID)이 있으면 Cloudflare에,
-# GitHub Pages에는 항상 올린다:
-#   https://hansoos777.github.io/K/      ← 진짜 사이트(기본 브랜치)
-#   https://hansoos777.github.io/K/dev/  ← 개발 사이트(작업 브랜치, dev_ref)
-# 작업 브랜치에 올리면 dev-bugsmash.yml이 이 워크플로를 기본 브랜치에서 다시 돌려 개발 사이트를 새로 만든다
-# (GitHub Pages는 기본 브랜치에서만 배포를 받기 때문).
-name: Deploy 벌레 박살
+# 벌레 빠지직(games/bugsmash) 자동 배포 → Cloudflare Pages 프로젝트 "bugsbbazizig"
+#   기본 브랜치에 올리면  → 진짜 사이트  https://bugsbbazizig.pages.dev  (도메인 연결 시 https://bugsbbazizig.com)
+#   다른 브랜치에 올리면  → 개발 사이트  https://dev.bugsbbazizig.pages.dev
+# 빌드 과정이 없어서 폴더를 그대로 올린다.
+# 필요한 GitHub 비밀값(믿어보까 배포와 같은 것): CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+name: Deploy 벌레 빠지직
 
 on:
   push:
-    branches: [main, claude/puja-time-code-review-19b93m]
+    branches: ['**']
     paths:
       - 'games/bugsmash/**'
       - '.github/workflows/deploy-bugsmash.yml'
   workflow_dispatch:
-    inputs:
-      dev_ref:
-        description: '개발 사이트(/dev/)에 올릴 브랜치'
-        required: false
-        default: 'ccr-1fb8d055-uckck8'
 
 concurrency:
-  group: bugsmash-deploy
+  group: bugsbbazizig-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    outputs:
-      has_cf: ${{ env.HAS_CF }}
     env:
       HAS_CF: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     steps:
@@ -43,56 +31,31 @@ jobs:
         run: |
           for f in games/bugsmash/js/*.js games/bugsmash/sw.js; do node --check "$f"; done
           node -e "JSON.parse(require('fs').readFileSync('games/bugsmash/manifest.webmanifest','utf8'))"
-      - name: Skip upload (Cloudflare not set up yet)
-        if: env.HAS_CF != 'true'
-        run: echo "::notice::Cloudflare 키가 없어 GitHub Pages로 올립니다."
-      - name: Create Pages project if missing
-        if: env.HAS_CF == 'true'
-        continue-on-error: true
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages project create bugsmash --production-branch main
-      - name: Upload to Cloudflare Pages
-        if: env.HAS_CF == 'true'
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy games/bugsmash --project-name bugsmash --branch main --commit-dirty=true
-
-  # GitHub Pages: 진짜 사이트는 /K/, 개발 사이트는 /K/dev/
-  pages:
-    needs: deploy
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.dep.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check out dev branch
-        id: devsrc
-        continue-on-error: true
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.dev_ref || 'ccr-1fb8d055-uckck8' }}
-          path: devsrc
-      - name: Assemble site
+      - name: Pick site (production or dev)
+        id: site
         run: |
-          mkdir -p _site
-          cp -r games/bugsmash/. _site/
-          if [ -d devsrc/games/bugsmash ]; then
-            mkdir -p _site/dev && cp -r devsrc/games/bugsmash/. _site/dev/
-            echo "::notice::개발 사이트: /dev/ ← $(git -C devsrc rev-parse --abbrev-ref HEAD) $(git -C devsrc rev-parse --short HEAD)"
+          if [ "${{ github.ref_name }}" = "${{ github.event.repository.default_branch }}" ] || [ "${{ github.ref_name }}" = "main" ]; then
+            echo "branch=main" >> "$GITHUB_OUTPUT"; echo "url=https://bugsbbazizig.pages.dev" >> "$GITHUB_OUTPUT"
           else
-            echo "::warning::개발 브랜치를 찾지 못해 /dev/는 비워 둡니다."
+            echo "branch=dev" >> "$GITHUB_OUTPUT"; echo "url=https://dev.bugsbbazizig.pages.dev" >> "$GITHUB_OUTPUT"
           fi
-      - uses: actions/configure-pages@v5
+      - name: Cloudflare keys missing
+        if: env.HAS_CF != 'true'
+        run: |
+          echo "::error::GitHub 저장소 Settings → Secrets and variables → Actions 에 CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID 를 넣어 주세요."
+          exit 1
+      - name: Create Pages project if missing
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@v3
         with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create bugsbbazizig --production-branch main
+      - name: Upload to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
         with:
-          path: _site
-      - id: dep
-        uses: actions/deploy-pages@v4
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy games/bugsmash --project-name bugsbbazizig --branch ${{ steps.site.outputs.branch }} --commit-dirty=true
+      - name: Done
+        run: echo "::notice::올라갔어요 → ${{ steps.site.outputs.url }}"

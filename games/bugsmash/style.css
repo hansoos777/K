@@ -1,4 +1,4 @@
-/* 벌레 박살 — 해충 방역 업체 경고 스티커 같은 화면.
+/* 벌레 빠지직 — 해충 방역 업체 경고 스티커 같은 화면.
    검은 고무판 위 노란 경고 테이프, 굵은 고딕 간판 글씨.
    한 가지 어두운 화면만 쓴다(게임 화면이므로 시스템 밝기와 무관하게 같은 모습). */
 :root {
@@ -140,13 +140,14 @@ button:focus-visible { outline: 3px solid var(--hazard); outline-offset: 2px; }
 }
 #s-menu { background: linear-gradient(rgba(15,13,10,.35), rgba(15,13,10,.6)); }
 .card {
-  margin: auto;
+  margin: auto; flex-shrink: 0;
   width: min(100%, 480px); background: rgba(31,28,23,.94); border: 2px solid var(--line);
   border-radius: 20px; padding: 20px 18px; position: relative; overflow: hidden;
   box-shadow: 0 24px 60px rgba(0,0,0,.55);
   display: flex; flex-direction: column; gap: 14px;
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
+.card > * { flex-shrink: 0; }
 .card.center { text-align: center; align-items: center; }
 .tape {
   margin: -20px -18px 0; height: 30px; overflow: hidden; white-space: nowrap;
@@ -161,7 +162,7 @@ button:focus-visible { outline: 3px solid var(--hazard); outline-offset: 2px; }
 @keyframes tape { to { transform: translateX(-40%); } }
 .logo {
   margin: 4px 0 0; font-family: var(--display); font-weight: 400; line-height: .9;
-  font-size: clamp(64px, 20vw, 104px); letter-spacing: -.02em;
+  font-size: clamp(50px, 16vw, 96px); letter-spacing: -.02em;
   display: flex; gap: .18em; align-items: baseline;
 }
 .logo span:first-child { color: var(--paper); transform: rotate(-3deg); display: inline-block; }
@@ -242,7 +243,7 @@ h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 30px; 
 .rec b { font-weight: 400; font-size: 18px; color: var(--hazard); font-variant-numeric: tabular-nums; }
 
 @media (max-height: 640px) {
-  .logo { font-size: clamp(52px, 15vw, 80px); }
+  .logo { font-size: clamp(44px, 13vw, 72px); }
   .card { gap: 10px; padding-top: 16px; }
   .mode .mt { width: 44px; height: 44px; }
 }

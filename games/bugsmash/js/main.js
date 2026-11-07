@@ -1,4 +1,4 @@
-// 벌레 박살 — 게임 흐름(메뉴 · 자유 모드 · 60초 도전 · 공포 극복 코스), 입력, 그리기
+// 벌레 빠지직 — 게임 흐름(메뉴 · 자유 모드 · 60초 도전 · 공포 극복 코스), 입력, 그리기
 import { G, DIFF, diff } from './state.js'
 import { R, pick, clamp, lerp } from './util.js'
 import * as FX from './fx.js'
@@ -13,8 +13,8 @@ import { MARKUP } from './ui.js'
 const $ = (s) => document.querySelector(s)
 const $$ = (s) => [...document.querySelectorAll(s)]
 
-// 개발 사이트(/dev/)는 기록을 따로 쓰고 화면 구석에 DEV 표시
-const DEV = /\/dev\/?$/.test(location.pathname.replace(/index\.html$/, ''))
+// 개발 사이트(dev.…)는 기록을 따로 쓰고 화면 구석에 DEV 표시
+const DEV = /^dev\./.test(location.hostname) || /\/dev\/?$/.test(location.pathname.replace(/index\.html$/, ""))
 
 // ── 저장(이 기기에만) ──
 const KEY = DEV ? 'bugsmash.v1.dev' : 'bugsmash.v1'

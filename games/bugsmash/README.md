@@ -1,4 +1,4 @@
-# 벌레 박살
+# 벌레 빠지직
 
 바퀴벌레·모기·파리·개미·거미·지네를 여러 무기로 잡으며 스트레스를 푸는 PWA 게임입니다.
 벌레 모습을 **귀여움 → 만화 → 리얼** 세 단계로 고를 수 있고, 단계별로 조금씩 진짜 같아지는
@@ -48,21 +48,40 @@ python3 -m http.server 8080     # 또는 npx serve .
 
 서비스 워커는 http(s)에서만 동작합니다. 파일을 바로 여는 file:// 에서는 설치·오프라인이 안 됩니다.
 
-## 배포 (Cloudflare Pages)
+## 배포 (Cloudflare Pages · 프로젝트 `bugsbbazizig`)
 
-자동: `games/bugsmash/`가 바뀐 채로 기본 브랜치(`claude/puja-time-code-review-19b93m`)나 `main`에 올라오면 `.github/workflows/deploy-bugsmash.yml`이
-Cloudflare Pages `bugsmash` 프로젝트(https://bugsmash.pages.dev)에 올립니다. 믿어보까 배포와 같은 GitHub 비밀값
-`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`를 씁니다. GitHub → Actions → "Deploy 벌레 박살" → Run workflow로 직접 돌릴 수도 있습니다.
-Cloudflare 비밀값이 없으면 대신 GitHub Pages(https://hansoos777.github.io/K/)에 올립니다.
+| 어디에 올리면 | 주소 |
+|---|---|
+| 기본 브랜치(`claude/puja-time-code-review-19b93m`) 또는 `main` | 진짜 사이트 https://bugsbbazizig.pages.dev (도메인 연결 후 https://bugsbbazizig.com) |
+| 그 밖의 브랜치(작업 브랜치) | 개발 사이트 https://dev.bugsbbazizig.pages.dev (화면 위에 DEV 표시) |
 
-손으로 올릴 때:
+`.github/workflows/deploy-bugsmash.yml`이 `games/bugsmash/`가 바뀔 때마다 자동으로 올립니다.
+GitHub 비밀값 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`가 있어야 합니다(믿어보까 배포와 같은 값).
+
+### 처음 한 번 설정
+
+1. Cloudflare → 오른쪽 위 프로필 → My Profile → API Tokens → Create Token → Create Custom Token
+   - 권한: Account · Cloudflare Pages · Edit → 만들고 토큰 복사
+2. Cloudflare 대시보드 → Workers & Pages → 오른쪽의 Account ID 복사
+3. GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret 으로
+   `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` 두 개 넣기
+4. GitHub → Actions → "Deploy 벌레 빠지직" → Run workflow (또는 이 폴더를 고쳐서 올리기)
+
+### 도메인 bugsbbazizig.com 연결
+
+1. Cloudflare → Domain Registration → Register Domains 에서 `bugsbbazizig.com` 구매
+2. Workers & Pages → `bugsbbazizig` → Custom domains → Set up a custom domain → `bugsbbazizig.com`
+3. 개발 사이트도 도메인으로: DNS에 CNAME `dev` → `dev.bugsbbazizig.pages.dev` 추가 후,
+   같은 Custom domains 화면에서 `dev.bugsbbazizig.com` 연결
+
+### 손으로 올릴 때
 
 ```bash
-npx wrangler pages deploy games/bugsmash --project-name bugsmash --branch main
+npx wrangler pages deploy games/bugsmash --project-name bugsbbazizig --branch main   # 진짜 사이트
+npx wrangler pages deploy games/bugsmash --project-name bugsbbazizig --branch dev    # 개발 사이트
 ```
 
-어느 정적 호스팅이든 이 폴더를 그대로 올리면 됩니다(GitHub Pages, Netlify 등). 하위 경로에 올려도 동작하도록
-모든 경로를 상대 경로로 썼습니다. 파일을 고친 뒤에는 `sw.js`의 `VERSION`을 올려 주세요.
+모든 경로를 상대 경로로 써서 다른 정적 호스팅에 그대로 올려도 됩니다. 파일을 고친 뒤에는 `sw.js`의 `VERSION`을 올려 주세요.
 
 ## 파일
 
