@@ -1,6 +1,8 @@
 /* 벌레 빠지직 — 해충 방역 업체 경고 스티커 같은 화면.
    검은 고무판 위 노란 경고 테이프, 굵은 고딕 간판 글씨.
    한 가지 어두운 화면만 쓴다(게임 화면이므로 시스템 밝기와 무관하게 같은 모습). */
+@font-face { font-family: "Black Han Sans"; src: url("fonts/blackhansans.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "Jua"; src: url("fonts/jua.woff2") format("woff2"); font-display: swap; }
 :root {
   --ink: #15130f;
   --panel: #1f1c17;

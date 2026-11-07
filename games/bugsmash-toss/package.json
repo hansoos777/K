@@ -1,0 +1,14 @@
+{
+  "name": "bugsbbazizig-toss",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "벌레 빠지직을 앱인토스(토스 앱 안 미니앱)용 .ait 번들로 만드는 곳",
+  "scripts": {
+    "build": "node scripts/build.mjs && ait build",
+    "deploy": "ait deploy"
+  },
+  "devDependencies": {
+    "@apps-in-toss/web-framework": "3.9.0"
+  }
+}

@@ -707,13 +707,15 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) pause
 
 // ── 앱 설치(PWA) ──
 let installEvt = null
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; $('#b-install').hidden = false })
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); if (window.__TOSS__) return; installEvt = e; $('#b-install').hidden = false })
 $('#b-install').addEventListener('click', async () => {
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice } catch { /* 무시 */ } installEvt = null; $('#b-install').hidden = true }
 })
-const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone
+// 토스 앱 안(앱인토스)에서는 설치 안내·서비스 워커를 쓰지 않는다(토스가 앱을 관리한다)
+const TOSS = !!window.__TOSS__
+const ios = !TOSS && /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone
 if (ios) $('#ios-hint').hidden = false
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+if (!TOSS && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   navigator.serviceWorker.register('./sw.js').catch(() => { /* 미리보기 등에서는 안 될 수 있다 */ })
 }
 
