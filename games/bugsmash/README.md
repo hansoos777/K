@@ -48,7 +48,13 @@ python3 -m http.server 8080     # 또는 npx serve .
 
 서비스 워커는 http(s)에서만 동작합니다. 파일을 바로 여는 file:// 에서는 설치·오프라인이 안 됩니다.
 
-## 배포 (Cloudflare Pages 예시)
+## 배포 (Cloudflare Pages)
+
+자동: `games/bugsmash/`가 바뀐 채로 `main`에 올라오면 `.github/workflows/deploy-bugsmash.yml`이
+Cloudflare Pages `bugsmash` 프로젝트(https://bugsmash.pages.dev)에 올립니다. 믿어보까 배포와 같은 GitHub 비밀값
+`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`를 씁니다. GitHub → Actions → "Deploy 벌레 박살" → Run workflow로 직접 돌릴 수도 있습니다.
+
+손으로 올릴 때:
 
 ```bash
 npx wrangler pages deploy games/bugsmash --project-name bugsmash --branch main
