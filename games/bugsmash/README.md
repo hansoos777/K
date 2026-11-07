@@ -1,4 +1,4 @@
-# 벌레 박살
+# 벌레 빠지직
 
 바퀴벌레·모기·파리·개미·거미·지네를 여러 무기로 잡으며 스트레스를 푸는 PWA 게임입니다.
 벌레 모습을 **귀여움 → 만화 → 리얼** 세 단계로 고를 수 있고, 단계별로 조금씩 진짜 같아지는
@@ -48,21 +48,26 @@ python3 -m http.server 8080     # 또는 npx serve .
 
 서비스 워커는 http(s)에서만 동작합니다. 파일을 바로 여는 file:// 에서는 설치·오프라인이 안 됩니다.
 
-## 배포 (Cloudflare Pages)
+## 배포 (Cloudflare Pages · 프로젝트 `bugsbbazizig`, GitHub 연결)
 
-자동: `games/bugsmash/`가 바뀐 채로 기본 브랜치(`claude/puja-time-code-review-19b93m`)나 `main`에 올라오면 `.github/workflows/deploy-bugsmash.yml`이
-Cloudflare Pages `bugsmash` 프로젝트(https://bugsmash.pages.dev)에 올립니다. 믿어보까 배포와 같은 GitHub 비밀값
-`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`를 씁니다. GitHub → Actions → "Deploy 벌레 박살" → Run workflow로 직접 돌릴 수도 있습니다.
-Cloudflare 비밀값이 없으면 대신 GitHub Pages(https://hansoos777.github.io/K/)에 올립니다.
+Cloudflare Pages가 이 저장소에 직접 연결되어 있어서, 올리기만 하면 Cloudflare가 알아서 배포합니다(API 키 필요 없음).
 
-손으로 올릴 때:
+| 어디에 올리면 | 주소 |
+|---|---|
+| 기본 브랜치(`claude/puja-time-code-review-19b93m`) | 진짜 사이트 https://bugsbbazizig.pages.dev |
+| 그 밖의 브랜치 | 개발 사이트 `https://<브랜치 이름>.bugsbbazizig.pages.dev` (화면 위에 DEV 표시) |
+
+Cloudflare 설정(Workers & Pages → bugsbbazizig → Settings → Builds):
+Framework preset `None`, Build command 비움, Build output directory `games/bugsmash`.
+
+### 손으로 올릴 때
 
 ```bash
-npx wrangler pages deploy games/bugsmash --project-name bugsmash --branch main
+npx wrangler pages deploy games/bugsmash --project-name bugsbbazizig --branch main   # 진짜 사이트
+npx wrangler pages deploy games/bugsmash --project-name bugsbbazizig --branch dev    # 개발 사이트
 ```
 
-어느 정적 호스팅이든 이 폴더를 그대로 올리면 됩니다(GitHub Pages, Netlify 등). 하위 경로에 올려도 동작하도록
-모든 경로를 상대 경로로 썼습니다. 파일을 고친 뒤에는 `sw.js`의 `VERSION`을 올려 주세요.
+모든 경로를 상대 경로로 써서 다른 정적 호스팅에 그대로 올려도 됩니다. 파일을 고친 뒤에는 `sw.js`의 `VERSION`을 올려 주세요.
 
 ## 파일
 

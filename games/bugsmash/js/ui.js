@@ -36,7 +36,7 @@ export const MARKUP = `
 <section id="s-menu" class="screen">
   <div class="card menu">
     <div class="tape" aria-hidden="true"><span>해충 박멸 작전 · 해충 박멸 작전 · 해충 박멸 작전 · 해충 박멸 작전 ·</span></div>
-    <h1 class="logo"><span>벌레</span><span>박살</span></h1>
+    <h1 class="logo"><span>벌레</span><span>빠지직</span></h1>
     <p class="tag">스트레스는 시원하게 풀고, 벌레 공포증은 한 단계씩 이겨내요.</p>
 
     <div class="modes">
@@ -46,7 +46,7 @@ export const MARKUP = `
       </button>
       <button class="mode" data-mode="challenge" type="button">
         <span class="mt" id="t-chal"></span>
-        <span class="mx"><b>60초 도전</b><small>도망가기 전에 잡아요 · 최고 <em id="m-best">0</em>점</small></span>
+        <span class="mx"><b>60초 도전</b><small>도망가기 전에 잡아요 · 최고 <em id="m-best">0</em></small></span>
       </button>
       <button class="mode" data-mode="course" type="button">
         <span class="mt" id="t-course"></span>
@@ -62,6 +62,15 @@ export const MARKUP = `
         <button type="button" data-v="3"><span class="st"></span>리얼</button>
       </div>
       <p id="style-desc" class="desc"></p>
+    </div>
+    <div class="field">
+      <div class="label">난이도</div>
+      <div class="seg flat" id="seg-diff" role="group" aria-label="난이도">
+        <button type="button" data-v="1">하</button>
+        <button type="button" data-v="2">중</button>
+        <button type="button" data-v="3">상</button>
+      </div>
+      <p id="diff-desc" class="desc"></p>
     </div>
     <div class="field">
       <div class="label">바닥</div>

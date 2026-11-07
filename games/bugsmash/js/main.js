@@ -1,5 +1,5 @@
-// 벌레 박살 — 게임 흐름(메뉴 · 자유 모드 · 60초 도전 · 공포 극복 코스), 입력, 그리기
-import { G } from './state.js'
+// 벌레 빠지직 — 게임 흐름(메뉴 · 자유 모드 · 60초 도전 · 공포 극복 코스), 입력, 그리기
+import { G, DIFF, diff } from './state.js'
 import { R, pick, clamp, lerp } from './util.js'
 import * as FX from './fx.js'
 import { SPR, initSprites } from './fx.js'
@@ -13,11 +13,16 @@ import { MARKUP } from './ui.js'
 const $ = (s) => document.querySelector(s)
 const $$ = (s) => [...document.querySelectorAll(s)]
 
+// 개발 사이트(작업 브랜치 미리보기 <브랜치>.bugsbbazizig.pages.dev)는 화면 위에 DEV 표시
+// 진짜 사이트는 bugsbbazizig.pages.dev 그대로. 주소(origin)가 달라서 기록은 원래 따로 저장된다
+const DEV = /\.bugsbbazizig\.pages\.dev$/.test(location.hostname) || /\/dev\/?$/.test(location.pathname.replace(/index\.html$/, ''))
+
 // ── 저장(이 기기에만) ──
-const KEY = 'bugsmash.v1'
+const KEY = DEV ? 'bugsmash.v1.dev' : 'bugsmash.v1'
 const save = (() => { try { return JSON.parse(localStorage.getItem(KEY)) || {} } catch { return {} } })()
 save.stats = save.stats || { kills: {}, weapons: {}, total: 0, rounds: 0 }
 save.best = save.best || 0
+save.bestBy = save.bestBy || { 2: save.best } // 난이도별 60초 최고 기록(예전 기록은 '중')
 save.course = save.course || 0
 if (save.settings) Object.assign(G.settings, save.settings)
 function persist() {
@@ -25,6 +30,11 @@ function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(save)) } catch { /* 저장 못 해도 게임은 된다 */ }
 }
 
+const DIFF_DESC = {
+  1: '벌레가 느리고 잘 안 피해요. 근처만 쳐도 잡혀요. 점수 ×0.8',
+  2: '보통 속도. 무기 범위 안에 들어오면 잡혀요.',
+  3: '벌레가 훨씬 빠르고 잘 피해요. 몸통 한가운데를 정확히 맞혀야 죽어요. 빗맞으면 다치기만 해요. 점수 ×1.5',
+}
 const STYLE_DESC = {
   1: '동글동글 눈 달린 벌레. 잡으면 별이 튀어요. 벌레가 무섭다면 여기서 시작하세요.',
   2: '진짜 벌레 색과 모양을 단순하게. 체액은 조금만.',
@@ -43,6 +53,7 @@ export const COURSE = [
 // ── 화면 만들기 ──
 const root = document.getElementById('app') || document.body
 root.insertAdjacentHTML('beforeend', MARKUP)
+if (DEV) { root.insertAdjacentHTML('beforeend', '<div id="dev-badge">DEV</div>'); document.title = '[DEV] ' + document.title }
 const stage = $('#stage')
 const cvs = { bg: $('#cv-bg'), decal: $('#cv-decal'), main: $('#cv-main'), glass: $('#cv-glass') }
 for (const k in cvs) G.ctx[k] = cvs[k].getContext('2d')
@@ -159,8 +170,10 @@ G.strike = (h) => {
     if (!h.only && !b.inShape(h)) continue
     if (!h.air && b.z > 0.3) { air++; continue }
     hit.push(b)
-    const dmg = h.dmg * (h.airBonus && b.spec.flyer ? h.airBonus : 1)
-    if (b.damage(dmg, h.kind || 'squish', Math.atan2(b.y - h.y, b.x - h.x), h)) killed.push(b)
+    let dmg = h.dmg * (h.airBonus && b.spec.flyer ? h.airBonus : 1), hh = h
+    // 상: 몸통 한가운데를 정확히 맞혀야 죽는다. 빗맞으면 힘이 1/4만 들어가 다치기만 한다
+    if (diff().precise && !h.only && b.coreDist(h) > (h.w ? 0 : b.coreR())) { dmg *= 0.25; hh = { ...h, graze: true } }
+    if (b.damage(dmg, h.kind || 'squish', Math.atan2(b.y - h.y, b.x - h.x), hh)) killed.push(b)
   }
   if (!h.only && G.state === 'play') {
     G.swings++; if (hit.length) G.hits++
@@ -195,7 +208,7 @@ G.onKill = (b, kind, h) => {
   G.combo = G.t - G.lastKill < 1.4 ? G.combo + 1 : 1
   G.lastKill = G.t
   G.bestCombo = Math.max(G.bestCombo, G.combo)
-  const pts = Math.round(b.spec.score * (1 + Math.min(3, (G.combo - 1) * 0.25)))
+  const pts = Math.round(b.spec.score * (1 + Math.min(3, (G.combo - 1) * 0.25)) * diff().score)
   G.score += pts
   FX.pop('+' + pts, b.x + 30, b.y - 14, '#ffe14d', 0.5, 0.7)
   if (G.combo >= 3) FX.pop(`${G.combo} 콤보!`, G.W / 2, G.area.y0 + 50, '#ff9a3d', 0.75, 0.8)
@@ -226,8 +239,9 @@ function hazards(dt) {
       const dx = m.x - b.x, dy = m.y - b.y, r = m.r + b.pad * 0.5
       if (dx * dx + dy * dy < r * r) { tox += 1 - m.age / m.life; if (tox > 8) break }
     }
-    if (heat) b.burn += (dt * Math.min(heat, 6) * 0.35) / b.spec.resist
-    if (tox) b.poison += (dt * Math.min(tox, 8) * 0.16) / b.spec.resist
+    const k = diff().haz
+    if (heat) b.burn += (dt * Math.min(heat, 6) * 0.35 * k) / b.spec.resist
+    if (tox) b.poison += (dt * Math.min(tox, 8) * 0.16 * k) / b.spec.resist
   }
 }
 
@@ -302,7 +316,7 @@ function spawnOne(type, opts = {}) {
 }
 
 function hud() {
-  $('#h-mode').textContent = G.mode === 'course' ? COURSE[stageIdx].title : MODES[G.mode].title
+  $('#h-mode').textContent = `${G.mode === 'course' ? COURSE[stageIdx].title : MODES[G.mode].title} · 난이도 ${diff().name}`
   $('#h-main').textContent = MODES[G.mode].main()
   $('#h-score').textContent = G.score.toLocaleString('ko-KR')
 }
@@ -368,9 +382,10 @@ function resume() {
 function finishChallenge() {
   G.state = 'result'
   stopHolds(); stopLoops()
-  const prev = save.best
+  const dv = G.settings.diff, prev = save.bestBy[dv] || 0
   const best = G.score > prev
-  if (best) save.best = G.score
+  if (best) save.bestBy[dv] = G.score
+  save.best = Math.max(save.best, G.score)
   save.stats.rounds = (save.stats.rounds || 0) + 1
   persist()
   const grade = G.score >= 2600 ? 'S' : G.score >= 1700 ? 'A' : G.score >= 950 ? 'B' : 'C'
@@ -434,7 +449,9 @@ function thumbChip(type, style, label) {
 
 // ── 메뉴 ──
 function renderMenu() {
-  $('#m-best').textContent = save.best.toLocaleString('ko-KR')
+  $('#m-best').textContent = `${(save.bestBy[G.settings.diff] || 0).toLocaleString('ko-KR')}점(${diff().name})`
+  for (const b of $$('#seg-diff button')) b.setAttribute('aria-pressed', String(Number(b.dataset.v) === G.settings.diff))
+  $('#diff-desc').textContent = DIFF_DESC[G.settings.diff]
   $('#m-course').textContent = `${Math.min(save.course, COURSE.length)}/${COURSE.length}`
   for (const b of $$('#seg-style button')) b.setAttribute('aria-pressed', String(Number(b.dataset.v) === G.settings.style))
   for (const b of $$('#seg-bg button')) b.setAttribute('aria-pressed', String(b.dataset.v === G.settings.bg))
@@ -450,6 +467,10 @@ function renderMenu() {
 $$('[data-mode]').forEach((b) => b.addEventListener('click', () => {
   audioInit(); sfx.click()
   if (b.dataset.mode === 'course') { renderCourse(); show('s-course') } else startGame(b.dataset.mode)
+}))
+$$('#seg-diff button').forEach((b) => b.addEventListener('click', () => {
+  G.settings.diff = Number(b.dataset.v)
+  persist(); renderMenu(); audioInit(); sfx.click()
 }))
 $$('#seg-style button').forEach((b) => b.addEventListener('click', () => {
   G.settings.style = Number(b.dataset.v); G.style = G.settings.style
@@ -487,7 +508,7 @@ function renderRecords() {
   $('#rec-total').textContent = (s.total || 0).toLocaleString('ko-KR')
   const fav = Object.entries(s.weapons || {}).filter(([k]) => byId[k]).sort((a, b) => b[1] - a[1])[0]
   $('#rec-fav').textContent = fav ? byId[fav[0]].name : '아직 없음'
-  $('#rec-best').textContent = save.best.toLocaleString('ko-KR') + '점'
+  $('#rec-best').textContent = [1, 2, 3].map((d) => `${DIFF[d].name} ${(save.bestBy[d] || 0).toLocaleString('ko-KR')}`).join(' · ')
   $('#rec-course').textContent = `${Math.min(save.course, COURSE.length)}/${COURSE.length}단계`
 }
 
