@@ -1312,6 +1312,12 @@ h1, h2, h3, legend, .sec-title, .wordmark { font-family: var(--serif); font-weig
 .hero5-panel p { margin: 0 0 24px; color: #6A6259; font-size: 1.02rem; }
 .btn5 { display: inline-flex; align-items: center; gap: 8px; height: 56px; padding: 0 30px; border-radius: 99px; background: #7A6652; color: #fff; font-weight: 600; font-size: 1.02rem; text-decoration: none; }
 .btn5:hover { background: #6A5644; }
+.hero5-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn5.ghost { background: transparent; color: #5A4A3C; box-shadow: inset 0 0 0 1.5px #CBBBA8; }
+.btn5.ghost:hover { background: #F3ECE2; }
+/* 광장 문을 지날 때 잠깐 어두워짐 */
+.gate-fade { position: fixed; inset: 0; z-index: 9999; background: #1d1813; opacity: 0; pointer-events: none; transition: opacity .42s ease; }
+.gate-fade.on { opacity: 1; }
 .sec5 { margin-top: 64px; }
 .sec5 h2 { font-size: clamp(1.45rem, 2.6vw, 1.9rem); margin: 0 0 20px; color: var(--text); }
 .where5, .try5, .story5, .again5 { list-style: none; padding: 0; margin: 0; display: grid; gap: 18px; }

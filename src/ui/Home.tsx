@@ -50,6 +50,8 @@ export default function Home() {
   }
   const topWorld = order[0]
   const [hw, hp] = HERO[cur]
+  // 홈으로 오면 광장 입구 기록을 비움 (홈에서 바로 들어간 공간은 뒤로 가기가 원래대로)
+  useEffect(() => { try { sessionStorage.removeItem('plazaFrom') } catch { /* 무시 */ } }, [])
 
   return (
     <div className="home5">
@@ -69,7 +71,10 @@ export default function Home() {
         <div className="hero5-panel">
           <h1>{t.x.heroTitle}</h1>
           <p>{t.x.heroSub}</p>
-          <a className="btn5" href={href('spaces')}>{t.x.heroBtn} <span aria-hidden="true">→</span></a>
+          <div className="hero5-btns">
+            <a className="btn5" href={href('w/plaza/square')}>{t.plz.hero} <span aria-hidden="true">→</span></a>
+            <a className="btn5 ghost" href={href('spaces')}>{t.x.heroBtn}</a>
+          </div>
         </div>
       </section>
 

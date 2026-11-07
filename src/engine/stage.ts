@@ -575,7 +575,8 @@ export class Stage {
       } else dir = d.normalize()
     }
     if (dir) {
-      const speed = 2.6 * speedK
+      // Shift: 달리기 (넓은 광장에서 쓰기 좋게)
+      const speed = 2.6 * speedK * (this.keys.has('shift') ? 1.9 : 1)
       const nx = a.position.x + dir.x * speed * dt
       const nz = a.position.z + dir.y * speed * dt
       // 눌러서 찾아가는 길(격자·직선 검사를 이미 통과한 길)은 그대로 따라감. 조이스틱·키보드만 매 걸음 부딪힘 확인
@@ -715,7 +716,7 @@ export class Stage {
     const t = e.target as HTMLElement
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return
     const k = e.key.toLowerCase()
-    if (!['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) return
+    if (!['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'shift'].includes(k)) return
     if (e.type === 'keydown') this.keys.add(k)
     else this.keys.delete(k)
   }

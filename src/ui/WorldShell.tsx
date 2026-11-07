@@ -1,7 +1,7 @@
 import { Component, Suspense, lazy, useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react'
 import { suspendAudio } from '../core/audio'
 import { markWorldReady, markWorldStart } from '../core/perf'
-import { worldById, type WorldProps } from '../core/registry'
+import { spaceById, type WorldProps } from '../core/registry'
 import { href } from '../core/router'
 import { useT } from '../i18n'
 import { Logo } from './Logo'
@@ -26,7 +26,7 @@ function Ready({ id, children }: { id: string; children: ReactNode }) {
 
 export default function WorldShell({ id, place, tour }: { id: string; place?: string; tour?: boolean }) {
   const t = useT()
-  const def = worldById(id)
+  const def = spaceById(id)
   const [attempt, setAttempt] = useState(0)
 
   const World = useMemo(() => {

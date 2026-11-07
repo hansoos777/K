@@ -36,12 +36,13 @@ export default function MandirWorld({ place, tour }: WorldProps) {
   const q = [cur.id === 'mandir' ? 'tab=mandir' : '', toss ? 'toss=1' : ''].filter(Boolean).join('&')
   const src = `/hindu/${q ? `?${q}` : ''}`
   const s = step != null && step >= 0 ? steps[step] : null
+  const fromPlaza = (() => { try { return sessionStorage.getItem('plazaFrom') === 'mandir' } catch { return false } })()
 
   return (
     <div className="space embed w-mandir">
       <header className="embed-bar">
-        <a className="glass-btn" href={href('spaces/mandir')} aria-label={t.back}><Icon name="back" /></a>
-        <span className="world-brand">{lang === 'en' ? def.brand : t.worlds.mandir.name}</span>
+        <a className="glass-btn" href={href(fromPlaza ? 'w/plaza/square' : 'spaces/mandir')} aria-label={fromPlaza ? t.plz.back : t.back} onClick={() => { if (fromPlaza) try { sessionStorage.setItem('plazaReturn', 'mandir') } catch { /* 무시 */ } }}><Icon name="back" /></a>
+        <span className="world-brand">{fromPlaza ? `${t.worlds.plaza.name} › ${t.plz.subs.mandir}` : lang === 'en' ? def.brand : t.worlds.mandir.name}</span>
         {def.places.map((p) => (
           <a key={p.id} className={`pill ${p.id === cur.id ? 'on' : ''}`} href={href(`w/mandir/${p.id}`)} aria-current={p.id === cur.id ? 'page' : undefined}>{lang === 'en' ? p.en : p.ko}</a>
         ))}

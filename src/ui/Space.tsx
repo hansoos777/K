@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { stopAll } from '../core/audio'
-import { worldById, type WorldId } from '../core/registry'
+import { spaceById, type SpaceId } from '../core/registry'
 import { go, href } from '../core/router'
 import { effectiveQuality, getState, recordVisit, toggleFavorite, update, useStore } from '../core/store'
 import type { Builder, Stage } from '../engine/stage'
@@ -50,12 +50,12 @@ export interface PlaceScene {
   tour?: TourStep[]
 }
 
-export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: string; scene: (placeId: string) => PlaceScene; tourMode?: boolean }) {
+export function Space({ id, place, scene, tourMode }: { id: SpaceId; place?: string; scene: (placeId: string) => PlaceScene; tourMode?: boolean }) {
   const t = useT()
   const lang = useStore((s) => s.lang)
   const favorites = useStore((s) => s.favorites)
   const sound = useStore((s) => s.sound)
-  const def = worldById(id)!
+  const def = spaceById(id)!
   const open = def.places.filter((p) => !p.soon)
   const current = open.find((p) => p.id === place) ?? open[0]
   const key = `${id}/${current.id}`
@@ -82,6 +82,11 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
   const coarse = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches
   const name = (p: { ko: string; en: string }) => (lang === 'en' ? p.en : p.ko)
   const tour = sc.tour ?? []
+  const isPlaza = id === 'plaza'
+  // 광장의 문으로 들어왔으면 뒤로 가기가 광장(그 입구 앞)으로 돌아감
+  const fromPlaza = !isPlaza && (() => { try { return sessionStorage.getItem('plazaFrom') === id } catch { return false } })()
+  const backTo = isPlaza ? '' : fromPlaza ? 'w/plaza/square' : `spaces/${id}`
+  const markReturn = () => { if (fromPlaza) try { sessionStorage.setItem('plazaReturn', id) } catch { /* 무시 */ } }
 
   useEffect(() => {
     if (!toast) return
@@ -94,7 +99,7 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
   }, [place, current.id, id])
 
   useEffect(() => {
-    recordVisit(key)
+    if (!isPlaza) recordVisit(key)
     setSheet(null)
     setHint(true)
     setSpot(null)
@@ -184,10 +189,23 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
   useEffect(() => { enteredAt.current = Date.now(); seenSpots.current = new Set() }, [key])
   const otherPlace = open.find((p) => p.id !== current.id)
 
+  // E: 가까이 있는 안내 지점의 동작(광장 입구라면 들어가기)
+  const eRef = useRef<() => void>(() => {})
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return
+      if (e.key.toLowerCase() === 'e' && !e.repeat) eRef.current()
+    }
+    window.addEventListener('keydown', on)
+    return () => window.removeEventListener('keydown', on)
+  }, [])
+
   const active = sc.actions.find((a) => a.id === sheet)
   const infoOpen = sheet === 'info'
   const spotInfo = spot ? sc.spots?.[spot] : undefined
   const spotAction = spotInfo?.action ? sc.actions.find((a) => a.id === spotInfo.action) : undefined
+  eRef.current = () => { if (spotAction && !cur) runAction(spotAction) }
 
   return (
     <div className={`space w-${id}`}>
@@ -202,12 +220,13 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
       {state === 'nogl' && <div className="space-loading"><p>{t.noGL}</p></div>}
 
       <header className="hud-top">
-        <a className="glass-btn" href={href(`spaces/${id}`)} aria-label={t.back} onClick={(e) => {
-          // 30초 넘게 둘러봤으면 나가기 전에 다음 할 일을 제안
-          if (!end && Date.now() - enteredAt.current > 30000 && step == null) { e.preventDefault(); setEnd(true) }
+        <a className="glass-btn" href={href(backTo)} aria-label={fromPlaza ? t.plz.back : t.back} onClick={(e) => {
+          // 30초 넘게 둘러봤으면 나가기 전에 다음 할 일을 제안 (광장에서 들어왔으면 바로 광장으로)
+          if (!isPlaza && !fromPlaza && !end && Date.now() - enteredAt.current > 30000 && step == null) { e.preventDefault(); setEnd(true) }
+          else markReturn()
         }}><Icon name="back" /></a>
         <div className="hud-title glass">
-          <span className="world-brand">{lang === 'en' ? def.brand : t.worlds[id].name}</span>
+          {!isPlaza && <span className="world-brand">{fromPlaza ? `${t.worlds.plaza.name} › ${t.plz.subs[id as keyof typeof t.plz.subs]}` : lang === 'en' ? def.brand : t.worlds[id].name}</span>}
           <strong aria-current="location">{name(current)}</strong>
         </div>
         <button className="glass-btn" onClick={() => update((s) => ({ sound: !s.sound }))} aria-label={t.s.sound} aria-pressed={sound}>
@@ -218,7 +237,7 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
         </button>
       </header>
 
-      <nav className="hud-places" aria-label={t.worlds[id].place}>
+      {!isPlaza && <nav className="hud-places" aria-label={t.worlds[id].place}>
         {def.places.map((p) =>
           p.soon ? (
             <span key={p.id} className="pill soon" aria-disabled="true">{name(p)} · {t.soon}</span>
@@ -227,7 +246,7 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
           ),
         )}
         <span className="pill people" title={t.peopleNote}><Icon name="pray" size={14} /> {t.peopleSolo}</span>
-      </nav>
+      </nav>}
 
       {/* 튜토리얼 카드 */}
       {step === -1 && state === 'ready' && (
@@ -260,13 +279,13 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
           {spotInfo.text && <p>{spotInfo.text}</p>}
           <div className="row">
             {spotAction && <button className="btn btn-primary" onClick={() => runAction(spotAction)}>{spotAction.label}</button>}
-            <a className="btn" href={href(`explore/${id}/learn`)}>{t.sx.storyYes}</a>
+            {!isPlaza && <a className="btn" href={href(`explore/${id}/learn`)}>{t.sx.storyYes}</a>}
           </div>
         </div>
       )}
 
       {/* 충분히 둘러본 뒤 한 번만: 이야기가 궁금하신가요? */}
-      {ask && !end && (
+      {ask && !end && !isPlaza && (
         <div className="ask glass" role="dialog">
           <p>{t.sx.storyAsk}</p>
           <div className="row">
@@ -288,7 +307,7 @@ export function Space({ id, place, scene, tourMode }: { id: WorldId; place?: str
         </div>
       )}
 
-      {hint && state === 'ready' && !toast && step == null && !spotInfo && <p className="hud-hint glass">{coarse ? t.moveHintTouch : t.moveHint}</p>}
+      {hint && state === 'ready' && !toast && step == null && !spotInfo && <p className="hud-hint glass">{isPlaza ? (coarse ? t.plz.hintTouch : t.plz.hint) : coarse ? t.moveHintTouch : t.moveHint}</p>}
       {toast && <p className="hud-hint glass toast" role="status">{toast}</p>}
 
       {coarse && state === 'ready' && <Joystick onMove={(x, y) => { stageRef.current?.setStick(x, y); if (x || y) setHint(false) }} />}
