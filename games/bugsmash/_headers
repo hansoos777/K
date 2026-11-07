@@ -1,0 +1,15 @@
+# 진입 파일과 서비스 워커는 매번 새로 확인(업데이트가 바로 반영되도록)
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache
+/js/*
+  Cache-Control: no-cache
+/style.css
+  Cache-Control: no-cache
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
