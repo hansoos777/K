@@ -1,5 +1,7 @@
 // 오프라인용 서비스 워커: 게임 파일은 미리 담아 두고, 글꼴은 처음 받을 때 담아 둔다.
-const VERSION = 'bugsmash-v2'
+// 진짜 사이트(/K/)와 개발 사이트(/K/dev/)가 서로의 저장소를 지우지 않게 이름에 범위를 붙인다
+const SCOPE = self.registration.scope
+const VERSION = 'bugsmash-v3@' + SCOPE
 const SHELL = [
   './', './index.html', './style.css', './manifest.webmanifest',
   './js/main.js', './js/state.js', './js/util.js', './js/audio.js', './js/fx.js', './js/art.js',
@@ -10,7 +12,7 @@ self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()))
 })
 self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== VERSION).map((k) => caches.delete(k)))).then(() => self.clients.claim()))
+  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== VERSION && (k.endsWith('@' + SCOPE) || !k.includes('@'))).map((k) => caches.delete(k)))).then(() => self.clients.claim()))
 })
 self.addEventListener('fetch', (e) => {
   const req = e.request

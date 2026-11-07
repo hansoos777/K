@@ -13,8 +13,11 @@ import { MARKUP } from './ui.js'
 const $ = (s) => document.querySelector(s)
 const $$ = (s) => [...document.querySelectorAll(s)]
 
+// 개발 사이트(/dev/)는 기록을 따로 쓰고 화면 구석에 DEV 표시
+const DEV = /\/dev\/?$/.test(location.pathname.replace(/index\.html$/, ''))
+
 // ── 저장(이 기기에만) ──
-const KEY = 'bugsmash.v1'
+const KEY = DEV ? 'bugsmash.v1.dev' : 'bugsmash.v1'
 const save = (() => { try { return JSON.parse(localStorage.getItem(KEY)) || {} } catch { return {} } })()
 save.stats = save.stats || { kills: {}, weapons: {}, total: 0, rounds: 0 }
 save.best = save.best || 0
@@ -49,6 +52,7 @@ export const COURSE = [
 // ── 화면 만들기 ──
 const root = document.getElementById('app') || document.body
 root.insertAdjacentHTML('beforeend', MARKUP)
+if (DEV) { root.insertAdjacentHTML('beforeend', '<div id="dev-badge">DEV</div>'); document.title = '[DEV] ' + document.title }
 const stage = $('#stage')
 const cvs = { bg: $('#cv-bg'), decal: $('#cv-decal'), main: $('#cv-main'), glass: $('#cv-glass') }
 for (const k in cvs) G.ctx[k] = cvs[k].getContext('2d')

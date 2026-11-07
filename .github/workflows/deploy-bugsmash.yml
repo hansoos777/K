@@ -1,7 +1,11 @@
 # 벌레 박살(games/bugsmash) 자동 배포: 이 폴더가 바뀐 채로 기본 브랜치(claude/puja-time-code-review-19b93m)나 main에 올라오면 Cloudflare Pages "bugsmash" 프로젝트에 올린다.
 # 빌드 과정이 없어서 폴더를 그대로 올린다. 주소: https://bugsmash.pages.dev
 # Cloudflare 비밀값(CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID)이 있으면 Cloudflare에,
-# 없으면 GitHub Pages(https://hansoos777.github.io/K/)에 올린다. 키 없이도 바로 쓸 수 있게.
+# GitHub Pages에는 항상 올린다:
+#   https://hansoos777.github.io/K/      ← 진짜 사이트(기본 브랜치)
+#   https://hansoos777.github.io/K/dev/  ← 개발 사이트(작업 브랜치, dev_ref)
+# 작업 브랜치에 올리면 dev-bugsmash.yml이 이 워크플로를 기본 브랜치에서 다시 돌려 개발 사이트를 새로 만든다
+# (GitHub Pages는 기본 브랜치에서만 배포를 받기 때문).
 name: Deploy 벌레 박살
 
 on:
@@ -11,6 +15,11 @@ on:
       - 'games/bugsmash/**'
       - '.github/workflows/deploy-bugsmash.yml'
   workflow_dispatch:
+    inputs:
+      dev_ref:
+        description: '개발 사이트(/dev/)에 올릴 브랜치'
+        required: false
+        default: 'ccr-1fb8d055-uckck8'
 
 concurrency:
   group: bugsmash-deploy
@@ -53,21 +62,37 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy games/bugsmash --project-name bugsmash --branch main --commit-dirty=true
 
-  # Cloudflare 키가 없을 때: GitHub Pages
+  # GitHub Pages: 진짜 사이트는 /K/, 개발 사이트는 /K/dev/
   pages:
     needs: deploy
-    if: needs.deploy.outputs.has_cf != 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.dep.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Check out dev branch
+        id: devsrc
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.dev_ref || 'ccr-1fb8d055-uckck8' }}
+          path: devsrc
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cp -r games/bugsmash/. _site/
+          if [ -d devsrc/games/bugsmash ]; then
+            mkdir -p _site/dev && cp -r devsrc/games/bugsmash/. _site/dev/
+            echo "::notice::개발 사이트: /dev/ ← $(git -C devsrc rev-parse --abbrev-ref HEAD) $(git -C devsrc rev-parse --short HEAD)"
+          else
+            echo "::warning::개발 브랜치를 찾지 못해 /dev/는 비워 둡니다."
+          fi
       - uses: actions/configure-pages@v5
         with:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: games/bugsmash
+          path: _site
       - id: dep
         uses: actions/deploy-pages@v4
