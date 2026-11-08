@@ -15,7 +15,7 @@ from pathlib import Path
 from fontTools import subset
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCES = list((ROOT / 'js').glob('*.js')) + [ROOT / 'index.html', ROOT / 'style.css', ROOT / 'manifest.webmanifest']
+SOURCES = list((ROOT / 'js').glob('*.js')) + [ROOT / 'index.html', ROOT / 'style.css', ROOT / 'manifest.webmanifest', ROOT / 'tools' / 'store.html']
 # 숫자·영문·문장부호는 늘 넣는다(점수, 콤보 등 코드에서 만들어지는 글자)
 EXTRA = ''.join(chr(c) for c in range(0x20, 0x7F)) + '♥♡★☆…·×→←「」『』~!?%+-'
 
