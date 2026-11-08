@@ -42,7 +42,8 @@ export default function MandirWorld({ place, tour }: WorldProps) {
   }
   const toss = import.meta.env.MODE === 'toss'
   const q = [cur.id === 'mandir' ? 'tab=mandir' : '', toss ? 'toss=1' : ''].filter(Boolean).join('&')
-  const src = `/hindu/${q ? `?${q}` : ''}`
+  // 토스 앱의 파일 서버는 폴더 주소(/hindu/)에 index.html을 자동으로 붙여 주지 않아 AccessDenied가 남 → 파일 이름까지 적음
+  const src = `/hindu/${toss ? 'index.html' : ''}${q ? `?${q}` : ''}`
   const s = step != null && step >= 0 ? steps[step] : null
   const fromPlaza = (() => { try { return sessionStorage.getItem('plazaFrom') === 'mandir' } catch { return false } })()
 
