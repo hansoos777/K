@@ -87,6 +87,8 @@ export function Space({ id, place, scene, tourMode }: { id: SpaceId; place?: str
   const fromPlaza = !isPlaza && (() => { try { return sessionStorage.getItem('plazaFrom') === id } catch { return false } })()
   const backTo = isPlaza ? '' : fromPlaza ? 'w/plaza/square' : `spaces/${id}`
   const markReturn = () => { if (fromPlaza) try { sessionStorage.setItem('plazaReturn', id) } catch { /* 무시 */ } }
+  // 토스 앱처럼 기기 뒤로 가기로 광장에 돌아가도 그 입구 앞에서 시작하게 미리 적어 둠
+  useEffect(() => { markReturn() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!toast) return

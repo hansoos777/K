@@ -746,10 +746,16 @@ export class Stage {
       const m = o as THREE.Mesh
       m.geometry?.dispose()
       const mats = Array.isArray(m.material) ? m.material : m.material ? [m.material] : []
-      mats.forEach((x) => x.dispose())
+      mats.forEach((x) => {
+        // 공간에서 직접 만든 텍스처(현판·바닥 무늬 등)도 함께 해제
+        for (const v of Object.values(x)) if (v instanceof THREE.Texture) v.dispose()
+        x.dispose()
+      })
     })
     disposeTextures()
     this.renderer.dispose()
+    // 그래픽 컨텍스트를 바로 돌려줌: 다음 화면(PujaTime 등)이 3D를 새로 만들 때 휴대폰 메모리가 겹치지 않게
+    this.renderer.forceContextLoss()
     el.remove()
   }
 }

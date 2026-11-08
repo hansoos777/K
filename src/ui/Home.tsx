@@ -51,7 +51,7 @@ export default function Home() {
   const topWorld = order[0]
   const [hw, hp] = HERO[cur]
   // 홈으로 오면 광장 입구 기록을 비움 (홈에서 바로 들어간 공간은 뒤로 가기가 원래대로)
-  useEffect(() => { try { sessionStorage.removeItem('plazaFrom') } catch { /* 무시 */ } }, [])
+  useEffect(() => { try { sessionStorage.removeItem('plazaFrom'); sessionStorage.removeItem('plazaReturn') } catch { /* 무시 */ } }, [])
 
   return (
     <div className="home5">

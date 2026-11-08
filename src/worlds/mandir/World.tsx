@@ -23,6 +23,14 @@ export default function MandirWorld({ place, tour }: WorldProps) {
   const [step, setStep] = useState<number | null>(tour || !done ? -1 : null)
   const steps = g.tour.filter((s) => !s.spot) // PujaTime 화면 위에서는 글로만 안내
 
+  // 앞 화면(광장 3D)이 메모리를 다 돌려준 다음에 PujaTime을 연다
+  const [frameOn, setFrameOn] = useState(false)
+  useEffect(() => {
+    try { if (sessionStorage.getItem('plazaFrom') === 'mandir') sessionStorage.setItem('plazaReturn', 'mandir') } catch { /* 무시 */ }
+    const h = setTimeout(() => setFrameOn(true), 250)
+    return () => clearTimeout(h)
+  }, [])
+
   useEffect(() => {
     recordVisit(`mandir/${cur.id}`)
     stopAll()
@@ -47,7 +55,7 @@ export default function MandirWorld({ place, tour }: WorldProps) {
           <a key={p.id} className={`pill ${p.id === cur.id ? 'on' : ''}`} href={href(`w/mandir/${p.id}`)} aria-current={p.id === cur.id ? 'page' : undefined}>{lang === 'en' ? p.en : p.ko}</a>
         ))}
       </header>
-      <iframe key={cur.id} className="embed-frame" src={src} title={lang === 'en' ? cur.en : cur.ko} allow="autoplay" />
+      {frameOn && <iframe key={cur.id} className="embed-frame" src={src} title={lang === 'en' ? cur.en : cur.ko} allow="autoplay" />}
       {step === -1 && (
         <div className="tour glass embed-tour">
           <p className="tour-k">{t.tourOffer}</p>
