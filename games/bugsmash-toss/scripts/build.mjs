@@ -4,6 +4,7 @@
 import { cpSync, rmSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { dirname, join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { build } from 'esbuild'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const src = join(here, '..', '..', 'bugsmash')
@@ -20,10 +21,18 @@ cpSync(src, out, {
   },
 })
 
+// 토스 리더보드 연결(src/bridge.js)을 파일 하나로 묶는다
+await build({
+  entryPoints: [join(here, '..', 'src', 'bridge.js')],
+  bundle: true, minify: true, format: 'iife', target: 'es2019',
+  outfile: join(out, 'js', 'toss-bridge.js'),
+  logLevel: 'warning',
+})
+
 const html = join(out, 'index.html')
 let s = readFileSync(html, 'utf8')
 s = s.replace('<link rel="manifest" href="manifest.webmanifest" />\n', '')
-s = s.replace('<script type="module" src="js/main.js"></script>', '<script>window.__TOSS__ = true</script>\n    <script type="module" src="js/main.js"></script>')
+s = s.replace('<script type="module" src="js/main.js"></script>', '<script>window.__TOSS__ = true</script>\n    <script src="js/toss-bridge.js"></script>\n    <script type="module" src="js/main.js"></script>')
 if (!s.includes('window.__TOSS__')) throw new Error('index.html에 토스 표시를 넣지 못했어요')
 writeFileSync(html, s)
 for (const f of ['manifest.webmanifest']) if (existsSync(join(out, f))) rmSync(join(out, f))

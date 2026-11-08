@@ -9,6 +9,7 @@
     "deploy": "ait deploy"
   },
   "devDependencies": {
-    "@apps-in-toss/web-framework": "3.9.0"
+    "@apps-in-toss/web-framework": "3.9.0",
+    "esbuild": "^0.24.2"
   }
 }

@@ -469,6 +469,17 @@ function finishChallenge() {
   $('#r-relief').style.setProperty('--v', relief + '%')
   $('#r-relief-v').textContent = relief + '%'
   sfx.fanfare()
+  // 토스 앱 안: 60초 도전 점수를 토스 게임센터 리더보드에 올린다
+  $('#r-rank').hidden = !canRank
+  const note = $('#r-ranked'); note.hidden = true
+  if (canRank && G.score > 0) {
+    note.hidden = false; note.textContent = '토스 랭킹에 점수를 올리는 중…'
+    tossGame.submit(G.score).then((code) => {
+      note.textContent = code === 'SUCCESS' ? '토스 랭킹에 점수를 올렸어요.'
+        : code === 'PROFILE_NOT_FOUND' ? '토스 게임 프로필이 있어야 랭킹에 올라가요. 순위 보기에서 만들 수 있어요.'
+          : '이번 점수는 랭킹에 올리지 못했어요.'
+    })
+  }
   setTimeout(() => show('s-result'), 500)
 }
 function stageClear() {
@@ -713,6 +724,11 @@ $('#b-install').addEventListener('click', async () => {
 })
 // 토스 앱 안(앱인토스)에서는 설치 안내·서비스 워커를 쓰지 않는다(토스가 앱을 관리한다)
 const TOSS = !!window.__TOSS__
+// 토스 게임센터 리더보드(토스 앱 안에서만, js/toss-bridge.js가 있을 때)
+const tossGame = window.__tossGame
+const canRank = (() => { try { return !!(tossGame && tossGame.canRank()) } catch { return false } })()
+$('#b-rank').hidden = !canRank
+for (const id of ['#b-rank', '#r-rank']) $(id).addEventListener('click', () => { sfx.click(); if (tossGame) tossGame.open() })
 const ios = !TOSS && /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone
 if (ios) $('#ios-hint').hidden = false
 if (!TOSS && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {

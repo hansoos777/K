@@ -90,6 +90,7 @@ export const MARKUP = `
 
     <div class="row">
       <button id="b-records" class="btn ghost" type="button">처치 기록</button>
+      <button id="b-rank" class="btn ghost" type="button" hidden>토스 순위</button>
       <button id="b-sound" class="btn ghost" type="button" aria-pressed="true">소리 켬</button>
       <button id="b-vibe" class="btn ghost" type="button" aria-pressed="true">진동 켬</button>
       <button id="b-install" class="btn" type="button" hidden>앱으로 설치</button>
@@ -201,8 +202,10 @@ export const MARKUP = `
       <div class="relief-top"><span>스트레스 해소</span><b id="r-relief-v">0%</b></div>
       <div class="bar" id="r-relief"><i></i></div>
     </div>
+    <p id="r-ranked" class="desc small" hidden></p>
     <div class="row">
       <button id="r-menu" class="btn ghost" type="button">메뉴로</button>
+      <button id="r-rank" class="btn ghost" type="button" hidden>순위 보기</button>
       <button id="r-again" class="btn big" type="button">다시 도전</button>
     </div>
   </div>
