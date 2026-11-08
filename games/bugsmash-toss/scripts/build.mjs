@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 const here = dirname(fileURLToPath(import.meta.url))
 const src = join(here, '..', '..', 'bugsmash')
 const out = join(here, '..', 'dist')
-const SKIP = new Set(['README.md', '_headers', 'sw.js', 'tools'])
+const SKIP = new Set(['README.md', '_headers', 'sw.js', 'tools', 'store'])
 
 rmSync(out, { recursive: true, force: true })
 cpSync(src, out, {
